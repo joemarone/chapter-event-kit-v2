@@ -1,180 +1,88 @@
 # Chapter Event Kit
 
-A parent-organizer tool for Alpha Anywhere Community Chapters. Pick a workshop, fill in a few details, and walk away with everything you need to run it: a Circle event page cover, parent-facing description, materials checklist, day-of run-of-show, and two video trailers (landscape + portrait).
+The Alpha Anywhere Chapter Event Kit — a parent-organizer tool for running workshops in Alpha Anywhere Community Chapters. Pick a workshop, fill in a few details, and walk away with everything you need: a Circle event cover, a parent-facing description, a materials checklist, a day-of run-of-show, and two video trailers.
 
-This repo is the production version deployed at **chapter-event-kit.vercel.app**.
-
----
-
-## The short version
-
-- **Edit workshop content?** → Open `content/workshops/<workshop>/workshop.md` in any text editor. Commit. Push.
-- **Add a new workshop?** → Duplicate a folder in `content/workshops/`, rename, edit the three `.md` files, drop 4 visuals in `visuals/`.
-- **Swap audio tracks?** → Drop new MP3s into `public/audio/` with the exact filenames listed there. Commit. Push.
-- **Deploy?** → Git push to `main`. Vercel auto-deploys.
-
----
-
-## Folder map
+## What's in this folder
 
 ```
-chapter-event-kit/
+.
+├── index.html              ← the entire app (HTML + inline React via Babel)
+├── assets/
+│   ├── fonts/              ← AF Sobremesa (display) + Be Vietnam Pro is loaded from Google
+│   ├── logos/              ← Alpha Anywhere brand mark
+│   └── sketches/           ← workshop trailer illustrations
 ├── content/
-│   └── workshops/                 ← One folder per workshop
+│   └── workshops/          ← per-workshop markdown (mastery, run-of-show, materials)
 │       ├── crazy-contraptions-club/
-│       │   ├── workshop.md        ← Title, ages, category, skills, Mastery rules
-│       │   ├── run-of-show.md     ← Minute-by-minute script for the organizer
-│       │   ├── materials.md       ← Shopping list
-│       │   └── visuals/           ← 4 illustrated frames
-│       │       ├── 01-intro.png       (1600×1000, hero / brand intro)
-│       │       ├── 02-step1.png       (1600×1000, "Build it")
-│       │       ├── 03-step2.png       (1600×1000, "Sketch it")
-│       │       └── 04-step3.png       (1600×1000, "Run it")
 │       ├── actions-speak-louder/
-│       ├── leaving-in-stitches/
+│       ├── alpha-entrepreneurs/
 │       ├── asi-alpha-science-investigators/
-│       └── alpha-entrepreneurs/
-│
-├── public/
-│   ├── audio/                     ← Drop your 3 MP3s here (see public/audio/README.md)
-│   │   ├── workshop.mp3           (warm, curious — for craft & writing)
-│   │   ├── build.mp3              (bouncy, playful — for STEM)
-│   │   └── showtime.mp3           (confident, stylish — for pitches)
-│   ├── brand/
-│   │   ├── alpha-mark.svg
-│   │   └── og-default.png
-│   └── fonts/                     ← AF Sobremesa + Be Vietnam Pro
-│
-├── app/                           ← Next.js App Router pages
-│   ├── layout.tsx
-│   ├── page.tsx                   ← The builder home / picker
-│   └── workshops/[slug]/page.tsx  ← Per-workshop detail + generated kit
-│
-├── components/                    ← React components (trailer, cover, picker, etc.)
-├── lib/
-│   ├── workshops.ts               ← Reads content/workshops at build time
-│   └── pdf.ts                     ← jsPDF helpers for printable outputs
-│
-├── package.json
-├── next.config.js
-└── tsconfig.json
+│       └── leaving-in-stitches/
+└── public/
+    ├── audio/              ← trailer soundtrack MP3s (drop-in spec in audio/README.md)
+    └── brand/              ← brand asset spec stub
 ```
 
----
+## How to run locally
 
-## Editing a workshop
+It's a static HTML file. No build step.
 
-Each workshop folder has **three markdown files**. Edit them in any text editor, VS Code, or directly on GitHub in the browser.
-
-### `workshop.md` — the source of truth
-
-```markdown
----
-title: Crazy Contraptions Club
-slug: crazy-contraptions-club
-oneLiner: Engineer a chain-reaction machine from everyday materials.
-category: Relationship Building + Socialization
-ages: "7-9"
-duration: 90
-groupSize: "8-12"
-skills:
-  - Critical Thinking
-  - Collaboration
-popular: true
----
-
-## Mastery — what every kid walks out able to do
-
-Workshops are a blast — and every kid walks out having actually done something. Below is the bar.
-
-1. Build a machine with at least four definable moving parts
-2. Touch only one part to start the entire chain reaction
-3. Predict out loud what will happen — and have it actually happen
-4. Diagnose one failure and fix it without help
+```
+open index.html
 ```
 
-The frontmatter (between `---`) drives the app. The body becomes the Mastery section on the workshop page and in the generated kit.
+Or, if you want a tiny local server (recommended — clipboard APIs and font loading work better):
 
-### `run-of-show.md` — minute-by-minute for the day
-
-Markdown headings become time blocks. Bullet points become checklist items. The app renders this as a printable PDF on demand.
-
-### `materials.md` — the shopping list
-
-Plain bullet list. Same deal — rendered as a printable PDF.
-
-### `visuals/` — 4 illustrated frames
-
-Follow the **Crazy Contraptions** aesthetic: pencil/ink-and-wash illustrations, same palette, same framing. Each workshop needs exactly 4 frames:
-
-| File | Used as | Treatment |
-| --- | --- | --- |
-| `01-intro.png` | Trailer slide 1 — "A workshop by parents, for kids" | Full-bleed, soft dark-blue overlay |
-| `02-step1.png` | Trailer slide 4 — the first thing kids do | Full-bleed, navy overlay at bottom |
-| `03-step2.png` | Trailer slide 5 — the middle | Full-bleed, navy overlay |
-| `04-step3.png` | Trailer slide 6 — the payoff | Full-bleed, navy overlay |
-
-**Specs:** 1600×1000 px, PNG, ~600 KB or less. Landscape. Portrait trailer uses the same files, recropped.
-
----
-
-## Audio tracks
-
-Drop three MP3s into `public/audio/`:
-
-- `workshop.mp3` — Warm, curious. For craft, writing, and slower-paced workshops. ~60 seconds, loopable.
-- `build.mp3` — Bouncy, playful. For STEM and hands-on making. ~60 seconds, loopable.
-- `showtime.mp3` — Confident, stylish. For entrepreneur and pitch workshops. ~60 seconds, loopable.
-
-**Specs:** MP3, 128-192 kbps, -14 LUFS (standard streaming loudness), royalty-free with chapter-use clearance.
-
-The app plays these under the trailer preview and mixes them into the downloaded `.mp4`.
-
-See `public/audio/README.md` for licensing notes.
-
----
-
-## Running locally
-
-```bash
-npm install
-npm run dev
+```
+npx serve .
 ```
 
-Open `http://localhost:3000`.
+Then open `http://localhost:3000`.
 
-## Deploying
+## How to deploy to Vercel
 
-```bash
-git push origin main
-```
+1. Push this folder to a GitHub repo.
+2. In Vercel, **Add New → Project**, import the repo.
+3. Framework preset: **Other** (or "No framework" — Vercel auto-detects static).
+4. Click **Deploy**. Done.
 
-Vercel auto-deploys from `main`. Check the deployment dashboard at vercel.com.
+No environment variables, no build command, no install step. Vercel serves `index.html` at the root.
 
-Environment variables: none required for v1. All content is filesystem-based.
+## How to edit content
 
----
+### Add a new workshop
 
-## Adding a new workshop
+Right now the workshop catalog is defined inside `index.html` (look for `window.WORKSHOPS = [...]` near the bottom of the file). To add a workshop:
 
-1. Duplicate an existing folder in `content/workshops/` and rename to your slug (`kebab-case`).
-2. Edit `workshop.md`, `run-of-show.md`, `materials.md`.
-3. Replace the 4 PNGs in `visuals/` with your own (same filenames).
-4. Commit and push. The new workshop appears automatically in the picker.
+1. Add a new entry to that array with `title`, `oneLiner`, `skills`, `ages`, `category`, `duration`, `cost`, `setup`, `popular`, `materials`, and `mastery`.
+2. (Optional but recommended) Create a folder under `content/workshops/<slug>/` with three files:
+   - `workshop.md` — frontmatter + mastery list
+   - `run-of-show.md` — minute-by-minute facilitator script
+   - `materials.md` — sourcing notes + checklist
+3. Drop 4 trailer illustrations in `assets/sketches/<slug>-1-intro.png` etc. (matching the existing naming pattern).
 
-The app reads the `content/workshops/` folder at build time — no hardcoded list anywhere.
+The markdown files in `content/workshops/` are not yet wired into the live UI — they're the source of truth that will feed a future "printable kit" feature. For now, the live UI reads from `window.WORKSHOPS` only.
 
----
+### Edit copy on existing screens
 
-## Removing a workshop
+All UI copy is in `index.html`. Search for the string and edit it.
 
-Delete its folder. Push. It's gone.
+## Workshops included
 
----
+- **Crazy Contraptions Club** (ages 7–9) — chain-reaction machine building
+- **Actions Speak Louder** (ages 9–11) — public speaking + storytelling
+- **Alpha Entrepreneurs** (ages 11–13) — pitch a business idea
+- **ASI: Alpha Science Investigators** (ages 13–15) — solve a forensic case
+- **Leaving in Stitches** (ages 5–9) — hand sewing fundamentals
 
-## License
+## What's not in this version (yet)
 
-Workshop content, illustrations, and brand assets: © 2Hour Learning. Internal use across Alpha Anywhere chapters only.
+- The 5 workshops live in the picker, but only **Crazy Contraptions Club** has finished trailer illustrations. The other four use placeholder layouts in the trailer scene.
+- Audio tracks are referenced but the MP3 files in `public/audio/` are stubs — see `public/audio/README.md` for specs.
+- The markdown content folders (`content/workshops/`) aren't yet read by the UI. Future work: a printable kit page per workshop.
 
-Audio: each track's licensing lives in `public/audio/README.md`.
-# chapter-event-kit-v2
+## Tech notes
+
+- **No build step.** Single HTML file, React + Babel loaded from CDN at page load. Babel transforms JSX in-browser. Acceptable for a chapter-internal tool; would precompile for high-traffic public production.
+- **Fonts:** AF Sobremesa is served locally from `assets/fonts/`. Be Vietnam Pro comes from Google Fonts.
+- **No backend.** Everything runs client-side. No data is stored or sent anywhere.

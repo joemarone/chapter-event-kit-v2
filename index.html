@@ -1,0 +1,3143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Alpha Anywhere — Chapter Workshop Builder</title>
+
+<style>
+/* ==========================================================================
+   Alpha Anywhere — Chapter Workshop Builder
+   Using the AA design system (AF Sobremesa display + Be Vietnam Pro body,
+   navy/blue, flat cards, pill buttons, generous space).
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
+
+@font-face { font-family: "AF Sobremesa"; font-weight: 400; font-style: normal; font-display: swap;
+  src: url("assets/fonts/AFSobremesa-Regular.woff2") format("woff2"); }
+@font-face { font-family: "AF Sobremesa"; font-weight: 500; font-style: normal; font-display: swap;
+  src: url("assets/fonts/AFSobremesa-Medium.woff2") format("woff2"); }
+@font-face { font-family: "AF Sobremesa"; font-weight: 600; font-style: normal; font-display: swap;
+  src: url("assets/fonts/AFSobremesa-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: "AF Sobremesa"; font-weight: 700; font-style: normal; font-display: swap;
+  src: url("assets/fonts/AFSobremesa-Bold.woff2") format("woff2"); }
+@font-face { font-family: "AF Sobremesa"; font-weight: 800; font-style: normal; font-display: swap;
+  src: url("assets/fonts/AFSobremesa-ExtraBold.woff2") format("woff2"); }
+@font-face { font-family: "AF Sobremesa"; font-weight: 900; font-style: normal; font-display: swap;
+  src: url("assets/fonts/AFSobremesa-Black.woff2") format("woff2"); }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* AA palette */
+  --aa-white:        #FAFAFA;
+  --aa-media-white:  #FFFFFF;
+  --aa-navy:         #072256;
+  --aa-blue:         #006FF9;
+  --aa-pink:         #CD1D80;
+  --aa-yellow:       #E59500;
+  --aa-green:        #2C8707;
+  --aa-dark-grey:    #8291AA;
+  --aa-med-grey:     #DADFE7;
+  --aa-light-grey:   #EEF0F3;
+  --aa-light-blue:   #E5F6FD;
+  --aa-light-pink:   #FBEBFF;
+  --aa-light-yellow: #FFF7E5;
+  --aa-light-green:  #EEFDE8;
+
+  /* Semantic */
+  --bg:            var(--aa-white);
+  --surface:       var(--aa-media-white);
+  --surface-muted: var(--aa-light-grey);
+  --fg:            var(--aa-navy);
+  --fg-muted:      var(--aa-dark-grey);
+  --fg-subtle:     #4C5E80;
+  --border:        var(--aa-light-grey);
+  --border-strong: var(--aa-med-grey);
+  --accent:        var(--aa-blue);
+
+  /* Type */
+  --font-display:  "AF Sobremesa", Arial, sans-serif;
+  --font-body:     "Be Vietnam Pro", Arial, sans-serif;
+
+  /* Radii */
+  --r-pill: 9999px;
+  --r-xl:   25px;
+  --r-lg:   20px;
+  --r-md:   12px;
+  --r-sm:   8px;
+
+  /* Shadows (navy-tinted) */
+  --shadow-xs: 0 1px 2px rgba(7,34,86,0.04);
+  --shadow-sm: 0 2px 6px rgba(7,34,86,0.05);
+  --shadow-md: 0 8px 24px rgba(7,34,86,0.08);
+  --shadow-lg: 0 16px 48px rgba(7,34,86,0.12);
+  --shadow-focus: 0 0 0 4px rgba(0,111,249,0.20);
+
+  --ease:    cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur:     200ms;
+  --dur-slow: 360ms;
+
+  --type-scale: 1;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: calc(16px * var(--type-scale));
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.01em;
+}
+
+::selection { background: var(--aa-blue); color: #fff; }
+
+/* ---------- Layout ---------- */
+.app {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 56px 48px 120px;
+}
+
+/* ---------- Masthead ---------- */
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 56px;
+}
+.masthead-brand { display: flex; align-items: center; gap: 16px; }
+.masthead-logo {
+  width: 44px; height: 44px; flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--aa-navy);
+  color: var(--aa-media-white);
+  display: grid; place-items: center;
+}
+.masthead-logo svg { width: 22px; height: 22px; }
+.masthead-words { display: flex; flex-direction: column; line-height: 1.1; gap: 2px; }
+.masthead-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: -0.005em;
+  color: var(--fg);
+}
+.masthead-sub {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--fg-muted);
+  font-weight: 400;
+}
+.masthead-edition {
+  text-align: right;
+  display: flex; flex-direction: column; gap: 2px;
+  font-size: 13px; color: var(--fg-muted);
+}
+.masthead-edition strong { color: var(--fg); font-weight: 600; }
+
+/* ---------- Progress ribbon ---------- */
+.progress {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 6px;
+  gap: 4px;
+  margin-bottom: 64px;
+}
+.progress-step {
+  background: transparent;
+  border: none;
+  font-family: var(--font-body);
+  text-align: left;
+  padding: 14px 16px;
+  cursor: pointer;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background var(--dur) var(--ease);
+}
+.progress-step:disabled { cursor: not-allowed; opacity: 0.45; }
+.progress-step:not(:disabled):hover { background: var(--surface-muted); }
+.progress-step-num {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+}
+.progress-step-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+  letter-spacing: 0;
+}
+.progress-step.active {
+  background: var(--aa-navy);
+}
+.progress-step.active .progress-step-num { color: rgba(255,255,255,0.65); }
+.progress-step.active .progress-step-label { color: #fff; }
+.progress-step.done .progress-step-num::after {
+  content: " ✓";
+  color: var(--aa-green);
+}
+.progress-step.active.done .progress-step-num::after { color: #9FE484; }
+
+/* ---------- Step frame ---------- */
+.step { animation: fadeUp 0.38s var(--ease); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.step-head { margin-bottom: 40px; max-width: 720px; }
+.step-eyebrow {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+.step-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: calc(64px * var(--type-scale));
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  color: var(--fg);
+  margin-bottom: 20px;
+  text-wrap: balance;
+}
+.step-title em {
+  font-style: normal;
+  color: var(--accent);
+}
+.step-lede {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--fg-subtle);
+  text-wrap: pretty;
+  max-width: 640px;
+}
+
+/* ---------- Step 1: Picker ---------- */
+.picker-tools {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 10px 12px 10px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  margin-bottom: 28px;
+}
+.picker-search {
+  display: flex; align-items: center; gap: 10px;
+  flex: 1; min-width: 240px;
+}
+.picker-search svg { color: var(--fg-muted); flex-shrink: 0; }
+.picker-search input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--fg);
+}
+.picker-search input::placeholder { color: var(--fg-muted); }
+.picker-filter {
+  background: transparent;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-subtle);
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+}
+.picker-filter:hover { background: var(--surface-muted); color: var(--fg); }
+.picker-filter.active {
+  background: var(--aa-navy);
+  color: #fff;
+}
+
+.picker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.workshop-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px 24px 20px;
+  text-align: left;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 190px;
+}
+.workshop-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.workshop-card.selected {
+  border-color: var(--aa-blue);
+  box-shadow: 0 0 0 2px var(--aa-blue), var(--shadow-md);
+}
+.wc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.wc-cat {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.wc-popular {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--aa-yellow);
+  background: var(--aa-light-yellow);
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+}
+.wc-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  text-wrap: balance;
+}
+.wc-liner {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--fg-subtle);
+  text-wrap: pretty;
+}
+.wc-meta {
+  display: flex;
+  gap: 18px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+.wc-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.wc-meta strong { color: var(--fg); font-weight: 600; }
+.wc-check {
+  position: absolute;
+  top: 18px; right: 18px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--aa-blue);
+  color: #fff;
+  display: grid; place-items: center;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all var(--dur) var(--ease);
+}
+.workshop-card.selected .wc-check { opacity: 1; transform: scale(1); }
+
+.picker-empty {
+  grid-column: 1 / -1;
+  padding: 48px;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 15px;
+}
+
+/* ---------- Forms ---------- */
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 600px;
+}
+.field { display: flex; flex-direction: column; gap: 10px; }
+.field-label {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.field-input, .field-select {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--fg);
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--border-strong);
+  padding: 8px 0 12px;
+  outline: none;
+  transition: border-color var(--dur) var(--ease);
+  letter-spacing: -0.015em;
+  width: 100%;
+}
+.field-input::placeholder { color: var(--fg-muted); font-weight: 400; }
+.field-input:focus, .field-select:focus {
+  border-bottom-color: var(--aa-blue);
+}
+.field-hint {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--fg-muted);
+  line-height: 1.5;
+}
+.field-label .opt {
+  font-family: var(--font-body);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--fg-muted);
+}
+
+.field-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 10px 18px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.chip small {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.chip:hover { border-color: var(--border-strong); }
+.chip.selected {
+  background: var(--aa-blue);
+  color: #fff;
+  border-color: var(--aa-blue);
+}
+.chip.selected small { color: rgba(255,255,255,0.75); }
+
+.affirm {
+  margin-top: 28px;
+  padding: 18px 22px;
+  background: var(--aa-light-blue);
+  border-radius: var(--r-md);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--fg);
+  line-height: 1.5;
+  max-width: 600px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: fadeUp 0.4s var(--ease);
+}
+.affirm-bullet {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--aa-blue);
+  color: #fff;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  margin-top: 1px;
+}
+
+/* ---------- Time split picker ---------- */
+.time-split { padding-top: 4px; }
+.time-split-row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.time-split-group { display: flex; flex-direction: column; gap: 8px; }
+.time-split-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.time-split-chips { display: flex; flex-wrap: wrap; gap: 4px; max-width: 360px; }
+.time-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+  min-width: 38px;
+  text-align: center;
+}
+.time-chip:hover { border-color: var(--border-strong); }
+.time-chip.selected {
+  background: var(--aa-blue);
+  color: #fff;
+  border-color: var(--aa-blue);
+}
+.time-clear {
+  margin-top: 12px;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0;
+}
+.time-clear:hover { color: var(--fg); }
+
+/* ---------- Nav ---------- */
+.step-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 72px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+.btn-ghost {
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+}
+.btn-ghost:hover { color: var(--fg); }
+.btn-primary {
+  background: var(--aa-blue);
+  color: #fff;
+  border: 1.5px solid var(--aa-blue);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 14px 32px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.005em;
+  transition: all var(--dur) var(--ease);
+}
+.btn-primary:hover:not(:disabled) {
+  background: transparent;
+  color: var(--aa-blue);
+}
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.btn-primary .arrow { transition: transform var(--dur) var(--ease); }
+.btn-primary:hover:not(:disabled) .arrow { transform: translateX(3px); }
+
+/* ---------- Step 5: Build ---------- */
+.build-wrap {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 40px;
+  align-items: start;
+}
+
+.summary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  position: sticky;
+  top: 32px;
+}
+.summary-head {
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--aa-navy);
+  color: #fff;
+}
+.summary-head-k {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 6px;
+}
+.summary-head-t {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: #fff;
+  line-height: 1.15;
+}
+.summary-body dl { padding: 10px 24px 20px; }
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-row dt { color: var(--fg-muted); font-weight: 400; flex-shrink: 0; }
+.summary-row dd { color: var(--fg); font-weight: 600; text-align: right; }
+
+.build-list { display: flex; flex-direction: column; gap: 14px; }
+.build-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: all var(--dur) var(--ease);
+}
+.build-item:hover { border-color: var(--border-strong); }
+.build-item.ready { border-color: var(--border); box-shadow: var(--shadow-sm); }
+
+.build-item-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+}
+.build-item-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--surface-muted);
+  color: var(--fg-muted);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  transition: all var(--dur-slow) var(--ease);
+}
+.build-item.ready .build-item-num {
+  background: var(--aa-green);
+  color: #fff;
+}
+.build-item-text { flex: 1; }
+.build-item-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.build-item-desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--fg-muted);
+  line-height: 1.4;
+}
+
+.build-btn {
+  background: var(--aa-blue);
+  color: #fff;
+  border: 1.5px solid var(--aa-blue);
+  border-radius: var(--r-pill);
+  padding: 9px 18px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--dur) var(--ease);
+  white-space: nowrap;
+}
+.build-btn:hover { background: transparent; color: var(--aa-blue); }
+.build-btn.outline {
+  background: transparent;
+  color: var(--fg);
+  border: 1.5px solid var(--border-strong);
+}
+.build-btn.outline:hover { border-color: var(--fg); background: var(--fg); color: #fff; }
+.build-btn.small { padding: 7px 14px; font-size: 12px; }
+.build-btn.disabled {
+  background: var(--surface-muted);
+  color: var(--fg-muted);
+  border-color: var(--surface-muted);
+  cursor: not-allowed;
+}
+
+/* Build item expanded preview */
+.build-item-preview {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--dur-slow) var(--ease);
+  background: var(--aa-white);
+}
+.build-item.ready .build-item-preview {
+  max-height: 1200px;
+  border-top: 1px solid var(--border);
+}
+.build-item-preview-inner { padding: 22px; }
+
+/* New pill */
+.new-pill {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aa-pink);
+  background: var(--aa-light-pink);
+  padding: 2px 7px;
+  border-radius: var(--r-sm);
+}
+
+/* Cover preview */
+.cover-thumb {
+  aspect-ratio: 1680 / 600;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: var(--aa-navy);
+  margin-bottom: 14px;
+}
+.cover-thumb svg { width: 100%; height: 100%; display: block; }
+.cover-templates {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.cover-template-btn {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+  text-align: center;
+}
+.cover-template-btn:hover { border-color: var(--border-strong); color: var(--fg); }
+.cover-template-btn.active {
+  background: var(--aa-navy);
+  color: #fff;
+  border-color: var(--aa-navy);
+}
+.cover-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Text preview (description, checklist, runofshow) */
+.text-preview {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 22px 24px;
+  margin-bottom: 14px;
+  max-height: 360px;
+  overflow-y: auto;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--fg);
+  line-height: 1.6;
+}
+.text-preview h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.015em;
+  margin-bottom: 8px;
+  color: var(--fg);
+}
+.text-preview h3 {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+.text-preview p { margin-bottom: 8px; color: var(--fg-subtle); }
+.text-preview p strong { color: var(--fg); font-weight: 600; }
+.text-preview hr { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+.text-preview table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 4px 0; }
+.text-preview td { padding: 6px 0; vertical-align: top; }
+.text-preview td:first-child { color: var(--fg-muted); width: 40%; }
+.text-preview td:last-child { color: var(--fg); font-weight: 500; }
+.text-preview ul { padding-left: 20px; margin: 4px 0; }
+.text-preview li { margin-bottom: 4px; color: var(--fg); }
+.text-preview ul li::marker { color: var(--aa-blue); }
+.text-preview ol { padding-left: 24px; margin: 4px 0; counter-reset: item; list-style: none; }
+.text-preview ol li {
+  counter-increment: item;
+  position: relative;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+.text-preview ol li::before {
+  content: counter(item, decimal-leading-zero);
+  position: absolute;
+  left: -28px;
+  top: 1px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.03em;
+}
+.text-preview .ros-time {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  margin-right: 8px;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   Trailer (video) — landscape + portrait
+   Scene rendered fully in CSS, placeholder link copy for external hosting.
+   ========================================================================== */
+
+.trailer-group { display: flex; flex-direction: column; gap: 20px; }
+
+.trailer-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+.trailer-block.landscape {
+  grid-template-columns: 240px 1fr;
+}
+.trailer-block.portrait {
+  grid-template-columns: 150px 1fr;
+}
+
+.trailer-thumb {
+  border-radius: var(--r-md);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  background: var(--aa-navy);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.trailer-thumb:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.trailer-thumb.l { aspect-ratio: 16 / 9; }
+.trailer-thumb.p { aspect-ratio: 9 / 16; }
+
+.trailer-thumb-play {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  background: rgba(7,34,86,0);
+  transition: background var(--dur) var(--ease);
+  z-index: 3;
+}
+.trailer-thumb:hover .trailer-thumb-play { background: rgba(7,34,86,0.22); }
+.trailer-thumb-play-btn {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.95);
+  color: var(--aa-navy);
+  display: grid; place-items: center;
+  box-shadow: 0 4px 12px rgba(7,34,86,0.3);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: all var(--dur) var(--ease);
+}
+.trailer-thumb:hover .trailer-thumb-play-btn { opacity: 1; transform: scale(1); }
+.trailer-thumb-dur {
+  position: absolute;
+  bottom: 10px; right: 10px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background: rgba(7,34,86,0.8);
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  z-index: 4;
+}
+.trailer-thumb-ratio {
+  position: absolute;
+  top: 10px; left: 10px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-transform: uppercase;
+  background: rgba(7,34,86,0.65);
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  z-index: 4;
+}
+.trailer-thumb-track {
+  position: absolute;
+  top: 10px; right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: var(--track-c, #006FF9);
+  padding: 4px 8px 4px 7px;
+  border-radius: 999px;
+  z-index: 4;
+  box-shadow: 0 2px 6px rgba(7,34,86,0.18);
+}
+
+/* Soundtrack picker */
+.soundtrack-picker {
+  background: linear-gradient(155deg, #FBFCFD 0%, #F2F5FA 100%);
+  border: 1px solid #E6EAF1;
+  border-radius: var(--r-md);
+  padding: 22px 24px;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.soundtrack-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.soundtrack-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  background: var(--aa-navy);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.soundtrack-text { flex: 1; min-width: 0; }
+.soundtrack-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--aa-navy);
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.soundtrack-desc {
+  font-size: 13px;
+  color: #4C5E80;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.soundtrack-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 980px) { .soundtrack-options { grid-template-columns: repeat(2, 1fr); } }
+.soundtrack-opt {
+  appearance: none;
+  text-align: left;
+  background: #fff;
+  border: 1.5px solid #E1E6EE;
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 120ms, transform 120ms, box-shadow 120ms;
+  font-family: inherit;
+}
+.soundtrack-opt:hover { border-color: var(--track-c, #006FF9); transform: translateY(-1px); }
+.soundtrack-opt.on {
+  border-color: var(--track-c, #006FF9);
+  border-width: 2px;
+  padding: 11px 13px;
+  box-shadow: 0 6px 16px -10px var(--track-c, #006FF9);
+  background: linear-gradient(180deg, #fff 0%, #FAFCFF 100%);
+}
+.soundtrack-opt-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.soundtrack-opt-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--aa-navy);
+  letter-spacing: -0.01em;
+}
+.soundtrack-opt-bpm {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--track-c, #8291AA);
+  text-transform: uppercase;
+}
+.soundtrack-opt-mood {
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: #4C5E80;
+  text-wrap: pretty;
+  min-height: 32px;
+}
+.soundtrack-wave {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+  gap: 1.5px;
+  margin: 2px 0;
+}
+.soundtrack-wave span {
+  flex: 1;
+  background: var(--track-c, #C8D0DD);
+  border-radius: 1px;
+  opacity: 0.55;
+  min-width: 2px;
+}
+.soundtrack-opt.on .soundtrack-wave span { opacity: 1; }
+.soundtrack-opt-foot {
+  border-top: 1px dashed #EBEEF3;
+  padding-top: 8px;
+  margin-top: 2px;
+}
+.soundtrack-pick {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8291AA;
+}
+.soundtrack-on-pill {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--track-c, #006FF9);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.soundtrack-note {
+  font-size: 11.5px;
+  color: #6B7B95;
+  line-height: 1.45;
+  border-top: 1px dashed #E1E6EE;
+  padding-top: 12px;
+}
+
+.trailer-body { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.trailer-kicker {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.trailer-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.trailer-purpose {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--fg-subtle);
+  line-height: 1.5;
+}
+.trailer-url {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--aa-white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 12px;
+  color: var(--fg-subtle);
+  overflow: hidden;
+}
+.trailer-url-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  flex-shrink: 0;
+}
+.trailer-url-val {
+  color: var(--aa-blue);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.trailer-url-copy {
+  background: transparent;
+  border: none;
+  color: var(--fg-muted);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--r-sm);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.trailer-url-copy:hover { color: var(--aa-blue); background: var(--aa-light-blue); }
+
+.trailer-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Circle usage callout */
+.circle-howto {
+  background: var(--aa-light-blue);
+  border-radius: var(--r-md);
+  padding: 18px 20px;
+  margin-top: 6px;
+}
+.circle-howto-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aa-navy);
+}
+.circle-howto-head .circle-dot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--aa-navy);
+  color: #fff;
+  display: grid; place-items: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 10px;
+}
+.circle-howto ol {
+  padding-left: 22px;
+  margin: 0;
+  counter-reset: cl;
+  list-style: none;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--fg);
+}
+.circle-howto ol li {
+  counter-increment: cl;
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 8px;
+}
+.circle-howto ol li::before {
+  content: counter(cl);
+  position: absolute;
+  left: -22px; top: 0;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--aa-navy);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  display: grid; place-items: center;
+}
+.circle-howto ol li:last-child { margin-bottom: 0; }
+.circle-howto code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 12.5px;
+  color: var(--aa-navy);
+  background: rgba(255,255,255,0.65);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   Trailer scene — inline CSS vignette shown in thumbs + modal.
+   Full AA-brand: navy + white + blue, AF Sobremesa display, animated slides.
+   ========================================================================== */
+
+.trailer-scene {
+  position: absolute;
+  inset: 0;
+  background: var(--aa-white);
+  overflow: hidden;
+  font-family: var(--font-display);
+  color: var(--aa-navy);
+  z-index: 1;
+}
+.trailer-scene .tr-frame {
+  position: absolute;
+  inset: 8%;
+  border: 1.5px solid rgba(7,34,86,0.12);
+  border-radius: 10px;
+  pointer-events: none;
+}
+.trailer-scene .tr-corner {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--aa-blue);
+  text-transform: uppercase;
+  z-index: 2;
+}
+.trailer-scene .tr-corner.tl { top: 4%; left: 5%; }
+.trailer-scene .tr-corner.tr { top: 4%; right: 5%; color: var(--aa-navy); opacity: 0.55; }
+.trailer-scene .tr-corner.bl { bottom: 4%; left: 5%; color: var(--aa-navy); opacity: 0.55; }
+.trailer-scene .tr-corner.br { bottom: 4%; right: 5%; }
+.trailer-scene .tr-logo {
+  position: absolute;
+  top: 4%; left: 5%;
+  width: 1.4em; height: 1.4em;
+  border-radius: 50%;
+  background: var(--aa-navy);
+  color: #fff;
+  display: grid; place-items: center;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.75em;
+  z-index: 2;
+}
+
+.tr-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.tr-slide-inner {
+  position: absolute;
+  inset: 12% 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+}
+.tr-slide-inner.center { align-items: center; text-align: center; }
+.tr-slide .tr-kicker {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--aa-blue);
+  margin-bottom: 0.8em;
+}
+.tr-slide .tr-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 3.2em;
+  line-height: 1.0;
+  letter-spacing: -0.025em;
+  color: var(--aa-navy);
+  text-wrap: balance;
+}
+.tr-slide .tr-title em {
+  font-style: normal;
+  color: var(--aa-blue);
+}
+.tr-slide .tr-sub {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1.3em;
+  line-height: 1.35;
+  color: #4C5E80;
+  margin-top: 0.6em;
+  text-wrap: pretty;
+}
+.tr-slide .tr-rule {
+  width: 2.5em;
+  height: 2px;
+  background: var(--aa-blue);
+  margin: 0.8em 0;
+}
+.tr-slide-inner.center .tr-rule { margin: 0.8em auto; }
+.tr-slide .tr-meta {
+  font-family: var(--font-display);
+  font-size: 0.85em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--aa-navy);
+  text-transform: uppercase;
+  margin-top: 1.2em;
+  opacity: 0.7;
+}
+
+.tr-stat-row { display: flex; gap: 8%; align-items: flex-start; width: 100%; justify-content: center; }
+.tr-stat { display: flex; flex-direction: column; align-items: center; gap: 0.6em; }
+.tr-stat-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.85em;
+  letter-spacing: 0.08em;
+  color: var(--aa-blue);
+  text-transform: uppercase;
+}
+.tr-stat-dash { width: 1.6em; height: 1.5px; background: var(--aa-navy); opacity: 0.3; }
+.tr-stat-value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.6em;
+  letter-spacing: -0.02em;
+  color: var(--aa-navy);
+  line-height: 1;
+}
+
+.tr-skill {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.2em;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--aa-navy);
+}
+.tr-skill.alt { color: var(--aa-blue); }
+
+/* ----- Mastery (cornerstone) slide ----- */
+.tr-slide-inner.mastery {
+  align-items: flex-start;
+  text-align: left;
+  background: linear-gradient(155deg, #FBFBFC 0%, #EEF3FB 100%);
+  inset: 0;
+  padding: 7% 7% 6%;
+  justify-content: space-between;
+  gap: 0.6em;
+}
+.tr-mastery-badge {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--aa-navy);
+  padding: 0.5em 1em;
+  border-radius: 999px;
+}
+.tr-mastery-headline {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.4em;
+  line-height: 1.0;
+  letter-spacing: -0.025em;
+  color: var(--aa-navy);
+  text-wrap: balance;
+  margin: 0.4em 0 0;
+}
+.tr-mastery-headline em {
+  font-style: normal;
+  color: var(--aa-blue);
+}
+.tr-mastery-list {
+  list-style: none;
+  margin: 0.2em 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55em;
+}
+.tr-mastery-item {
+  display: flex;
+  gap: 0.9em;
+  align-items: baseline;
+  background: #fff;
+  border-left: 3px solid var(--aa-blue);
+  padding: 0.7em 1em;
+  border-radius: 4px;
+  box-shadow: 0 3px 10px -7px rgba(7,34,86,0.20);
+}
+.tr-mastery-bullet {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.9em;
+  letter-spacing: 0.04em;
+  color: var(--aa-blue);
+  flex: 0 0 auto;
+  line-height: 1;
+}
+.tr-mastery-text {
+  font-family: var(--font-body);
+  font-size: 0.95em;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--aa-navy);
+  text-wrap: pretty;
+}
+.tr-mastery-foot {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1em;
+  letter-spacing: 0.01em;
+  color: var(--aa-navy);
+  border-top: 1px solid rgba(7,34,86,0.12);
+  padding-top: 1em;
+  width: 100%;
+}
+
+/* Portrait tweaks */
+.trailer-thumb.p .tr-mastery-headline,
+.video-modal-stage.portrait .tr-mastery-headline {
+  font-size: 2.4em;
+}
+.trailer-thumb.p .tr-mastery-text,
+.video-modal-stage.portrait .tr-mastery-text {
+  font-size: 0.85em;
+}
+
+.tr-cta-pill {
+  display: inline-block;
+  background: var(--aa-blue);
+  color: #fff;
+  padding: 0.6em 1.6em;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 1em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin-top: 1em;
+}
+
+/* Loop animation — per-slide @keyframes injected inline by TrailerScene */
+
+/* ----- Illustrated trailer slides (Crazy Contraptions Club) ----- */
+.tr-slide-inner.illus {
+  inset: 0;
+  padding: 0;
+  display: block;
+}
+.tr-illus-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 1;
+}
+.tr-illus-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(7,34,86,0.10) 0%, rgba(7,34,86,0.10) 35%, rgba(7,34,86,0.78) 70%, rgba(7,34,86,0.97) 100%);
+  pointer-events: none;
+}
+.tr-illus-content {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 8%;
+  z-index: 3;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+.tr-illus-step {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6FA8FF;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+}
+.tr-illus-step-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.3em;
+  color: #fff;
+  letter-spacing: 0;
+}
+.tr-illus-headline {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.6em;
+  letter-spacing: -0.02em;
+  line-height: 1.0;
+  color: #fff;
+  text-wrap: balance;
+  text-shadow: 0 2px 12px rgba(7,34,86,0.55);
+}
+.tr-illus-headline em { font-style: normal; color: #6FA8FF; }
+.tr-illus-sub {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 1.1em;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.95);
+  max-width: 90%;
+  text-shadow: 0 1px 8px rgba(7,34,86,0.55);
+}
+.tr-illus-step {
+  text-shadow: 0 1px 6px rgba(7,34,86,0.55);
+}
+
+/* Portrait variant — text rides higher, art fills the bottom 60% */
+.trailer-thumb.p .tr-slide-inner.illus .tr-illus-content,
+.video-modal-stage.portrait .tr-slide-inner.illus .tr-illus-content {
+  bottom: auto;
+  top: 8%;
+  text-align: left;
+}
+.trailer-thumb.p .tr-slide-inner.illus .tr-illus-overlay,
+.video-modal-stage.portrait .tr-slide-inner.illus .tr-illus-overlay {
+  background: linear-gradient(180deg, rgba(7,34,86,0.92) 0%, rgba(7,34,86,0.65) 25%, rgba(7,34,86,0) 50%, rgba(7,34,86,0) 100%);
+}
+.trailer-thumb.p .tr-slide-inner.illus .tr-illus-img,
+.video-modal-stage.portrait .tr-slide-inner.illus .tr-illus-img {
+  object-position: center bottom;
+}
+
+/* Intro slide (sketch hero) */
+.tr-slide-inner.illus.hero .tr-illus-overlay {
+  background: linear-gradient(180deg, rgba(7,34,86,0.65) 0%, rgba(7,34,86,0.25) 30%, rgba(7,34,86,0.25) 60%, rgba(7,34,86,0.92) 100%);
+}
+
+/* Video modal */
+.video-modal {
+  position: fixed; inset: 0;
+  background: rgba(7,34,86,0.82);
+  display: grid; place-items: center;
+  z-index: 400;
+  padding: 40px;
+  animation: modalFade 0.25s var(--ease);
+  backdrop-filter: blur(8px);
+}
+@keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
+.video-modal-stage {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.5);
+  font-size: 1vmin;
+  background: var(--aa-white);
+}
+.video-modal-stage.landscape {
+  width: min(1100px, 92vw);
+  aspect-ratio: 16 / 9;
+}
+.video-modal-stage.portrait {
+  width: min(420px, 90vmin);
+  aspect-ratio: 9 / 16;
+}
+.video-modal-stage .trailer-scene { font-size: clamp(10px, 1.5vmin, 18px); }
+.video-modal-close {
+  position: absolute;
+  top: -44px; right: 0;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.85);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.video-modal-close:hover { color: #fff; }
+.video-modal-footer {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: -48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.02em;
+}
+.video-modal-footer strong {
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Modal-only scene sizing */
+.video-modal-stage.landscape .trailer-scene { font-size: clamp(12px, 1.8vmin, 20px); }
+.video-modal-stage.portrait .trailer-scene { font-size: clamp(10px, 1.6vmin, 16px); }
+
+/* Thumbnail scene sizing */
+.trailer-thumb.l .trailer-scene { font-size: clamp(4px, 1vw, 7px); }
+.trailer-thumb.p .trailer-scene { font-size: clamp(4px, 1.2vw, 7px); }
+
+/* ---------- Final success ---------- */
+.finale {
+  text-align: center;
+  padding: 56px 32px;
+  background: var(--aa-navy);
+  color: #fff;
+  border-radius: var(--r-xl);
+  margin-top: 40px;
+  animation: fadeUp 0.5s var(--ease);
+}
+.finale-mark {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--aa-blue);
+  color: #fff;
+  display: grid; place-items: center;
+  margin: 0 auto 18px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 22px;
+}
+.finale-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 40px;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 10px;
+  line-height: 1.05;
+}
+.finale-title em { font-style: normal; color: #6FA8FF; }
+.finale-sub {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: rgba(255,255,255,0.75);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ---------- Tweaks Panel ---------- */
+.tweaks-panel {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  width: 280px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 18px 20px 20px;
+  z-index: 200;
+  font-family: var(--font-body);
+  animation: fadeUp 0.3s var(--ease);
+}
+.tweaks-panel h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  margin-bottom: 14px;
+  color: var(--fg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tweaks-panel h4 small {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--aa-light-blue);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.tweak-group { margin-bottom: 14px; }
+.tweak-group:last-child { margin-bottom: 0; }
+.tweak-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: 8px;
+}
+.tweak-opts { display: flex; gap: 6px; flex-wrap: wrap; }
+.tweak-opt {
+  flex: 1;
+  min-width: 56px;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 7px 4px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fg-subtle);
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--dur) var(--ease);
+}
+.tweak-opt:hover { border-color: var(--border-strong); color: var(--fg); }
+.tweak-opt.active {
+  background: var(--aa-navy);
+  color: #fff;
+  border-color: var(--aa-navy);
+}
+
+/* ---------- Toast ---------- */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--aa-navy);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  z-index: 500;
+  animation: toastIn 0.3s var(--ease);
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ---------- Footer ---------- */
+.app-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 80px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+  .app { padding: 32px 24px 100px; }
+  .step-title { font-size: 44px !important; }
+  .picker-grid { grid-template-columns: 1fr; }
+  .build-wrap { grid-template-columns: 1fr; }
+  .summary { position: static; }
+  .progress-step-label { font-size: 12px; }
+  .trailer-block.landscape, .trailer-block.portrait { grid-template-columns: 1fr; }
+}
+
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+window.TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "typeScale": "S"
+}/*EDITMODE-END*/;
+</script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script>
+window.WORKSHOPS = [
+  { title: "Actions Speak Louder", oneLiner: "Build confidence through storytelling and public speaking challenges that get kids on their feet and thinking fast.", skills: ["Public Speaking","Storytelling"], ages: "9-11", category: "Storytelling + Public Speaking", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Index cards (1 pack)","Sharpies (assorted)","A soft ball or beanbag","Timer or phone","Masking tape"], mastery: ["Deliver a 60-second story with a clear beginning, middle, and end — no filler words","Hold eye contact with at least three audience members","Recover from one deliberate interruption without losing the thread","Take a question from the audience and answer it on the spot"] },
+  { title: "Adventure Awaits", oneLiner: "Young writers create their own adventure stories, making creative choices that bring characters and worlds to life.", skills: ["Creative Writing"], ages: "5-7", category: "Storytelling + Public Speaking", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Blank notebooks (1 per kid)","Colored pencils","Story prompt cards","Stickers for chapter markers"], mastery: ["Write a story with a named hero and a clear problem to solve","Include at least one decision the hero makes that changes the outcome","Read it aloud to the group from start to finish","Answer 'what happens next?' for one classmate's story"] },
+  { title: "Alpha Entrepreneurs", oneLiner: "Teams pitch a business idea from concept to presentation, learning budgeting, branding, and persuasion along the way.", skills: ["Personal Finance","Brand Building"], ages: "11-13", category: "Entrepreneurship + Financial Literacy", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Poster board (1 per team)","Sharpies","Play money set","Sticky notes","Clipboards"], mastery: ["Define a real customer and the specific problem you solve for them","Set a price and justify it against costs (not vibes)","Pitch the business in 90 seconds without notes","Take one hard question from a 'judge' and answer it directly"] },
+  { title: "AlphaNet", oneLiner: "Explore the basics of computer science through hands-on coding puzzles and logic challenges.", skills: ["Computer Science","Logic"], ages: "13-15", category: "Grit + Hard Work", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Printed puzzle packets","Pencils","Graph paper","Optional: laptops if available"], mastery: ["Solve a puzzle that requires at least one loop and one conditional","Trace the algorithm step-by-step and explain what each step does","Spot the bug in a teammate's solution and propose a fix","Write your own variation of one puzzle for the next group to try"] },
+  { title: "ASI: Alpha Science Investigators", oneLiner: "Play forensic detective, analyze evidence, build a case, and present your findings to solve the mystery.", skills: ["Critical Thinking"], ages: "13-15", category: "Teamwork + Leadership", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Magnifying glasses","Evidence bags (ziplocs)","Fingerprint ink pad","Printed case files","Gloves (latex-free)"], mastery: ["Form a hypothesis based on at least three pieces of evidence","Identify which evidence supports it and which contradicts it","Present the case to the group with a clear chain of reasoning","Concede a point when challenged with stronger evidence"] },
+  { title: "Crazy Contraptions Club", oneLiner: "Engineer a chain-reaction machine from everyday materials, combining physics, creativity, and teamwork.", skills: ["Critical Thinking","Collaboration"], ages: "7-9", category: "Relationship Building + Socialization", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Cardboard tubes (lots)","Marbles","Masking tape","Rubber bands","Dominos","String"], mastery: ["Build a machine with at least four definable moving parts","Touch only one part to start the entire chain reaction","Predict out loud what will happen — and have it actually happen","Diagnose one failure and fix it without help"] },
+  { title: "Deck Dynasty", oneLiner: "Design a brand identity from logo to pitch deck, learning how great companies tell their story visually.", skills: ["Brand Building","Design"], ages: "13-15", category: "Entrepreneurship + Financial Literacy", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Sketch pads","Sharpies (fine + thick)","Color swatch cards","Magazines for moodboards","Glue sticks"], mastery: ["Design a logo, color palette, and tagline that all reinforce one core idea","Defend three design choices using the brand's audience as the reason","Present a five-slide deck with no slide repeating the same point","Take design feedback without defending — then revise one element"] },
+  { title: "Every Day I'm Calculatin'", oneLiner: "Teams tackle real-world math problems using creative strategies, then present and defend their solutions.", skills: ["Math","Collaboration"], ages: "9-11", category: "Teamwork + Leadership", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Printed problem sets","Whiteboards (small, 1 per team)","Dry erase markers","Calculators"], mastery: ["Solve a real-world problem using at least two different strategies","Explain each step of your reasoning so a younger kid could follow it","Catch and correct one error in your own work — out loud","Defend your answer when a teammate proposes a different one"] },
+  { title: "Experimentation Station", oneLiner: "Kids design and run their own science experiments, learning to form hypotheses, test ideas, and draw real conclusions.", skills: ["Scientific Method","Writing"], ages: "13-15", category: "Grit + Hard Work", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Lab notebooks","Baking soda + vinegar","Food coloring","Measuring cups","Safety goggles","Paper towels"], mastery: ["Write a hypothesis with one clear independent variable","Run the experiment with controls — and document each step","State whether the hypothesis was supported, refuted, or unclear","Propose the next experiment that would sharpen the answer"] },
+  { title: "Leaving in Stitches", oneLiner: "Learn the basics of hand sewing by creating a real project from scratch, building patience and fine motor skills.", skills: ["Be An Expert","Fine Motor"], ages: "5-7, 7-9", category: "Relationship Building + Socialization", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Felt squares (assorted colors)","Embroidery thread","Blunt-tip needles","Scissors (kid-safe)","Stuffing/cotton","Buttons"], mastery: ["Thread a needle and tie a starting knot without help","Sew a straight seam of at least 10 stitches with consistent spacing","Finish a real, functional object you can take home and use","Teach the running stitch to one classmate who's stuck"] }
+];
+</script>
+
+<script type="text/babel">
+/* global React */
+const { useState, useMemo, useEffect } = React;
+
+// ============== FORMATTERS ==============
+function formatDate(dateStr, timeStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T12:00:00');
+  let formatted = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  if (timeStr) {
+    const [h, m] = timeStr.split(':');
+    const hour = parseInt(h);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const h12 = hour % 12 || 12;
+    formatted += ` · ${h12}:${m} ${ampm}`;
+  }
+  return formatted;
+}
+
+// slug helper for example URLs
+function slugify(s) {
+  return (s || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .substring(0, 48);
+}
+
+function makeTrailerUrls(ctx) {
+  const slug = slugify(ctx.title) || 'workshop';
+  const chap = ctx.chapter ? slugify(ctx.chapter) : 'chapter';
+  return {
+    landscape: `https://trailers.alphaanywhere.com/${chap}/${slug}-16x9.mp4`,
+    portrait:  `https://trailers.alphaanywhere.com/${chap}/${slug}-9x16.mp4`,
+  };
+}
+
+// ============== COVER TEMPLATES (SVG) ==============
+// All are 1680x600 viewBox, re-skinned to AA brand.
+
+// Word-wrap helper for SVG text — splits a string into lines no longer than maxChars.
+function wrapText(text, maxChars) {
+  const words = (text || '').split(/\s+/);
+  const lines = [];
+  let cur = '';
+  for (const w of words) {
+    if (!cur) { cur = w; continue; }
+    if ((cur + ' ' + w).length <= maxChars) cur += ' ' + w;
+    else { lines.push(cur); cur = w; }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+function CoverEditorial({ ctx }) {
+  const { title, subtitle, skills, ages, duration, groupSize, chapter, date } = ctx;
+  return (
+    <svg viewBox="0 0 1680 600" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1680" height="600" fill="#FAFAFA"/>
+
+      {/* Left masthead */}
+      <g transform="translate(72, 60)">
+        <circle cx="22" cy="22" r="22" fill="#072256"/>
+        <text x="22" y="28" fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="22" fontWeight="900" fill="#FFFFFF" textAnchor="middle">A</text>
+        <text x="58" y="18" fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="15" fontWeight="700" fill="#072256">Alpha Anywhere</text>
+        <text x="58" y="36" fontFamily="Be Vietnam Pro, Arial, sans-serif" fontSize="13" fontWeight="400" fill="#8291AA">Community Chapters</text>
+      </g>
+
+      {/* Edition */}
+      <g transform="translate(1608, 74)">
+        <text x="0" y="0" fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9" textAnchor="end">{date ? date.split(' · ')[0].toUpperCase() : 'DATE · TBD'}</text>
+        {chapter && <text x="0" y="20" fontFamily="Be Vietnam Pro, Arial, sans-serif" fontSize="13" fontWeight="500" fill="#072256" textAnchor="end">{chapter}</text>}
+      </g>
+
+      {/* Main title block */}
+      <g transform="translate(72, 200)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="110" letterSpacing="-4" fill="#072256">
+          <tspan x="0" y="0">{title.length > 28 ? title.substring(0, 28).trim() : title}</tspan>
+        </text>
+        {title.length > 28 && (
+          <text x="0" y="110" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="84" letterSpacing="-3" fill="#006FF9">{title.substring(28).trim()}</text>
+        )}
+      </g>
+
+      {/* Subtitle */}
+      <g transform="translate(72, 350)">
+        <text fontFamily="Be Vietnam Pro, Arial, sans-serif" fontWeight="400" fontSize="22" fill="#4C5E80">
+          {wrapText(subtitle, 78).slice(0, 3).map((ln, i) => (
+            <tspan key={i} x="0" dy={i === 0 ? 0 : 28}>{ln}</tspan>
+          ))}
+        </text>
+      </g>
+
+      {/* Bottom meta rail */}
+      <line x1="72" y1="470" x2="1608" y2="470" stroke="#EEF0F3" strokeWidth="1"/>
+      <g transform="translate(72, 510)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">AGES</text>
+        <text x="0" y="30" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="24" fill="#072256">{ages}</text>
+      </g>
+      <g transform="translate(280, 510)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">DURATION</text>
+        <text x="0" y="30" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="24" fill="#072256">{duration} min</text>
+      </g>
+      <g transform="translate(520, 510)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">GROUP</text>
+        <text x="0" y="30" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="24" fill="#072256">{groupSize} kids</text>
+      </g>
+      <g transform="translate(760, 510)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">SKILLS</text>
+        <text x="0" y="30" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="22" fill="#072256">{skills.slice(0, 2).join(' · ')}</text>
+      </g>
+      <g transform="translate(1608, 510)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="18" fill="#072256" textAnchor="end">Alpha Anywhere</text>
+        <text x="0" y="22" fontFamily="Be Vietnam Pro, Arial, sans-serif" fontSize="12" fontWeight="400" fill="#8291AA" textAnchor="end">No. {String(Math.abs(title.length * 7 % 99)).padStart(2,'0')} · Chapter Kit</text>
+      </g>
+    </svg>
+  );
+}
+
+function CoverPoster({ ctx }) {
+  const { title, subtitle, skills, ages, duration, groupSize, chapter, date } = ctx;
+  const words = title.split(' ');
+  let line1 = title, line2 = '';
+  if (title.length > 18) {
+    let i = Math.floor(words.length / 2);
+    line1 = words.slice(0, i).join(' ');
+    line2 = words.slice(i).join(' ');
+  }
+  return (
+    <svg viewBox="0 0 1680 600" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1680" height="600" fill="#072256"/>
+
+      {/* Concentric arcs - decorative */}
+      <g opacity="0.14">
+        <circle cx="1480" cy="300" r="180" fill="none" stroke="#FFFFFF" strokeWidth="1.5"/>
+        <circle cx="1480" cy="300" r="240" fill="none" stroke="#FFFFFF" strokeWidth="1.5"/>
+        <circle cx="1480" cy="300" r="300" fill="none" stroke="#FFFFFF" strokeWidth="1.5"/>
+        <circle cx="1480" cy="300" r="360" fill="none" stroke="#FFFFFF" strokeWidth="1.5"/>
+      </g>
+
+      {/* Top strip */}
+      <g transform="translate(72, 60)">
+        <circle cx="22" cy="22" r="22" fill="#006FF9"/>
+        <text x="22" y="28" fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="22" fontWeight="900" fill="#FFFFFF" textAnchor="middle">A</text>
+        <text x="58" y="28" fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="15" fontWeight="700" fill="#FFFFFF">Alpha Anywhere</text>
+        <text x="1536" y="28" fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="12" fontWeight="600" letterSpacing="2" fill="#FFFFFF" opacity="0.75" textAnchor="end">{chapter ? chapter.toUpperCase() : 'CHAPTER WORKSHOP'}</text>
+      </g>
+      <line x1="72" y1="120" x2="1608" y2="120" stroke="#FFFFFF" strokeWidth="1" opacity="0.15"/>
+
+      {/* Eyebrow */}
+      <g transform="translate(72, 180)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="14" fontWeight="600" letterSpacing="2" fill="#6FA8FF">WORKSHOP</text>
+      </g>
+
+      {/* Headline */}
+      <g transform="translate(72, 240)">
+        {line2 ? (
+          <>
+            <text fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="110" letterSpacing="-5" fill="#FFFFFF">{line1}</text>
+            <text y="110" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="110" letterSpacing="-5" fill="#6FA8FF">{line2}.</text>
+          </>
+        ) : (
+          <text fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="130" letterSpacing="-6" fill="#FFFFFF">{title}<tspan fill="#6FA8FF">.</tspan></text>
+        )}
+      </g>
+
+      {/* Bottom info row */}
+      <g transform="translate(72, 540)">
+        <text fontFamily="Be Vietnam Pro, Arial, sans-serif" fontWeight="400" fontSize="20" fill="#FFFFFF" opacity="0.9">
+          {date ? date.split(' · ')[0] : 'Coming soon'} — {duration} min — Ages {ages}
+        </text>
+      </g>
+      <g transform="translate(1608, 540)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="12" fontWeight="600" letterSpacing="2" fill="#FFFFFF" opacity="0.7" textAnchor="end">{groupSize.toUpperCase()} KIDS · {skills[0] ? skills[0].toUpperCase() : ''}</text>
+      </g>
+    </svg>
+  );
+}
+
+function CoverSplit({ ctx }) {
+  const { title, subtitle, skills, ages, duration, groupSize, chapter, date } = ctx;
+  return (
+    <svg viewBox="0 0 1680 600" xmlns="http://www.w3.org/2000/svg">
+      {/* Split background */}
+      <rect width="1120" height="600" fill="#FAFAFA"/>
+      <rect x="1120" width="560" height="600" fill="#006FF9"/>
+
+      {/* Left: text */}
+      <g transform="translate(72, 72)">
+        <circle cx="22" cy="22" r="22" fill="#072256"/>
+        <text x="22" y="28" fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="22" fontWeight="900" fill="#FFFFFF" textAnchor="middle">A</text>
+        <text x="58" y="18" fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="15" fontWeight="700" fill="#072256">Alpha Anywhere</text>
+        <text x="58" y="36" fontFamily="Be Vietnam Pro, Arial, sans-serif" fontSize="13" fontWeight="400" fill="#8291AA">Community Chapters</text>
+      </g>
+
+      <g transform="translate(72, 200)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="13" fontWeight="600" letterSpacing="2" fill="#006FF9">WORKSHOP</text>
+      </g>
+
+      <g transform="translate(72, 260)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize={title.length > 22 ? 68 : 88} letterSpacing="-3" fill="#072256">
+          {wrapText(title, 22).slice(0, 2).map((ln, i) => (
+            <tspan key={i} x="0" dy={i === 0 ? 0 : (title.length > 22 ? 72 : 92)}>{ln}</tspan>
+          ))}
+        </text>
+      </g>
+
+      <g transform="translate(72, 360)">
+        <text fontFamily="Be Vietnam Pro, Arial, sans-serif" fontWeight="400" fontSize="18" fill="#4C5E80">
+          {wrapText(subtitle, 70).slice(0, 4).map((ln, i) => (
+            <tspan key={i} x="0" dy={i === 0 ? 0 : 24}>{ln}</tspan>
+          ))}
+        </text>
+      </g>
+
+      {/* Bottom meta (left side) */}
+      <line x1="72" y1="490" x2="1060" y2="490" stroke="#EEF0F3" strokeWidth="1"/>
+      <g transform="translate(72, 528)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">AGES</text>
+        <text x="0" y="28" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="22" fill="#072256">{ages}</text>
+      </g>
+      <g transform="translate(240, 528)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">TIME</text>
+        <text x="0" y="28" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="22" fill="#072256">{duration} min</text>
+      </g>
+      <g transform="translate(420, 528)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">GROUP</text>
+        <text x="0" y="28" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="22" fill="#072256">{groupSize} kids</text>
+      </g>
+
+      {/* Right panel */}
+      <g transform="translate(1400, 200)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="13" fontWeight="600" letterSpacing="2" fill="#FFFFFF" opacity="0.75" textAnchor="middle">WHEN</text>
+        <text x="0" y="50" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="32" fill="#FFFFFF" textAnchor="middle">{date ? date.split(',')[0] : 'TBD'}</text>
+        <text x="0" y="86" fontFamily="Be Vietnam Pro, Arial, sans-serif" fontWeight="400" fontSize="18" fill="#FFFFFF" opacity="0.85" textAnchor="middle">{date && date.includes('·') ? date.split('·').pop().trim() : ''}</text>
+      </g>
+      <g transform="translate(1400, 380)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="13" fontWeight="600" letterSpacing="2" fill="#FFFFFF" opacity="0.75" textAnchor="middle">CHAPTER</text>
+        <text x="0" y="36" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="22" fill="#FFFFFF" textAnchor="middle">{chapter || 'TBD'}</text>
+      </g>
+      <g transform="translate(1400, 498)">
+        <rect x="-110" y="-22" width="220" height="44" rx="22" fill="#FFFFFF"/>
+        <text x="0" y="7" fontFamily="Be Vietnam Pro, Arial, sans-serif" fontWeight="600" fontSize="16" fill="#006FF9" textAnchor="middle">RSVP on Circle →</text>
+      </g>
+    </svg>
+  );
+}
+
+window.COVERS = { editorial: CoverEditorial, poster: CoverPoster, split: CoverSplit };
+
+// ============== TEXT GENERATORS ==============
+window.generateDescription = function(ctx) {
+  const { title, subtitle, skills, ages, duration, groupSize, chapter, organizerName, organizerEmail, date, materials, mastery } = ctx;
+  return `
+<h2>${title}</h2>
+<p>${subtitle}</p>
+<h3>Mastery — what your child will walk out able to do</h3>
+<p><em>Workshops are a blast — and every kid walks out having actually done something. Below is the bar.</em></p>
+<p><strong>To master ${title}, your child must:</strong></p>
+<ol>${(mastery || []).map(m => `<li>${m}</li>`).join('')}</ol>
+<h3>Skills practiced</h3>
+<ul>${skills.map(s => `<li>${s}</li>`).join('')}</ul>
+<h3>The essentials</h3>
+<table>
+  <tr><td>When</td><td><strong>${date || 'TBD'}</strong></td></tr>
+  <tr><td>Duration</td><td><strong>${duration} minutes</strong></td></tr>
+  <tr><td>Ages</td><td><strong>${ages}</strong></td></tr>
+  <tr><td>Group size</td><td><strong>${groupSize} kids</strong></td></tr>
+  <tr><td>Chapter</td><td><strong>${chapter}</strong></td></tr>
+  <tr><td>Organizer</td><td><strong>${organizerName}${organizerEmail ? ` · ${organizerEmail}` : ''}</strong></td></tr>
+</table>
+<hr/>
+<p><strong>Parent-led. Community-run. Alpha-designed.</strong> Drop-in friendly. Bring your child a few minutes early for check-in.</p>
+  `;
+};
+
+window.generateChecklist = function(ctx) {
+  const { title, materials, groupSize, duration } = ctx;
+  const minKids = parseInt(groupSize.split('-')[0]);
+  const maxKids = parseInt(groupSize.split('-')[1]);
+  return `
+<h2>Materials Checklist — ${title}</h2>
+<p>Sized for <strong>${minKids}-${maxKids} kids</strong> · ${duration}-minute session. Pack the day before.</p>
+<h3>Bring</h3>
+<ul>${(materials || []).map(m => `<li>${m}</li>`).join('')}</ul>
+<h3>Always pack</h3>
+<ul>
+  <li>Name tags + Sharpie</li>
+  <li>First aid kit</li>
+  <li>Water + small snack (allergen-aware)</li>
+  <li>Attendance sheet / sign-in printout</li>
+  <li>Trash bag + paper towels for cleanup</li>
+</ul>
+<h3>Optional but nice</h3>
+<ul>
+  <li>Bluetooth speaker + playlist ready to go</li>
+  <li>Spare pencils + blank paper</li>
+  <li>Camera or phone for chapter recap photos</li>
+</ul>
+  `;
+};
+
+window.generateRunOfShow = function(ctx) {
+  const { title, duration, mastery } = ctx;
+  const d = parseInt(duration);
+  // Rough time breakdown
+  const arrival = Math.max(10, Math.round(d * 0.1));
+  const warmup = Math.max(5, Math.round(d * 0.08));
+  const activity = d - arrival - warmup - 15 - 10;
+  const share = 10;
+  const cleanup = 5;
+  return `
+<h2>Day-Of Run-of-Show — ${title}</h2>
+<p>A minute-by-minute so the parent-organizer knows exactly what's next.</p>
+<h3>Mastery checkpoints — every kid must demonstrate before leaving</h3>
+<ol>${(mastery || []).map(m => `<li>${m}</li>`).join('')}</ol>
+<p><em>Use the share-out at the end as the demonstration window. No demo, no completion stamp.</em></p>
+<h3>Run-of-show</h3>
+<ol>
+  <li><span class="ros-time">T-30 min</span> Arrive, set up stations, lay out materials.</li>
+  <li><span class="ros-time">0:00 – ${arrival}:00</span> Kids arrive + check in. Name tags. Parents say goodbye at the door.</li>
+  <li><span class="ros-time">${arrival}:00 – ${arrival+warmup}:00</span> Circle up. Quick warm-up game so every kid's voice has been heard once.</li>
+  <li><span class="ros-time">${arrival+warmup}:00 – ${arrival+warmup+activity}:00</span> Main activity. Roving support — keep pairs or small groups working.</li>
+  <li><span class="ros-time">${arrival+warmup+activity}:00 – ${arrival+warmup+activity+share}:00</span> Share-out. Every kid presents or shows the thing they made, 60 seconds max.</li>
+  <li><span class="ros-time">${arrival+warmup+activity+share}:00 – ${d-cleanup}:00</span> Buffer for stragglers, group photo, thank yous.</li>
+  <li><span class="ros-time">${d-cleanup}:00 – ${d}:00</span> Cleanup. Kids help. Parents collect at the door.</li>
+</ol>
+<hr/>
+<p><strong>Rule of thumb:</strong> If the room feels chaotic, shrink the groups. If it feels flat, add a constraint (a time limit, a required element, a silly rule). Energy management is the real job.</p>
+  `;
+};
+
+// ============== APP ==============
+function App() {
+  const [step, setStep] = useState(1);
+  const [selectedIdx, setSelectedIdx] = useState(null);
+  const [chapter, setChapter] = useState('');
+  const [organizerName, setOrganizerName] = useState('');
+  const [organizerEmail, setOrganizerEmail] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const [eventTime, setEventTime] = useState('');
+  const [duration, setDuration] = useState('90');
+  const [groupSize, setGroupSize] = useState('4-12');
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('All');
+  const [tray, setTray] = useState({ cover: false, description: false, checklist: false, runofshow: false, landscape: false, portrait: false });
+  const [coverTemplate, setCoverTemplate] = useState('editorial');
+  const [videoOpen, setVideoOpen] = useState(null); // 'landscape' | 'portrait' | null
+  const [track, setTrack] = useState('build'); // 'workshop' | 'build' | 'showtime' | 'none'
+  const [tweaksOpen, setTweaksOpen] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (e.data?.type === '__activate_edit_mode') setTweaksOpen(true);
+      if (e.data?.type === '__deactivate_edit_mode') setTweaksOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  function showToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  }
+
+  const CANONICAL_CATEGORIES = [
+    'Teamwork + Leadership',
+    'Storytelling + Public Speaking',
+    'Entrepreneurship + Financial Literacy',
+    'Relationship Building + Socialization',
+    'Grit + Hard Work',
+  ];
+  const categories = ['All', ...CANONICAL_CATEGORIES];
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return window.WORKSHOPS.filter(w => {
+      if (category !== 'All' && w.category !== category) return false;
+      if (!q) return true;
+      return (w.title + ' ' + w.oneLiner + ' ' + w.skills.join(' ')).toLowerCase().includes(q);
+    });
+  }, [search, category]);
+
+  const selected = selectedIdx != null ? window.WORKSHOPS[selectedIdx] : null;
+
+  const ctx = selected ? {
+    title: selected.title,
+    subtitle: selected.oneLiner,
+    skills: selected.skills,
+    ages: selected.ages,
+    duration,
+    groupSize,
+    chapter,
+    organizerName,
+    organizerEmail,
+    date: formatDate(eventDate, eventTime),
+    materials: selected.materials,
+    mastery: selected.mastery || [],
+  } : null;
+
+  const affirmations = {
+    1: selected ? `"${selected.title}" — a great pick for ages ${selected.ages}.` : null,
+    2: chapter ? `Got it. Families will see "${chapter}" on the event banner.` : null,
+    3: organizerName ? `${organizerName} is on the case. We'll note the contact.` : null,
+    4: eventDate ? `${formatDate(eventDate, eventTime)}. Locked in.` : null,
+  };
+
+  function canProceed() {
+    if (step === 1) return selectedIdx != null;
+    if (step === 2) return chapter.trim().length > 0;
+    if (step === 3) return organizerName.trim().length > 0;
+    if (step === 4) return eventDate && duration && groupSize;
+    return true;
+  }
+
+  function copyRichText(html, label) {
+    const blob = new Blob([html], { type: 'text/html' });
+    const txt = new Blob([html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()], { type: 'text/plain' });
+    if (window.ClipboardItem) {
+      navigator.clipboard.write([new ClipboardItem({ 'text/html': blob, 'text/plain': txt })]).then(() => {
+        showToast(`${label} copied — paste into Circle`);
+      }).catch(() => {
+        navigator.clipboard.writeText(html.replace(/<[^>]*>/g, '').trim());
+        showToast(`${label} copied (plain)`);
+      });
+    } else {
+      navigator.clipboard.writeText(html.replace(/<[^>]*>/g, '').trim());
+      showToast(`${label} copied (plain)`);
+    }
+  }
+
+  function downloadCoverPNG() {
+    const svg = document.querySelector('.cover-thumb svg');
+    if (!svg) return;
+    const src = new XMLSerializer().serializeToString(svg);
+    const img = new Image();
+    const blob = new Blob([src], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1680; canvas.height = 600;
+      const g = canvas.getContext('2d');
+      g.fillStyle = '#FAFAFA'; g.fillRect(0,0,1680,600);
+      g.drawImage(img, 0, 0, 1680, 600);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(b => {
+        const dl = document.createElement('a');
+        dl.download = `${slugify(selected.title)}-cover.png`;
+        dl.href = URL.createObjectURL(b);
+        dl.click();
+      });
+      showToast('Cover downloaded');
+    };
+    img.src = url;
+  }
+
+  function downloadCoverSVG() {
+    const svg = document.querySelector('.cover-thumb svg');
+    if (!svg) return;
+    const src = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([src], { type: 'image/svg+xml' });
+    const dl = document.createElement('a');
+    dl.download = `${slugify(selected.title)}-cover.svg`;
+    dl.href = URL.createObjectURL(blob);
+    dl.click();
+    showToast('SVG downloaded');
+  }
+
+  const CoverComponent = window.COVERS[coverTemplate] || window.COVERS.editorial;
+  const trailerUrls = ctx ? makeTrailerUrls(ctx) : null;
+
+  const steps = [
+    ['One', 'Workshop'],
+    ['Two', 'Chapter'],
+    ['Three', 'Organizer'],
+    ['Four', 'When & who'],
+    ['Five', 'Your kit'],
+  ];
+
+  return (
+    <div className="app">
+      <div className="masthead">
+        <div className="masthead-brand">
+          <div className="masthead-logo">
+            <svg viewBox="0 0 24 24" fill="none"><text x="12" y="18" fontFamily="AF Sobremesa, Arial" fontWeight="900" fontSize="18" fill="currentColor" textAnchor="middle">A</text></svg>
+          </div>
+          <div className="masthead-words">
+            <div className="masthead-title">Alpha Anywhere</div>
+            <div className="masthead-sub">Chapter Workshop Builder</div>
+          </div>
+        </div>
+        <div className="masthead-edition">
+          <strong>Dorado Pilot 2026</strong>
+          <span>Event Kit Generator</span>
+        </div>
+      </div>
+
+      <div className="progress">
+        {steps.map(([num, label], i) => {
+          const s = i + 1;
+          return (
+            <button
+              key={s}
+              className={`progress-step ${step === s ? 'active' : ''} ${step > s ? 'done' : ''}`}
+              onClick={() => { if (s < step || (s === step)) setStep(s); }}
+              disabled={s > step && !(s === step)}
+            >
+              <span className="progress-step-num">Part {num}</span>
+              <span className="progress-step-label">{label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {step === 1 && (
+        <section className="step" key="s1">
+          <div className="step-head">
+            <div className="step-eyebrow">Part One</div>
+            <h2 className="step-title">Pick a <em>workshop</em>.</h2>
+            <p className="step-lede">Each is designed to run 60-90 minutes, parent-led, with everyday materials. Pick the one that fits your kids and your calendar.</p>
+          </div>
+
+          <div className="picker-tools">
+            <div className="picker-search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16" y2="16"/></svg>
+              <input placeholder="Search workshops, skills, ages…" value={search} onChange={e => setSearch(e.target.value)}/>
+            </div>
+            {categories.map(c => (
+              <button key={c} className={`picker-filter ${category === c ? 'active' : ''}`} onClick={() => setCategory(c)}>{c}</button>
+            ))}
+          </div>
+
+          <div className="picker-grid">
+            {filtered.map((w) => {
+              const realIdx = window.WORKSHOPS.indexOf(w);
+              return (
+                <button key={w.title} className={`workshop-card ${selectedIdx === realIdx ? 'selected' : ''}`} onClick={() => setSelectedIdx(realIdx)}>
+                  <div className="wc-head">
+                    <div className="wc-cat">{w.category}</div>
+                    {w.popular && <div className="wc-popular">Popular</div>}
+                  </div>
+                  <div className="wc-title">{w.title}</div>
+                  <div className="wc-liner">{w.oneLiner}</div>
+                  <div className="wc-meta">
+                    <span>Ages <strong>{w.ages}</strong></span>
+                    <span><strong>{w.duration}</strong> min</span>
+                    <span><strong>{w.skills.length}</strong> skill{w.skills.length > 1 ? 's' : ''}</span>
+                  </div>
+                  <div className="wc-check">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </button>
+              );
+            })}
+            {filtered.length === 0 && <div className="picker-empty">Nothing matches. Try a different category or clear the search.</div>}
+          </div>
+
+          {affirmations[1] && <div className="affirm"><div className="affirm-bullet"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg></div>{affirmations[1]}</div>}
+        </section>
+      )}
+
+      {step === 2 && (
+        <section className="step" key="s2">
+          <div className="step-head">
+            <div className="step-eyebrow">Part Two</div>
+            <h2 className="step-title">Which <em>chapter</em> is hosting?</h2>
+            <p className="step-lede">The name of your local community group. It appears on the event cover so families know who's running the show.</p>
+          </div>
+          <div className="form-stack">
+            <div className="field">
+              <label className="field-label">Chapter name</label>
+              <input className="field-input" placeholder="e.g. Dorado, PR" value={chapter} onChange={e => setChapter(e.target.value)} autoFocus/>
+              <div className="field-hint">Use a city or neighborhood — "Dorado, PR" · "Austin, TX" · "Westside LA"</div>
+            </div>
+          </div>
+          {affirmations[2] && <div className="affirm"><div className="affirm-bullet"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg></div>{affirmations[2]}</div>}
+        </section>
+      )}
+
+      {step === 3 && (
+        <section className="step" key="s3">
+          <div className="step-head">
+            <div className="step-eyebrow">Part Three</div>
+            <h2 className="step-title">Who's <em>running</em> the day?</h2>
+            <p className="step-lede">The go-to parent on workshop day. Families will see their name so they know who to find on-site.</p>
+          </div>
+          <div className="form-stack">
+            <div className="field">
+              <label className="field-label">Organizer name</label>
+              <input className="field-input" placeholder="e.g. Sarah Johnson" value={organizerName} onChange={e => setOrganizerName(e.target.value)} autoFocus/>
+            </div>
+            <div className="field">
+              <label className="field-label">Email <span className="opt">(optional)</span></label>
+              <input className="field-input" type="email" placeholder="e.g. sarah@example.com" value={organizerEmail} onChange={e => setOrganizerEmail(e.target.value)}/>
+              <div className="field-hint">Included in the event description so parents can ask questions before the day.</div>
+            </div>
+          </div>
+          {affirmations[3] && <div className="affirm"><div className="affirm-bullet"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg></div>{affirmations[3]}</div>}
+        </section>
+      )}
+
+      {step === 4 && (
+        <section className="step" key="s4">
+          <div className="step-head">
+            <div className="step-eyebrow">Part Four</div>
+            <h2 className="step-title">When, how long, <em>how many</em>?</h2>
+            <p className="step-lede">These details land on the cover and the description. Pick whatever fits your group.</p>
+          </div>
+          <div className="form-stack">
+            <div className="field">
+              <label className="field-label">Date</label>
+              <input className="field-input" type="date" value={eventDate} onChange={e => setEventDate(e.target.value)}/>
+            </div>
+            <div className="field">
+              <label className="field-label">Start time</label>
+              <TimeSplitPicker value={eventTime} onChange={setEventTime}/>
+            </div>
+            <div className="field">
+              <label className="field-label">How long will it run?</label>
+              <div className="field-chips">
+                {[['45','45 min'],['60','1 hour'],['75','1¼ hours'],['90','1½ hours'],['120','2 hours'],['150','2½ hours'],['180','3 hours'],['240','4 hours']].map(([v, l]) => (
+                  <button key={v} className={`chip ${duration === v ? 'selected' : ''}`} onClick={() => setDuration(v)}>{l}</button>
+                ))}
+              </div>
+            </div>
+            <div className="field">
+              <label className="field-label">Group size</label>
+              <div className="field-chips">
+                {[['4-8','small'],['4-12','standard'],['4-16','full'],['8-20','large']].map(([v, note]) => (
+                  <button key={v} className={`chip ${groupSize === v ? 'selected' : ''}`} onClick={() => setGroupSize(v)}>
+                    {v} kids <small>{note}</small>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {affirmations[4] && <div className="affirm"><div className="affirm-bullet"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg></div>{affirmations[4]}</div>}
+        </section>
+      )}
+
+      {step === 5 && ctx && (
+        <section className="step" key="s5">
+          <div className="step-head">
+            <div className="step-eyebrow">Part Five — the payoff</div>
+            <h2 className="step-title">Your <em>Event Kit</em>, ready in six pieces.</h2>
+            <p className="step-lede">Generate each one. Download the cover, copy the text straight into Circle, share the trailers in the right places. That's it — you're done.</p>
+          </div>
+
+          <div className="build-wrap">
+            <div className="build-list">
+              {/* 1. Cover */}
+              <div className={`build-item ${tray.cover ? 'ready' : ''}`}>
+                <div className="build-item-head">
+                  <div className="build-item-num">{tray.cover ? '✓' : '1'}</div>
+                  <div className="build-item-text">
+                    <div className="build-item-title">Event Cover Banner</div>
+                    <div className="build-item-desc">1680×600 · for Circle events · choose a template</div>
+                  </div>
+                  <button className="build-btn" onClick={() => setTray(t => ({...t, cover: true}))}>
+                    {tray.cover ? 'Refresh' : 'Generate'}
+                  </button>
+                </div>
+                <div className="build-item-preview">
+                  <div className="build-item-preview-inner">
+                    <div className="cover-templates">
+                      {[['editorial','Editorial'],['poster','Poster'],['split','Split']].map(([k, l]) => (
+                        <button key={k} className={`cover-template-btn ${coverTemplate === k ? 'active' : ''}`} onClick={() => setCoverTemplate(k)}>{l}</button>
+                      ))}
+                    </div>
+                    <div className="cover-thumb">
+                      {CoverComponent && <CoverComponent ctx={ctx}/>}
+                    </div>
+                    <div className="cover-actions">
+                      <button className="build-btn" onClick={downloadCoverPNG}>Download PNG</button>
+                      <button className="build-btn outline" onClick={downloadCoverSVG}>Download SVG</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Description */}
+              <div className={`build-item ${tray.description ? 'ready' : ''}`}>
+                <div className="build-item-head">
+                  <div className="build-item-num">{tray.description ? '✓' : '2'}</div>
+                  <div className="build-item-text">
+                    <div className="build-item-title">Event Description</div>
+                    <div className="build-item-desc">Formatted rich text · paste into Circle, keeps its styling</div>
+                  </div>
+                  <button className="build-btn" onClick={() => setTray(t => ({...t, description: true}))}>
+                    {tray.description ? 'Refresh' : 'Generate'}
+                  </button>
+                </div>
+                <div className="build-item-preview">
+                  <div className="build-item-preview-inner">
+                    <div className="text-preview" dangerouslySetInnerHTML={{__html: window.generateDescription(ctx)}}/>
+                    <button className="build-btn" onClick={() => copyRichText(window.generateDescription(ctx), 'Description')}>Copy Rich Text</button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Checklist */}
+              <div className={`build-item ${tray.checklist ? 'ready' : ''}`}>
+                <div className="build-item-head">
+                  <div className="build-item-num">{tray.checklist ? '✓' : '3'}</div>
+                  <div className="build-item-text">
+                    <div className="build-item-title">Materials Checklist</div>
+                    <div className="build-item-desc">Everything you need to pack — sized for your group</div>
+                  </div>
+                  <button className="build-btn" onClick={() => setTray(t => ({...t, checklist: true}))}>
+                    {tray.checklist ? 'Refresh' : 'Generate'}
+                  </button>
+                </div>
+                <div className="build-item-preview">
+                  <div className="build-item-preview-inner">
+                    <div className="text-preview" dangerouslySetInnerHTML={{__html: window.generateChecklist(ctx)}}/>
+                    <div className="cover-actions">
+                      <button className="build-btn" onClick={() => copyRichText(window.generateChecklist(ctx), 'Checklist')}>Copy Rich Text</button>
+                      <button className="build-btn outline" onClick={() => window.print()}>Print</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Run-of-Show */}
+              <div className={`build-item ${tray.runofshow ? 'ready' : ''}`}>
+                <div className="build-item-head">
+                  <div className="build-item-num">{tray.runofshow ? '✓' : '4'}</div>
+                  <div className="build-item-text">
+                    <div className="build-item-title">Day-Of Run-of-Show</div>
+                    <div className="build-item-desc">Minute-by-minute so you know what happens when</div>
+                  </div>
+                  <button className="build-btn" onClick={() => setTray(t => ({...t, runofshow: true}))}>
+                    {tray.runofshow ? 'Refresh' : 'Generate'}
+                  </button>
+                </div>
+                <div className="build-item-preview">
+                  <div className="build-item-preview-inner">
+                    <div className="text-preview" dangerouslySetInnerHTML={{__html: window.generateRunOfShow(ctx)}}/>
+                    <div className="cover-actions">
+                      <button className="build-btn" onClick={() => copyRichText(window.generateRunOfShow(ctx), 'Run-of-Show')}>Copy Rich Text</button>
+                      <button className="build-btn outline" onClick={() => window.print()}>Print</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Soundtrack picker — shared between both trailers */}
+              <div className="soundtrack-picker">
+                <div className="soundtrack-head">
+                  <div className="soundtrack-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                  </div>
+                  <div className="soundtrack-text">
+                    <div className="soundtrack-title">Soundtrack <span className="new-pill">New</span></div>
+                    <div className="soundtrack-desc">Pick the music that plays under both trailers. Same vibe across landscape and portrait.</div>
+                  </div>
+                </div>
+                <div className="soundtrack-options">
+                  {[
+                    {id:'workshop', name:'Workshop', mood:'Warm, curious — for craft & writing rooms', bpm:'92 BPM', color:'#F4A623'},
+                    {id:'build',    name:'Build',    mood:'Bouncy, playful — for STEM & contraptions', bpm:'118 BPM', color:'#006FF9'},
+                    {id:'showtime', name:'Showtime', mood:'Confident, stylish — for entrepreneur pitches', bpm:'104 BPM', color:'#072256'},
+                    {id:'none',     name:'No music', mood:'Silent — let the visuals do the talking', bpm:'—',         color:'#8291AA'},
+                  ].map(t => (
+                    <button
+                      key={t.id}
+                      className={`soundtrack-opt ${track === t.id ? 'on' : ''}`}
+                      onClick={() => setTrack(t.id)}
+                      style={{'--track-c': t.color}}
+                    >
+                      <div className="soundtrack-opt-head">
+                        <div className="soundtrack-opt-name">{t.name}</div>
+                        <div className="soundtrack-opt-bpm">{t.bpm}</div>
+                      </div>
+                      <div className="soundtrack-opt-mood">{t.mood}</div>
+                      {/* fake waveform bars */}
+                      <div className="soundtrack-wave">
+                        {Array.from({length: 28}).map((_, i) => {
+                          const h = t.id === 'none' ? 6 : Math.round(8 + Math.abs(Math.sin(i * 0.7 + t.id.charCodeAt(0))) * 22);
+                          return <span key={i} style={{height: h+'px'}}/>;
+                        })}
+                      </div>
+                      <div className="soundtrack-opt-foot">
+                        {track === t.id ? <span className="soundtrack-on-pill">Selected</span> : <span className="soundtrack-pick">Use this track</span>}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <div className="soundtrack-note">
+                  Tracks are royalty-free and licensed for chapter use across Circle, Instagram, and WhatsApp. Swap tracks anytime — both trailer links update instantly.
+                </div>
+              </div>
+
+              {/* 5. Landscape Trailer */}
+              <div className={`build-item ${tray.landscape ? 'ready' : ''}`}>
+                <div className="build-item-head">
+                  <div className="build-item-num">{tray.landscape ? '✓' : '5'}</div>
+                  <div className="build-item-text">
+                    <div className="build-item-title">Landscape Trailer <span className="new-pill">New</span></div>
+                    <div className="build-item-desc">1:00 · 1920×1080 · for the Circle event page and desktop viewers</div>
+                  </div>
+                  <button className="build-btn" onClick={() => setTray(t => ({...t, landscape: true}))}>
+                    {tray.landscape ? 'Refresh' : 'Generate'}
+                  </button>
+                </div>
+                <div className="build-item-preview">
+                  <div className="build-item-preview-inner">
+                    <TrailerBlock
+                      ratio="landscape"
+                      ctx={ctx}
+                      track={track}
+                      url={trailerUrls.landscape}
+                      onOpen={() => setVideoOpen('landscape')}
+                      onCopy={(what) => showToast(what)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 6. Portrait Trailer */}
+              <div className={`build-item ${tray.portrait ? 'ready' : ''}`}>
+                <div className="build-item-head">
+                  <div className="build-item-num">{tray.portrait ? '✓' : '6'}</div>
+                  <div className="build-item-text">
+                    <div className="build-item-title">Portrait Trailer <span className="new-pill">New</span></div>
+                    <div className="build-item-desc">1:00 · 1080×1920 · for mobile, group chats, and social</div>
+                  </div>
+                  <button className="build-btn" onClick={() => setTray(t => ({...t, portrait: true}))}>
+                    {tray.portrait ? 'Refresh' : 'Generate'}
+                  </button>
+                </div>
+                <div className="build-item-preview">
+                  <div className="build-item-preview-inner">
+                    <TrailerBlock
+                      ratio="portrait"
+                      ctx={ctx}
+                      track={track}
+                      url={trailerUrls.portrait}
+                      onOpen={() => setVideoOpen('portrait')}
+                      onCopy={(what) => showToast(what)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <aside className="summary">
+              <div className="summary-head">
+                <div className="summary-head-k">Your Event</div>
+                <div className="summary-head-t">{ctx.title}</div>
+              </div>
+              <div className="summary-body">
+                <dl>
+                  <div className="summary-row"><dt>Chapter</dt><dd>{chapter}</dd></div>
+                  <div className="summary-row"><dt>Organizer</dt><dd>{organizerName}</dd></div>
+                  {organizerEmail && <div className="summary-row"><dt>Email</dt><dd>{organizerEmail}</dd></div>}
+                  <div className="summary-row"><dt>When</dt><dd>{ctx.date || 'Not set'}</dd></div>
+                  <div className="summary-row"><dt>Duration</dt><dd>{duration} min</dd></div>
+                  <div className="summary-row"><dt>Group</dt><dd>{groupSize} kids</dd></div>
+                  <div className="summary-row"><dt>Skills</dt><dd>{ctx.skills.join(', ')}</dd></div>
+                </dl>
+              </div>
+            </aside>
+          </div>
+
+          {Object.values(tray).filter(Boolean).length === 6 && (
+            <div className="finale">
+              <div className="finale-mark">A</div>
+              <div className="finale-title">That's your whole kit, <em>ready to ship.</em></div>
+              <div className="finale-sub">Upload the cover to Circle. Paste the description. Print the checklist and run-of-show. Drop the landscape trailer into the event page and the portrait trailer into your chapter group chat. Then go host something kids will remember.</div>
+            </div>
+          )}
+        </section>
+      )}
+
+      <div className="step-nav">
+        {step > 1 ? (
+          <button className="btn-ghost" onClick={() => setStep(step - 1)}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back
+          </button>
+        ) : <span/>}
+        {step < 5 && (
+          <button className="btn-primary" onClick={() => setStep(step + 1)} disabled={!canProceed()}>
+            {step === 4 ? 'Build the kit' : 'Continue'}
+            <svg className="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        )}
+      </div>
+
+      <footer className="app-foot">
+        <div>Alpha Anywhere Community Chapters</div>
+        <div>Dorado Pilot 2026</div>
+      </footer>
+
+      {videoOpen && <VideoModal ratio={videoOpen} ctx={ctx} onClose={() => setVideoOpen(null)}/>}
+      {tweaksOpen && <TweaksPanel onClose={() => setTweaksOpen(false)}/>}
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+function TimeSplitPicker({ value, onChange }) {
+  const [hRaw, mRaw] = (value || '').split(':');
+  const has = !!value;
+  const h24 = has ? parseInt(hRaw) : null;
+  const ampm = h24 == null ? 'AM' : (h24 >= 12 ? 'PM' : 'AM');
+  const hr12 = h24 == null ? null : (h24 % 12 || 12);
+  const min = has ? mRaw : null;
+
+  function update(next) {
+    const _hr12 = next.hr12 ?? hr12 ?? 9;
+    const _min = next.min ?? min ?? '00';
+    const _ampm = next.ampm ?? ampm;
+    let _h24 = _hr12 % 12;
+    if (_ampm === 'PM') _h24 += 12;
+    onChange(`${String(_h24).padStart(2,'0')}:${_min}`);
+  }
+
+  return (
+    <div className="time-split">
+      <div className="time-split-row">
+        <div className="time-split-group">
+          <div className="time-split-label">Hour</div>
+          <div className="time-split-chips">
+            {[12,1,2,3,4,5,6,7,8,9,10,11].map(h => (
+              <button key={h} type="button" className={`time-chip ${hr12 === h ? 'selected' : ''}`} onClick={() => update({ hr12: h })}>{h}</button>
+            ))}
+          </div>
+        </div>
+        <div className="time-split-group">
+          <div className="time-split-label">Minute</div>
+          <div className="time-split-chips">
+            {['00','15','30','45'].map(m => (
+              <button key={m} type="button" className={`time-chip ${min === m ? 'selected' : ''}`} onClick={() => update({ min: m })}>:{m}</button>
+            ))}
+          </div>
+        </div>
+        <div className="time-split-group">
+          <div className="time-split-label">AM/PM</div>
+          <div className="time-split-chips">
+            {['AM','PM'].map(a => (
+              <button key={a} type="button" className={`time-chip ${ampm === a && has ? 'selected' : ''}`} onClick={() => update({ ampm: a })}>{a}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+      {has && (
+        <button type="button" className="time-clear" onClick={() => onChange('')}>Clear time</button>
+      )}
+    </div>
+  );
+}
+
+function TweaksPanel({ onClose }) {
+  const [scale, setScale] = useState('M');
+
+  function applyScale(s) {
+    setScale(s);
+    const map = { S: 0.94, M: 1, L: 1.08 };
+    document.documentElement.style.setProperty('--type-scale', map[s]);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { typeScale: s } }, '*');
+  }
+
+  return (
+    <div className="tweaks-panel">
+      <h4>Tweaks <small>Live</small></h4>
+      <div className="tweak-group">
+        <div className="tweak-label">Type Scale</div>
+        <div className="tweak-opts">
+          {['S','M','L'].map(s => (
+            <button key={s} className={`tweak-opt ${scale === s ? 'active' : ''}`} onClick={() => applyScale(s)}>{s}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============== TRAILER SCENE ==============
+function TrailerScene({ ctx, ratio }) {
+  const { title, subtitle, skills, ages, duration, groupSize, chapter } = ctx;
+  const titleWords = title.split(' ');
+  const splitIdx = Math.ceil(titleWords.length / 2);
+  const titleLine1 = titleWords.slice(0, splitIdx).join(' ');
+  const titleLine2 = titleWords.slice(splitIdx).join(' ');
+
+  // Illustrated treatment: Crazy Contraptions Club
+  const isContraptions = title === 'Crazy Contraptions Club';
+
+  // Build slide list with per-slide weights (longer for Mastery slide)
+  const slides = [];
+
+  // s1 — Brand intro
+  if (isContraptions) {
+    slides.push({ key: 's1', weight: 4, content: (
+      <div className="tr-slide-inner illus hero">
+        <img className="tr-illus-img" src="assets/sketches/contraptions-1-intro.png" alt=""/>
+        <div className="tr-illus-overlay"/>
+        <div className="tr-illus-content">
+          <div className="tr-illus-step"><span style={{color:'#6FA8FF'}}>Alpha Anywhere · Community Chapters</span></div>
+          <div className="tr-illus-headline">A workshop, <em>by parents,</em><br/>for kids.</div>
+          {chapter && <div className="tr-illus-sub" style={{marginTop:'0.4em'}}>{chapter}</div>}
+        </div>
+      </div>
+    )});
+  } else {
+    slides.push({ key: 's1', weight: 4, content: (
+      <div className="tr-slide-inner center">
+        <div className="tr-kicker">Alpha Anywhere · Community Chapters</div>
+        <div className="tr-rule"/>
+        <div className="tr-sub" style={{fontSize:'1.6em', color:'#072256'}}>A workshop, by parents,<br/>for kids.</div>
+        {chapter && <div className="tr-meta">{chapter}</div>}
+      </div>
+    )});
+  }
+
+  // s2 — Title
+  slides.push({ key: 's2', weight: 4, content: (
+    <div className="tr-slide-inner">
+      <div className="tr-kicker">Presenting</div>
+      <div className="tr-title">
+        {titleLine1}
+        {titleLine2 && <><br/><em>{titleLine2}.</em></>}
+        {!titleLine2 && <em>.</em>}
+      </div>
+    </div>
+  )});
+
+  // s3 — One-liner
+  slides.push({ key: 's3', weight: 4, content: (
+    <div className="tr-slide-inner center">
+      <div className="tr-kicker">— What it is —</div>
+      <div className="tr-sub" style={{fontSize:'1.5em', fontWeight:500, color:'#072256', textAlign:'center'}}>
+        {subtitle}
+      </div>
+      <div className="tr-rule" style={{margin:'1.4em auto 0'}}/>
+    </div>
+  )});
+
+  // s4 — Skills (or 3-step illustrated sequence for Contraptions)
+  if (isContraptions) {
+    slides.push({ key: 's4a', weight: 4, content: (
+      <div className="tr-slide-inner illus">
+        <img className="tr-illus-img" src="assets/sketches/contraptions-2-step1.png" alt=""/>
+        <div className="tr-illus-overlay"/>
+        <div className="tr-illus-content">
+          <div className="tr-illus-step"><span className="tr-illus-step-num">01</span> Build it</div>
+          <div className="tr-illus-headline">Tape, tubes, <em>rubber bands.</em></div>
+          <div className="tr-illus-sub">Hands-on from the first minute. No worksheets, no lecture.</div>
+        </div>
+      </div>
+    )});
+    slides.push({ key: 's4b', weight: 4, content: (
+      <div className="tr-slide-inner illus">
+        <img className="tr-illus-img" src="assets/sketches/contraptions-3-step2.png" alt=""/>
+        <div className="tr-illus-overlay"/>
+        <div className="tr-illus-content">
+          <div className="tr-illus-step"><span className="tr-illus-step-num">02</span> Sketch it</div>
+          <div className="tr-illus-headline">Plan the <em>chain reaction</em>.</div>
+          <div className="tr-illus-sub">Kids design their own machine on paper before they touch the materials.</div>
+        </div>
+      </div>
+    )});
+    slides.push({ key: 's4c', weight: 4, content: (
+      <div className="tr-slide-inner illus">
+        <img className="tr-illus-img" src="assets/sketches/contraptions-4-step3.png" alt=""/>
+        <div className="tr-illus-overlay"/>
+        <div className="tr-illus-content">
+          <div className="tr-illus-step"><span className="tr-illus-step-num">03</span> Run it</div>
+          <div className="tr-illus-headline">One push. <em>Everything moves.</em></div>
+          <div className="tr-illus-sub">Dominos, lever, ball, bucket. The payoff every kid wants.</div>
+        </div>
+      </div>
+    )});
+  } else {
+    slides.push({ key: 's4', weight: 4, content: (
+      <div className="tr-slide-inner">
+        <div className="tr-kicker" style={{marginBottom:'1.8em'}}>What they'll build</div>
+        <div style={{display:'flex', flexDirection:'column', gap:'0.2em'}}>
+          {skills.map((s, i) => (
+            <div key={s} className={`tr-skill ${i % 2 === 1 ? 'alt' : ''}`}>{s}</div>
+          ))}
+        </div>
+      </div>
+    )});
+  }
+
+  // s4d — MASTERY (the cornerstone — gets extra weight)
+  // Pulls from ctx.mastery: the specific things every kid must demonstrate to complete this workshop.
+  const masteryList = (ctx.mastery && ctx.mastery.length) ? ctx.mastery : [];
+  slides.push({ key: 's4d', weight: 7, content: (
+    <div className="tr-slide-inner mastery">
+      <div className="tr-mastery-badge">Fun + mastery</div>
+      <div className="tr-mastery-headline">
+        Every kid leaves <em>able to:</em>
+      </div>
+      <ul className="tr-mastery-list">
+        {masteryList.slice(0, 4).map((m, i) => (
+          <li key={i} className="tr-mastery-item">
+            <span className="tr-mastery-bullet">{String(i+1).padStart(2,'0')}</span>
+            <span className="tr-mastery-text">{m}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="tr-mastery-foot">A real win — not just a fun afternoon. Alpha Blueprints work because kids leave proud of something they actually did.</div>
+    </div>
+  )});
+
+  // s5 — Stats
+  slides.push({ key: 's5', weight: 4, content: (
+    <div className="tr-slide-inner center">
+      <div className="tr-stat-row">
+        <div className="tr-stat">
+          <div className="tr-stat-label">Ages</div>
+          <div className="tr-stat-dash"/>
+          <div className="tr-stat-value">{ages}</div>
+        </div>
+        <div className="tr-stat">
+          <div className="tr-stat-label">Runtime</div>
+          <div className="tr-stat-dash"/>
+          <div className="tr-stat-value">{duration}<span style={{fontSize:'0.4em', marginLeft:'0.15em', color:'#8291AA', fontWeight:600}}>MIN</span></div>
+        </div>
+        <div className="tr-stat">
+          <div className="tr-stat-label">Group</div>
+          <div className="tr-stat-dash"/>
+          <div className="tr-stat-value">{groupSize}</div>
+        </div>
+      </div>
+    </div>
+  )});
+
+  // s6 — CTA
+  slides.push({ key: 's6', weight: 4, content: (
+    <div className="tr-slide-inner center">
+      <div className="tr-title" style={{fontSize:'2.6em', textAlign:'center'}}>
+        Come make<br/><em>something real.</em>
+      </div>
+      <div className="tr-cta-pill">RSVP on Circle</div>
+      {chapter && <div className="tr-meta" style={{marginTop:'1em'}}>{chapter} · {ctx.date ? ctx.date.split(',').slice(0,2).join(',') : 'Coming soon'}</div>}
+    </div>
+  )});
+
+  // Compute timing: each slide gets weight*unit seconds; total = sum
+  const totalWeight = slides.reduce((a, s) => a + s.weight, 0);
+  const totalDuration = totalWeight; // 1 weight = 1 second
+
+  return (
+    <div className="trailer-scene">
+      <style dangerouslySetInnerHTML={{__html: slides.map((s, i) => {
+        let offset = 0;
+        for (let j = 0; j < i; j++) offset += slides[j].weight;
+        const startPct = (offset / totalDuration) * 100;
+        const endPct = ((offset + s.weight) / totalDuration) * 100;
+        const fadeIn = startPct + 1.5;
+        const fadeOutStart = endPct - 2;
+        const fadeOutEnd = endPct;
+        return `
+          @keyframes tr-${s.key}-loop {
+            0%, ${startPct.toFixed(2)}% { opacity: 0; transform: translateY(8px); }
+            ${fadeIn.toFixed(2)}% { opacity: 1; transform: translateY(0); }
+            ${fadeOutStart.toFixed(2)}% { opacity: 1; transform: translateY(0); }
+            ${fadeOutEnd.toFixed(2)}% { opacity: 0; transform: translateY(-6px); }
+            100% { opacity: 0; transform: translateY(-6px); }
+          }
+          .tr-anim-${s.key} { animation: tr-${s.key}-loop ${totalDuration}s infinite cubic-bezier(.45,.05,.55,.95); }
+        `;
+      }).join('\n')}}/>
+      <div className="tr-frame"/>
+      <div className="tr-logo">A</div>
+      <div className="tr-corner tr">Alpha Anywhere</div>
+
+      {slides.map(s => (
+        <div key={s.key} className={`tr-slide tr-anim-${s.key}`}>
+          {s.content}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TrailerBlock({ ratio, ctx, url, onOpen, onCopy, track }) {
+  const isLandscape = ratio === 'landscape';
+  const trackInfo = {
+    workshop: { name: 'Workshop', color: '#F4A623' },
+    build:    { name: 'Build',    color: '#006FF9' },
+    showtime: { name: 'Showtime', color: '#072256' },
+    none:     { name: 'No music', color: '#8291AA' },
+  }[track || 'build'];
+  const specs = isLandscape
+    ? { dim: '1920 × 1080', ar: '16:9' }
+    : { dim: '1080 × 1920', ar: '9:16' };
+  return (
+    <div className="trailer-group">
+      <div className={`trailer-block ${ratio}`}>
+        <div className={`trailer-thumb ${isLandscape ? 'l' : 'p'}`} onClick={onOpen}>
+          <TrailerScene ctx={ctx} ratio={ratio}/>
+          <div className="trailer-thumb-ratio">{specs.ar}</div>
+          <div className="trailer-thumb-dur">1:00</div>
+          <div className="trailer-thumb-track" style={{'--track-c': trackInfo.color}}>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            {trackInfo.name}
+          </div>
+          <div className="trailer-thumb-play">
+            <div className="trailer-thumb-play-btn">
+              <svg width="18" height="18" viewBox="0 0 22 22" fill="none"><path d="M7 4l11 7-11 7V4z" fill="currentColor"/></svg>
+            </div>
+          </div>
+        </div>
+        <div className="trailer-body">
+          <div className="trailer-kicker">{isLandscape ? 'For desktop + event page' : 'For mobile + social'}</div>
+          <div className="trailer-title">
+            {isLandscape
+              ? '1 minute. Widescreen. Event-page hero.'
+              : '1 minute. Vertical. Made for phones.'}
+          </div>
+          <div className="trailer-purpose">
+            {isLandscape
+              ? 'Sits at the top of your Circle event page. Parents scrolling on laptop see it auto-play, get excited, RSVP.'
+              : 'Drop it into the chapter group chat, paste it in a member welcome DM, or share as a story. Optimized for thumbs, not cursors.'}
+          </div>
+          <div className="trailer-url">
+            <span className="trailer-url-label">Link</span>
+            <span className="trailer-url-val">{url}</span>
+            <button className="trailer-url-copy" onClick={() => { navigator.clipboard.writeText(url); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }} title="Copy">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            </button>
+          </div>
+          <div className="trailer-actions">
+            <button className="build-btn small" onClick={onOpen}>Preview full size</button>
+            <button className="build-btn small outline" onClick={() => { navigator.clipboard.writeText(url); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }}>Copy link</button>
+            <button className="build-btn small outline" onClick={() => {
+              const caption = isLandscape
+                ? `New workshop dropping for ${ctx.chapter || 'our chapter'} — ${ctx.title}. ${specs.dim} trailer above. RSVP on Circle.`
+                : `${ctx.title} — ${ctx.chapter || 'our chapter'}. 1-minute look at what we're running. Tap to RSVP on Circle.`;
+              navigator.clipboard.writeText(caption);
+              onCopy('Caption copied');
+            }}>Copy caption</button>
+          </div>
+        </div>
+      </div>
+
+      {/* How to use with Circle */}
+      <div className="circle-howto">
+        <div className="circle-howto-head">
+          <span className="circle-dot">C</span>
+          {isLandscape ? 'How to use this on Circle' : 'How to share this on Circle'}
+        </div>
+        {isLandscape ? (
+          <ol>
+            <li>Open your chapter's <strong>Circle event</strong> → click <strong>Edit event</strong>.</li>
+            <li>In the description, add an <strong>Embed</strong> block and paste the link above. Circle will auto-embed the video.</li>
+            <li>Put the embed <strong>right below the cover image</strong> so it's the first thing parents see when they tap in.</li>
+            <li>Post an announcement in the chapter space: <em>"Trailer's up — watch the 60-second look and RSVP."</em></li>
+          </ol>
+        ) : (
+          <ol>
+            <li>In your chapter's Circle space, open the <strong>chat channel</strong> (not the event) → paste the link as a new message.</li>
+            <li>Also paste it into the <strong>member welcome DM</strong> for new parents joining the chapter — it sets the tone.</li>
+            <li>For reach beyond Circle, save the link and share as an <strong>Instagram story</strong> or <strong>WhatsApp status</strong>. Tag the chapter.</li>
+            <li>Pair it with a caption like: <code>Come make something real → link in Circle.</code></li>
+          </ol>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function VideoModal({ ratio, ctx, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  const specs = ratio === 'landscape'
+    ? { dim: '1920 × 1080', ar: '16:9' }
+    : { dim: '1080 × 1920', ar: '9:16' };
+  return (
+    <div className="video-modal" onClick={onClose}>
+      <div className={`video-modal-stage ${ratio}`} onClick={(e) => e.stopPropagation()}>
+        <button className="video-modal-close" onClick={onClose}>
+          Close
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg>
+        </button>
+        <TrailerScene ctx={ctx} ratio={ratio}/>
+        <div className="video-modal-footer">
+          <div><strong>{ctx.title}</strong> · 1:00 · {specs.dim}</div>
+          <div>Looping preview · press ESC to close</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.App = App;
+</script>
+
+<script type="text/babel">
+  setTimeout(() => {
+    ReactDOM.createRoot(document.getElementById('root')).render(<window.App/>);
+  }, 150);
+</script>
+</body>
+</html>
