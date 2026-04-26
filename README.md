@@ -177,3 +177,4 @@ Delete its folder. Push. It's gone.
 Workshop content, illustrations, and brand assets: © 2Hour Learning. Internal use across Alpha Anywhere chapters only.
 
 Audio: each track's licensing lives in `public/audio/README.md`.
+# chapter-event-kit-v2
