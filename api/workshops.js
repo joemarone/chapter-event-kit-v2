@@ -45,27 +45,39 @@ module.exports = async (req, res) => {
     // Wrap tab name in single quotes to handle hyphens like "Workshop-details".
     const range = `'${tabName.replace(/'/g, "''")}'!A:P`;
     const chaptersRange = "'Chapter List'!A:A";
+    const organizersRange = "'Organizer List'!A:B";
 
-    // Fetch the workshops tab and the chapter list in parallel. The chapter
-    // list is best-effort: if the tab doesn't exist or fails for any reason,
-    // we just return an empty chapter list — the frontend falls back to a
-    // free-text chapter input in that case.
-    const [resp, chaptersResp] = await Promise.all([
+    // Fetch the workshops tab plus the two lookup tabs (chapters, organizers)
+    // in parallel. The lookup fetches are best-effort: if a tab is missing
+    // or fails, we return an empty list — the frontend falls back to free-
+    // text inputs for that field.
+    const [resp, chaptersResp, organizersResp] = await Promise.all([
       sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range }),
       sheets.spreadsheets.values
         .get({ spreadsheetId: sheetId, range: chaptersRange })
+        .catch(() => ({ data: { values: [] } })),
+      sheets.spreadsheets.values
+        .get({ spreadsheetId: sheetId, range: organizersRange })
         .catch(() => ({ data: { values: [] } })),
     ]);
 
     const chapters = (chaptersResp.data.values || [])
       .map((row) => String(row[0] || '').trim())
       .filter(Boolean);
+    // Organizers: each row has name (col A) and email (col B). Skip rows
+    // without a name; email is optional.
+    const organizers = (organizersResp.data.values || [])
+      .map((row) => ({
+        name: String((row && row[0]) || '').trim(),
+        email: String((row && row[1]) || '').trim(),
+      }))
+      .filter((o) => o.name);
 
     const rows = resp.data.values || [];
     if (rows.length < 2) {
       // Either empty sheet or only a header row.
       res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
-      return res.status(200).json({ workshops: [], chapters });
+      return res.status(200).json({ workshops: [], chapters, organizers });
     }
 
     const [header, ...dataRows] = rows;
@@ -138,12 +150,14 @@ module.exports = async (req, res) => {
           firstDataRow: dataRows[0] || null,
           fieldMatches: matched,
           chapterListCount: chapters.length,
+          organizerListCount: organizers.length,
         },
         workshops,
         chapters,
+        organizers,
       });
     }
-    return res.status(200).json({ workshops, chapters });
+    return res.status(200).json({ workshops, chapters, organizers });
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Unknown error' });
   }

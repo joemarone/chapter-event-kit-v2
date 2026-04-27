@@ -2187,6 +2187,9 @@ function App() {
   // tab of the sheet). Empty default = the chapter dropdown shows just the
   // placeholder option until the fetch resolves.
   const [chapters, setChapters] = useState([]);
+  // Organizer list — pairs of {name, email} from the "Organizer List" tab.
+  // Selecting a name auto-fills the email field, which becomes read-only.
+  const [organizers, setOrganizers] = useState([]);
 
   useEffect(() => {
     let alive = true;
@@ -2200,6 +2203,7 @@ function App() {
         clearTimeout(fallbackTimer);
         setWorkshops((d?.workshops?.length) ? d.workshops : window.WORKSHOPS);
         if (d?.chapters?.length) setChapters(d.chapters);
+        if (d?.organizers?.length) setOrganizers(d.organizers);
       })
       .catch(() => {
         if (!alive) return;
@@ -2505,12 +2509,23 @@ function App() {
           <div className="form-stack">
             <div className="field">
               <label className="field-label">Organizer name</label>
-              <input className="field-input" placeholder="e.g. Sarah Johnson" value={organizerName} onChange={e => setOrganizerName(e.target.value)} autoFocus/>
+              <select className="field-select" value={organizerName} onChange={(e) => {
+                const name = e.target.value;
+                setOrganizerName(name);
+                // Pair with the email from the Organizer List row, so the
+                // email field below auto-fills and stays in sync.
+                const match = organizers.find((o) => o.name === name);
+                setOrganizerEmail(match ? match.email : '');
+              }} autoFocus>
+                <option value="">Select the organizer…</option>
+                {organizers.map((o) => <option key={o.name} value={o.name}>{o.name}</option>)}
+              </select>
+              <div className="field-hint">Pick the parent running the workshop. The list is managed centrally in the workshop sheet's "Organizer List" tab — message your admin if a name is missing.</div>
             </div>
             <div className="field">
-              <label className="field-label">Email <span className="opt">(optional)</span></label>
-              <input className="field-input" type="email" placeholder="e.g. sarah@example.com" value={organizerEmail} onChange={e => setOrganizerEmail(e.target.value)}/>
-              <div className="field-hint">Included in the event description so parents can ask questions before the day.</div>
+              <label className="field-label">Email</label>
+              <input className="field-input" type="email" placeholder="Auto-fills when you pick an organizer above" value={organizerEmail} readOnly/>
+              <div className="field-hint">Auto-filled from the Organizer List. Included in the event description so parents can ask questions before the day.</div>
             </div>
           </div>
           {affirmations[3] && <div className="affirm"><div className="affirm-bullet"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg></div>{affirmations[3]}</div>}
