@@ -981,18 +981,6 @@ html, body {
   transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
 .trailer-thumb:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-/* Snapshot mode — applied briefly while html2canvas captures the scene as a
-   chapter-customized poster PNG. Pauses animations so the captured frame is
-   stable, and hides the play / duration / ratio overlays so they don't end
-   up baked into the downloaded image. */
-.trailer-thumb.snapping *,
-.trailer-thumb.snapping {
-  animation-play-state: paused !important;
-  transition: none !important;
-}
-.trailer-thumb.snapping .trailer-thumb-play,
-.trailer-thumb.snapping .trailer-thumb-dur,
-.trailer-thumb.snapping .trailer-thumb-ratio { visibility: hidden !important; }
 .trailer-thumb.l { aspect-ratio: 16 / 9; }
 .trailer-thumb.p { aspect-ratio: 9 / 16; }
 
@@ -1803,9 +1791,6 @@ window.TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<!-- html2canvas: rasterizes the live React/CSS trailer scenes to PNG so chairs
-     can download a chapter-customized poster image alongside the YouTube link. -->
-<script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
 
 <script>
 window.WORKSHOPS = [
@@ -1883,6 +1868,23 @@ function wrapText(text, maxChars) {
 
 function CoverEditorial({ ctx }) {
   const { title, subtitle, skills, ages, duration, groupSize, chapter, date } = ctx;
+  // Word-aware balanced line split for the headline. The previous logic
+  // sliced at character index 28, which broke "Investigators" mid-word
+  // ("Investiga" / "tors"). This finds the split point that minimizes
+  // the longer line so the break happens between words.
+  const titleWords = title.split(' ');
+  let titleLine1 = title, titleLine2 = '';
+  if (title.length > 22 && titleWords.length >= 2) {
+    let bestI = 1, bestMax = Infinity;
+    for (let i = 1; i < titleWords.length; i++) {
+      const a = titleWords.slice(0, i).join(' ').length;
+      const b = titleWords.slice(i).join(' ').length;
+      const m = Math.max(a, b);
+      if (m < bestMax) { bestMax = m; bestI = i; }
+    }
+    titleLine1 = titleWords.slice(0, bestI).join(' ');
+    titleLine2 = titleWords.slice(bestI).join(' ');
+  }
   return (
     <svg viewBox="0 0 1680 600" xmlns="http://www.w3.org/2000/svg">
       <rect width="1680" height="600" fill="#FAFAFA"/>
@@ -1901,13 +1903,17 @@ function CoverEditorial({ ctx }) {
         {chapter && <text x="0" y="20" fontFamily="Be Vietnam Pro, Arial, sans-serif" fontSize="13" fontWeight="500" fill="#072256" textAnchor="end">{chapter}</text>}
       </g>
 
-      {/* Main title block */}
+      {/* Main title block. Single line at 96pt for short titles; word-aware
+          split at 92pt for longer ones. Sized down from the original 110pt
+          to leave room for AF Sobremesa Bold's wide glyphs — at 110, even
+          a single line of "Crazy Contraptions Club" was clipping the
+          right edge of the SVG viewBox. */}
       <g transform="translate(72, 200)">
-        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="110" letterSpacing="-4" fill="#072256">
-          <tspan x="0" y="0">{title.length > 28 ? title.substring(0, 28).trim() : title}</tspan>
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize={titleLine2 ? 92 : 96} letterSpacing="-3" fill="#072256">
+          <tspan x="0" y="0">{titleLine1}</tspan>
         </text>
-        {title.length > 28 && (
-          <text x="0" y="110" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="84" letterSpacing="-3" fill="#006FF9">{title.substring(28).trim()}</text>
+        {titleLine2 && (
+          <text x="0" y="92" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="92" letterSpacing="-3" fill="#006FF9">{titleLine2}</text>
         )}
       </g>
 
@@ -2297,45 +2303,6 @@ function App() {
     }
   }
 
-  async function downloadTrailerPNG(ratio) {
-    if (!window.html2canvas) {
-      showToast('Capture library still loading — try again in a sec');
-      return;
-    }
-    // The TrailerBlock for this ratio renders a .trailer-thumb element.
-    // Find the one inside the build-list (step 5), not anywhere else
-    // (e.g., the per-tile preview modal on step 1).
-    const sel = ratio === 'landscape' ? '.trailer-thumb.l' : '.trailer-thumb.p';
-    const thumb = document.querySelector(`.build-list ${sel}`);
-    if (!thumb) {
-      showToast('Trailer not visible — expand the tile first');
-      return;
-    }
-    thumb.classList.add('snapping');
-    // Let the layout settle for a frame so paused animations apply before
-    // html2canvas walks the DOM.
-    await new Promise((r) => setTimeout(r, 60));
-    try {
-      const canvas = await window.html2canvas(thumb, {
-        scale: 3,
-        backgroundColor: '#072256',
-        useCORS: true,
-        logging: false,
-      });
-      canvas.toBlob((blob) => {
-        const dl = document.createElement('a');
-        dl.download = `${slugify(selected.title)}-${ratio}.png`;
-        dl.href = URL.createObjectURL(blob);
-        dl.click();
-      });
-      showToast(`${ratio === 'landscape' ? 'Landscape' : 'Portrait'} poster downloaded`);
-    } catch (e) {
-      showToast('Couldn\'t capture — try again');
-    } finally {
-      thumb.classList.remove('snapping');
-    }
-  }
-
   function downloadCoverPNG() {
     const svg = document.querySelector('.cover-thumb svg');
     if (!svg) return;
@@ -2667,7 +2634,6 @@ function App() {
                       youtubeUrl={ctx.youtubeLandscape}
                       onOpen={() => setVideoOpen('landscape')}
                       onCopy={(what) => showToast(what)}
-                      onDownloadPNG={() => downloadTrailerPNG('landscape')}
                     />
                   </div>
                 </div>
@@ -2692,7 +2658,6 @@ function App() {
                       youtubeUrl={ctx.youtubePortrait}
                       onOpen={() => setVideoOpen('portrait')}
                       onCopy={(what) => showToast(what)}
-                      onDownloadPNG={() => downloadTrailerPNG('portrait')}
                     />
                   </div>
                 </div>
@@ -3042,7 +3007,7 @@ function TrailerScene({ ctx, ratio }) {
   );
 }
 
-function TrailerBlock({ ratio, ctx, url, youtubeUrl, onOpen, onCopy, onDownloadPNG }) {
+function TrailerBlock({ ratio, ctx, url, youtubeUrl, onOpen, onCopy }) {
   const isLandscape = ratio === 'landscape';
   // Show + copy the real YouTube URL when one is set; otherwise the
   // placeholder URL the kit generates so nothing breaks before videos exist.
@@ -3085,9 +3050,6 @@ function TrailerBlock({ ratio, ctx, url, youtubeUrl, onOpen, onCopy, onDownloadP
           <div className="trailer-actions">
             <button className="build-btn small" onClick={onOpen}>Preview full size</button>
             <button className="build-btn small outline" onClick={() => { navigator.clipboard.writeText(displayedUrl); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }}>Copy link</button>
-            {onDownloadPNG && (
-              <button className="build-btn small outline" onClick={onDownloadPNG} title="Download a chapter-customized PNG poster of this trailer">Download PNG</button>
-            )}
             <button className="build-btn small outline" onClick={() => {
               const caption = isLandscape
                 ? `New workshop dropping for ${ctx.chapter || 'our chapter'} — ${ctx.title}. ${specs.dim} trailer above. RSVP on Circle.`
