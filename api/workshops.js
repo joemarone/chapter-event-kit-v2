@@ -67,6 +67,13 @@ module.exports = async (req, res) => {
       .split(/\r?\n/)
       .map((s) => s.trim())
       .filter(Boolean);
+    // Accept the values people actually type for booleans in spreadsheets,
+    // not just literal "true". Anything affirmative -> true; empty / "false" /
+    // "no" / unknown -> false.
+    const parseBool = (val) => {
+      const v = String(val || '').trim().toLowerCase();
+      return v === 'true' || v === 'yes' || v === 'y' || v === '1' || v === 'x' || v === '✓' || v === '✔' || v === 'on';
+    };
 
     const workshops = dataRows
       .filter((row) => row && cell(row, 'title'))
@@ -79,7 +86,7 @@ module.exports = async (req, res) => {
         duration: parseInt(cell(row, 'duration'), 10) || 90,
         cost: cell(row, 'cost'),
         setup: cell(row, 'setup'),
-        popular: String(cell(row, 'popular')).toLowerCase() === 'true',
+        popular: parseBool(cell(row, 'popular')),
         skills: splitMulti(cell(row, 'skills')),
         materials: splitMulti(cell(row, 'materials')),
         mastery: splitMulti(cell(row, 'mastery')),
