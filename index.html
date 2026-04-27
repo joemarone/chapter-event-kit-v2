@@ -372,6 +372,43 @@ html, body {
 }
 .workshop-card.selected .wc-check { opacity: 1; transform: scale(1); }
 
+/* Preview button — appears on workshop cards on step 1 */
+.wc-preview {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px 7px 11px;
+  background: var(--aa-navy);
+  color: var(--aa-white);
+  border: none;
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: all var(--dur) var(--ease);
+  box-shadow: var(--shadow-sm);
+}
+.workshop-card:hover .wc-preview,
+.workshop-card.selected .wc-preview,
+.workshop-card:focus-within .wc-preview {
+  opacity: 1;
+  transform: translateY(0);
+}
+.wc-preview:hover {
+  background: var(--aa-blue);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.wc-preview svg { flex-shrink: 0; }
+
 .picker-empty {
   grid-column: 1 / -1;
   padding: 48px;
@@ -1604,6 +1641,32 @@ html, body {
   aspect-ratio: 9 / 16;
 }
 .video-modal-stage .trailer-scene { font-size: clamp(10px, 1.5vmin, 18px); }
+
+/* ---------- Branded intro video ---------- */
+/* Wraps the trailer; plays the 6s mp4 first, then unmounts to reveal slides. */
+.trailer-with-intro {
+  position: absolute;
+  inset: 0;
+  background: var(--aa-navy);
+  overflow: hidden;
+}
+.trailer-with-intro .trailer-scene {
+  position: absolute;
+  inset: 0;
+  animation: tr-intro-fadein 280ms var(--ease) both;
+}
+.trailer-intro-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--aa-navy);
+}
+@keyframes tr-intro-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 .video-modal-close {
   position: absolute;
   top: -44px; right: 0;
@@ -2184,6 +2247,7 @@ function App() {
   const [tray, setTray] = useState({ cover: false, description: false, checklist: false, runofshow: false, landscape: false, portrait: false });
   const [coverTemplate, setCoverTemplate] = useState('editorial');
   const [videoOpen, setVideoOpen] = useState(null); // 'landscape' | 'portrait' | null
+  const [previewWorkshop, setPreviewWorkshop] = useState(null); // workshop object | null
   const [track, setTrack] = useState('build'); // 'workshop' | 'build' | 'showtime' | 'none'
   const [tweaksOpen, setTweaksOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -2373,7 +2437,7 @@ function App() {
             {filtered.map((w) => {
               const realIdx = window.WORKSHOPS.indexOf(w);
               return (
-                <button key={w.title} className={`workshop-card ${selectedIdx === realIdx ? 'selected' : ''}`} onClick={() => setSelectedIdx(realIdx)}>
+                <div key={w.title} className={`workshop-card ${selectedIdx === realIdx ? 'selected' : ''}`} onClick={() => setSelectedIdx(realIdx)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedIdx(realIdx); } }}>
                   <div className="wc-head">
                     <div className="wc-cat">{w.category}</div>
                     {w.popular && <div className="wc-popular">Popular</div>}
@@ -2385,10 +2449,14 @@ function App() {
                     <span><strong>{w.duration}</strong> min</span>
                     <span><strong>{w.skills.length}</strong> skill{w.skills.length > 1 ? 's' : ''}</span>
                   </div>
+                  <button className="wc-preview" onClick={(e) => { e.stopPropagation(); setPreviewWorkshop(w); }} title="Preview the trailer">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Preview
+                  </button>
                   <div className="wc-check">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
-                </button>
+                </div>
               );
             })}
             {filtered.length === 0 && <div className="picker-empty">Nothing matches. Try a different category or clear the search.</div>}
@@ -2733,6 +2801,7 @@ function App() {
       </footer>
 
       {videoOpen && <VideoModal ratio={videoOpen} ctx={ctx} onClose={() => setVideoOpen(null)}/>}
+      {previewWorkshop && <WorkshopPreviewModal workshop={previewWorkshop} onClose={() => setPreviewWorkshop(null)}/>}
       {tweaksOpen && <TweaksPanel onClose={() => setTweaksOpen(false)}/>}
       {toast && <div className="toast">{toast}</div>}
     </div>
@@ -3121,10 +3190,88 @@ function VideoModal({ ratio, ctx, onClose }) {
           Close
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg>
         </button>
-        <TrailerScene ctx={ctx} ratio={ratio}/>
+        <TrailerWithIntro ctx={ctx} ratio={ratio} loop={true}/>
         <div className="video-modal-footer">
-          <div><strong>{ctx.title}</strong> · 1:00 · {specs.dim}</div>
+          <div><strong>{ctx.title}</strong> · 1:06 · {specs.dim}</div>
           <div>Looping preview · press ESC to close</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============== TRAILER WITH BRANDED INTRO ==============
+// Plays the 6-second branded mp4 first, then crossfades into the slide trailer.
+// The intro and the slide trailer together form one "video." This is what gets
+// exported when we ship MP4 generation in Phase B.
+function TrailerWithIntro({ ctx, ratio, loop }) {
+  const [introDone, setIntroDone] = useState(false);
+  const videoRef = React.useRef(null);
+  const introSrc = ratio === 'landscape'
+    ? 'assets/intro/intro-landscape.mp4'
+    : 'assets/intro/intro-portrait.mp4';
+
+  useEffect(() => {
+    // Reset on remount (e.g., when loop=false and parent recreates the component)
+    setIntroDone(false);
+  }, [ctx.title, ratio]);
+
+  return (
+    <div className="trailer-with-intro" data-ratio={ratio}>
+      {!introDone && (
+        <video
+          ref={videoRef}
+          className="trailer-intro-video"
+          src={introSrc}
+          autoPlay
+          playsInline
+          muted={false}
+          onEnded={() => setIntroDone(true)}
+          onError={() => { /* intro file missing — skip straight to trailer */ setIntroDone(true); }}
+        />
+      )}
+      {introDone && <TrailerScene ctx={ctx} ratio={ratio}/>}
+    </div>
+  );
+}
+
+// ============== WORKSHOP PREVIEW MODAL ==============
+// Shown when a parent clicks "Preview" on a workshop card on step 1.
+// Plays the branded intro followed by the portrait trailer, then auto-closes.
+// Click the backdrop or press ESC to dismiss early.
+function WorkshopPreviewModal({ workshop, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  // Build a minimal preview ctx — the parent hasn't filled in chapter/date/etc yet.
+  const ctx = {
+    title: workshop.title,
+    subtitle: workshop.oneLiner,
+    skills: workshop.skills,
+    ages: workshop.ages,
+    duration: workshop.duration,
+    groupSize: '8-12',
+    chapter: 'Your Chapter',
+    date: '',
+    materials: workshop.materials || [],
+    mastery: workshop.mastery || [],
+  };
+
+  return (
+    <div className="video-modal" onClick={onClose}>
+      <div className="video-modal-stage portrait preview-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="video-modal-close" onClick={onClose}>
+          Close
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg>
+        </button>
+        {/* loop=false so the trailer plays once and the modal can auto-close */}
+        <TrailerWithIntro ctx={ctx} ratio="portrait" loop={false} onComplete={onClose}/>
+        <div className="video-modal-footer">
+          <div><strong>{workshop.title}</strong> · preview</div>
+          <div>Click anywhere outside to close</div>
         </div>
       </div>
     </div>
