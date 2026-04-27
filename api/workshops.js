@@ -58,10 +58,17 @@ module.exports = async (req, res) => {
     }
 
     const [header, ...dataRows] = rows;
-    // Match column headers case-insensitively and ignore surrounding
-    // whitespace, so "Popular", " popular ", or "POPULAR" all work.
+    // Header matching is intentionally lenient: case-insensitive, whitespace-
+    // trimmed, and falls back to substring match. This handles real-world
+    // sheet headers like "Popular", " popular ", "Popular?", "is_popular",
+    // "Popular Tag", etc. without anyone having to rename columns.
     const normHeader = header.map((h) => String(h || '').trim().toLowerCase());
-    const idx = (name) => normHeader.indexOf(name.toLowerCase());
+    const idx = (name) => {
+      const target = name.toLowerCase();
+      const exact = normHeader.indexOf(target);
+      if (exact >= 0) return exact;
+      return normHeader.findIndex((h) => h.includes(target));
+    };
     const cell = (row, name) => {
       const i = idx(name);
       return i >= 0 && row[i] != null ? String(row[i]) : '';
@@ -101,6 +108,27 @@ module.exports = async (req, res) => {
     // CDN cache: 60s fresh, 5 min stale-while-revalidate. Sheet edits show
     // up within a minute on the next request; subsequent requests are instant.
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+    // Debug mode: append ?debug=1 to the URL to see the raw header row,
+    // first data row, and the matched column index for each known field.
+    // Lets us diagnose mismatches like "Popular?" vs "popular" without
+    // asking the user to dig in the sheet.
+    if (req.query?.debug === '1' || (req.url || '').includes('debug=1')) {
+      const knownFields = ['id','title','oneLiner','category','ages','duration','cost','setup','popular','skills','materials','mastery','youtubePortrait','youtubeLandscape','facilitatorGuideUrl'];
+      const matched = {};
+      knownFields.forEach((f) => {
+        const i = idx(f);
+        matched[f] = i >= 0 ? { matchedAt: i, matchedHeader: header[i] } : { matchedAt: -1, matchedHeader: null };
+      });
+      return res.status(200).json({
+        debug: {
+          rawHeaderRow: header,
+          normalizedHeaderRow: normHeader,
+          firstDataRow: dataRows[0] || null,
+          fieldMatches: matched,
+        },
+        workshops,
+      });
+    }
     return res.status(200).json({ workshops });
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Unknown error' });
