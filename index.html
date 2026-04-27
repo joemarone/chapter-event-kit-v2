@@ -2183,6 +2183,10 @@ function App() {
   // later. The bundled array is still used as a fallback if the fetch fails
   // or hangs past 3 seconds.
   const [workshops, setWorkshops] = useState(null);
+  // Chapter list comes from the same API call (read from the "Chapter List"
+  // tab of the sheet). Empty default = the chapter dropdown shows just the
+  // placeholder option until the fetch resolves.
+  const [chapters, setChapters] = useState([]);
 
   useEffect(() => {
     let alive = true;
@@ -2195,6 +2199,7 @@ function App() {
         if (!alive) return;
         clearTimeout(fallbackTimer);
         setWorkshops((d?.workshops?.length) ? d.workshops : window.WORKSHOPS);
+        if (d?.chapters?.length) setChapters(d.chapters);
       })
       .catch(() => {
         if (!alive) return;
@@ -2387,10 +2392,6 @@ function App() {
             <div className="masthead-sub">Chapter Workshop Builder</div>
           </div>
         </div>
-        <div className="masthead-edition">
-          <strong>Dorado Pilot 2026</strong>
-          <span>Event Kit Generator</span>
-        </div>
       </div>
 
       <div className="progress">
@@ -2483,8 +2484,11 @@ function App() {
           <div className="form-stack">
             <div className="field">
               <label className="field-label">Chapter name</label>
-              <input className="field-input" placeholder="e.g. Dorado, PR" value={chapter} onChange={e => setChapter(e.target.value)} autoFocus/>
-              <div className="field-hint">Use a city or neighborhood — "Dorado, PR" · "Austin, TX" · "Westside LA"</div>
+              <select className="field-select" value={chapter} onChange={e => setChapter(e.target.value)} autoFocus>
+                <option value="">Select your chapter…</option>
+                {chapters.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <div className="field-hint">Pick the chapter you're hosting from. The list is managed centrally in the workshop sheet's "Chapter List" tab — message your admin if your chapter is missing.</div>
             </div>
           </div>
           {affirmations[2] && <div className="affirm"><div className="affirm-bullet"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg></div>{affirmations[2]}</div>}
@@ -2734,7 +2738,6 @@ function App() {
 
       <footer className="app-foot">
         <div>Alpha Anywhere Community Chapters</div>
-        <div>Dorado Pilot 2026</div>
       </footer>
 
       {videoOpen && <VideoModal ratio={videoOpen} ctx={ctx} onClose={() => setVideoOpen(null)}/>}

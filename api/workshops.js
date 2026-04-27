@@ -44,17 +44,28 @@ module.exports = async (req, res) => {
 
     // Wrap tab name in single quotes to handle hyphens like "Workshop-details".
     const range = `'${tabName.replace(/'/g, "''")}'!A:P`;
+    const chaptersRange = "'Chapter List'!A:A";
 
-    const resp = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range,
-    });
+    // Fetch the workshops tab and the chapter list in parallel. The chapter
+    // list is best-effort: if the tab doesn't exist or fails for any reason,
+    // we just return an empty chapter list — the frontend falls back to a
+    // free-text chapter input in that case.
+    const [resp, chaptersResp] = await Promise.all([
+      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range }),
+      sheets.spreadsheets.values
+        .get({ spreadsheetId: sheetId, range: chaptersRange })
+        .catch(() => ({ data: { values: [] } })),
+    ]);
+
+    const chapters = (chaptersResp.data.values || [])
+      .map((row) => String(row[0] || '').trim())
+      .filter(Boolean);
 
     const rows = resp.data.values || [];
     if (rows.length < 2) {
       // Either empty sheet or only a header row.
       res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
-      return res.status(200).json({ workshops: [] });
+      return res.status(200).json({ workshops: [], chapters });
     }
 
     const [header, ...dataRows] = rows;
@@ -108,6 +119,7 @@ module.exports = async (req, res) => {
     // CDN cache: 60s fresh, 5 min stale-while-revalidate. Sheet edits show
     // up within a minute on the next request; subsequent requests are instant.
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+    // (chapters is included in both the success and debug responses below)
     // Debug mode: append ?debug=1 to the URL to see the raw header row,
     // first data row, and the matched column index for each known field.
     // Lets us diagnose mismatches like "Popular?" vs "popular" without
@@ -125,11 +137,13 @@ module.exports = async (req, res) => {
           normalizedHeaderRow: normHeader,
           firstDataRow: dataRows[0] || null,
           fieldMatches: matched,
+          chapterListCount: chapters.length,
         },
         workshops,
+        chapters,
       });
     }
-    return res.status(200).json({ workshops });
+    return res.status(200).json({ workshops, chapters });
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Unknown error' });
   }
