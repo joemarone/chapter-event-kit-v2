@@ -58,7 +58,10 @@ module.exports = async (req, res) => {
     }
 
     const [header, ...dataRows] = rows;
-    const idx = (name) => header.indexOf(name);
+    // Match column headers case-insensitively and ignore surrounding
+    // whitespace, so "Popular", " popular ", or "POPULAR" all work.
+    const normHeader = header.map((h) => String(h || '').trim().toLowerCase());
+    const idx = (name) => normHeader.indexOf(name.toLowerCase());
     const cell = (row, name) => {
       const i = idx(name);
       return i >= 0 && row[i] != null ? String(row[i]) : '';

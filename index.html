@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Alpha Anywhere — Chapter Workshop Builder</title>
 
+<!-- Preload the most-used AF Sobremesa weights so they're cached before the
+     CSS needs them. Eliminates the FOUT (flash from system font to brand font)
+     that the user sees right after first paint. -->
+<link rel="preload" href="assets/fonts/AFSobremesa-Regular.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="assets/fonts/AFSobremesa-Medium.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="assets/fonts/AFSobremesa-SemiBold.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="assets/fonts/AFSobremesa-Bold.woff2" as="font" type="font/woff2" crossorigin/>
+
 <style>
 /* ==========================================================================
    Alpha Anywhere — Chapter Workshop Builder
@@ -415,6 +423,13 @@ html, body {
   text-align: center;
   color: var(--fg-muted);
   font-size: 15px;
+}
+.picker-loading {
+  padding: 64px 24px;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 14px;
+  letter-spacing: 0.02em;
 }
 
 /* ---------- Forms ---------- */
@@ -2121,16 +2136,32 @@ function App() {
   const [previewWorkshop, setPreviewWorkshop] = useState(null); // workshop object | null
   const [tweaksOpen, setTweaksOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  // Workshops come from /api/workshops (a Vercel function that reads our
-  // private Google Sheet). The bundled window.WORKSHOPS array is the
-  // initial value AND the fallback if the fetch fails.
-  const [workshops, setWorkshops] = useState(window.WORKSHOPS);
+  // Workshops are fetched from /api/workshops (a Vercel function reading our
+  // private Google Sheet). We start as `null` (loading) rather than seeding
+  // with the bundled fallback — otherwise the picker renders the bundled
+  // order, then visibly re-sorts when the API resolves a few hundred ms
+  // later. The bundled array is still used as a fallback if the fetch fails
+  // or hangs past 3 seconds.
+  const [workshops, setWorkshops] = useState(null);
 
   useEffect(() => {
+    let alive = true;
+    const fallbackTimer = setTimeout(() => {
+      if (alive) setWorkshops((w) => w || window.WORKSHOPS);
+    }, 3000);
     fetch('/api/workshops')
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (d?.workshops?.length) setWorkshops(d.workshops); })
-      .catch(() => { /* fall back to bundled window.WORKSHOPS */ });
+      .then((d) => {
+        if (!alive) return;
+        clearTimeout(fallbackTimer);
+        setWorkshops((d?.workshops?.length) ? d.workshops : window.WORKSHOPS);
+      })
+      .catch(() => {
+        if (!alive) return;
+        clearTimeout(fallbackTimer);
+        setWorkshops((w) => w || window.WORKSHOPS);
+      });
+    return () => { alive = false; clearTimeout(fallbackTimer); };
   }, []);
 
   useEffect(() => {
@@ -2157,6 +2188,7 @@ function App() {
   ];
   const categories = ['All', ...CANONICAL_CATEGORIES];
   const filtered = useMemo(() => {
+    if (!workshops) return [];
     const q = search.trim().toLowerCase();
     return workshops.filter(w => {
       if (category !== 'All' && w.category !== category) return false;
@@ -2165,7 +2197,7 @@ function App() {
     });
   }, [search, category, workshops]);
 
-  const selected = selectedIdx != null ? workshops[selectedIdx] : null;
+  const selected = (workshops && selectedIdx != null) ? workshops[selectedIdx] : null;
 
   const ctx = selected ? {
     title: selected.title,
@@ -2317,6 +2349,9 @@ function App() {
             ))}
           </div>
 
+          {!workshops ? (
+            <div className="picker-loading">Loading workshops…</div>
+          ) : (
           <div className="picker-grid">
             {filtered.map((w) => {
               const realIdx = workshops.indexOf(w);
@@ -2345,6 +2380,7 @@ function App() {
             })}
             {filtered.length === 0 && <div className="picker-empty">Nothing matches. Try a different category or clear the search.</div>}
           </div>
+          )}
 
           {affirmations[1] && <div className="affirm"><div className="affirm-bullet"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg></div>{affirmations[1]}</div>}
         </section>
