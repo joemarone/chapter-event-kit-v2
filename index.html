@@ -1470,6 +1470,16 @@ html, body {
 }
 .video-modal-stage .trailer-scene { font-size: clamp(10px, 1.5vmin, 18px); }
 
+/* YouTube iframe — fills the modal stage when a real trailer URL is set */
+.youtube-embed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--aa-navy);
+}
+
 /* ---------- Branded intro video ---------- */
 /* Wraps the trailer; plays the 6s mp4 first, then unmounts to reveal slides. */
 .trailer-with-intro {
@@ -1714,11 +1724,11 @@ window.TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 
 <script>
 window.WORKSHOPS = [
-  { title: "Actions Speak Louder", oneLiner: "Build confidence through storytelling and public speaking challenges that get kids on their feet and thinking fast.", skills: ["Public Speaking","Storytelling"], ages: "9-11", category: "Storytelling + Public Speaking", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Index cards (1 pack)","Sharpies (assorted)","A soft ball or beanbag","Timer or phone","Masking tape"], mastery: ["Deliver a 60-second story with a clear beginning, middle, and end — no filler words","Hold eye contact with at least three audience members","Recover from one deliberate interruption without losing the thread","Take a question from the audience and answer it on the spot"] },
-  { title: "Alpha Entrepreneurs", oneLiner: "Teams pitch a business idea from concept to presentation, learning budgeting, branding, and persuasion along the way.", skills: ["Personal Finance","Brand Building"], ages: "11-13", category: "Entrepreneurship + Financial Literacy", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Poster board (1 per team)","Sharpies","Play money set","Sticky notes","Clipboards"], mastery: ["Define a real customer and the specific problem you solve for them","Set a price and justify it against costs (not vibes)","Pitch the business in 90 seconds without notes","Take one hard question from a 'judge' and answer it directly"] },
-  { title: "ASI: Alpha Science Investigators", oneLiner: "Play forensic detective, analyze evidence, build a case, and present your findings to solve the mystery.", skills: ["Critical Thinking"], ages: "13-15", category: "Teamwork + Leadership", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Magnifying glasses","Evidence bags (ziplocs)","Fingerprint ink pad","Printed case files","Gloves (latex-free)"], mastery: ["Form a hypothesis based on at least three pieces of evidence","Identify which evidence supports it and which contradicts it","Present the case to the group with a clear chain of reasoning","Concede a point when challenged with stronger evidence"] },
-  { title: "Crazy Contraptions Club", oneLiner: "Engineer a chain-reaction machine from everyday materials, combining physics, creativity, and teamwork.", skills: ["Critical Thinking","Collaboration"], ages: "7-9", category: "Relationship Building + Socialization", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Cardboard tubes (lots)","Marbles","Masking tape","Rubber bands","Dominos","String"], mastery: ["Build a machine with at least four definable moving parts","Touch only one part to start the entire chain reaction","Predict out loud what will happen — and have it actually happen","Diagnose one failure and fix it without help"] },
-  { title: "Leaving in Stitches", oneLiner: "Learn the basics of hand sewing by creating a real project from scratch, building patience and fine motor skills.", skills: ["Be An Expert","Fine Motor"], ages: "5-7, 7-9", category: "Relationship Building + Socialization", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Felt squares (assorted colors)","Embroidery thread","Blunt-tip needles","Scissors (kid-safe)","Stuffing/cotton","Buttons"], mastery: ["Thread a needle and tie a starting knot without help","Sew a straight seam of at least 10 stitches with consistent spacing","Finish a real, functional object you can take home and use","Teach the running stitch to one classmate who's stuck"] }
+  { title: "Actions Speak Louder", oneLiner: "Build confidence through storytelling and public speaking challenges that get kids on their feet and thinking fast.", skills: ["Public Speaking","Storytelling"], ages: "9-11", category: "Storytelling + Public Speaking", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Index cards (1 pack)","Sharpies (assorted)","A soft ball or beanbag","Timer or phone","Masking tape"], mastery: ["Deliver a 60-second story with a clear beginning, middle, and end — no filler words","Hold eye contact with at least three audience members","Recover from one deliberate interruption without losing the thread","Take a question from the audience and answer it on the spot"], youtubePortrait: "", youtubeLandscape: "" },
+  { title: "Alpha Entrepreneurs", oneLiner: "Teams pitch a business idea from concept to presentation, learning budgeting, branding, and persuasion along the way.", skills: ["Personal Finance","Brand Building"], ages: "11-13", category: "Entrepreneurship + Financial Literacy", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Poster board (1 per team)","Sharpies","Play money set","Sticky notes","Clipboards"], mastery: ["Define a real customer and the specific problem you solve for them","Set a price and justify it against costs (not vibes)","Pitch the business in 90 seconds without notes","Take one hard question from a 'judge' and answer it directly"], youtubePortrait: "", youtubeLandscape: "" },
+  { title: "ASI: Alpha Science Investigators", oneLiner: "Play forensic detective, analyze evidence, build a case, and present your findings to solve the mystery.", skills: ["Critical Thinking"], ages: "13-15", category: "Teamwork + Leadership", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Magnifying glasses","Evidence bags (ziplocs)","Fingerprint ink pad","Printed case files","Gloves (latex-free)"], mastery: ["Form a hypothesis based on at least three pieces of evidence","Identify which evidence supports it and which contradicts it","Present the case to the group with a clear chain of reasoning","Concede a point when challenged with stronger evidence"], youtubePortrait: "", youtubeLandscape: "" },
+  { title: "Crazy Contraptions Club", oneLiner: "Engineer a chain-reaction machine from everyday materials, combining physics, creativity, and teamwork.", skills: ["Critical Thinking","Collaboration"], ages: "7-9", category: "Relationship Building + Socialization", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Cardboard tubes (lots)","Marbles","Masking tape","Rubber bands","Dominos","String"], mastery: ["Build a machine with at least four definable moving parts","Touch only one part to start the entire chain reaction","Predict out loud what will happen — and have it actually happen","Diagnose one failure and fix it without help"], youtubePortrait: "", youtubeLandscape: "" },
+  { title: "Leaving in Stitches", oneLiner: "Learn the basics of hand sewing by creating a real project from scratch, building patience and fine motor skills.", skills: ["Be An Expert","Fine Motor"], ages: "5-7, 7-9", category: "Relationship Building + Socialization", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Felt squares (assorted colors)","Embroidery thread","Blunt-tip needles","Scissors (kid-safe)","Stuffing/cotton","Buttons"], mastery: ["Thread a needle and tie a starting knot without help","Sew a straight seam of at least 10 stitches with consistent spacing","Finish a real, functional object you can take home and use","Teach the running stitch to one classmate who's stuck"], youtubePortrait: "", youtubeLandscape: "" }
 ];
 </script>
 
@@ -1739,6 +1749,16 @@ function formatDate(dateStr, timeStr) {
     formatted += ` · ${h12}:${m} ${ampm}`;
   }
   return formatted;
+}
+
+// Extract YouTube video ID from common URL formats and return embed URL.
+// Returns null when the URL is empty/missing/unparseable, so callers can
+// fall back to the live React/CSS trailer.
+function getYouTubeEmbedUrl(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+  if (!m) return null;
+  return `https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0&modestbranding=1`;
 }
 
 // slug helper for example URLs
@@ -2091,6 +2111,8 @@ function App() {
     date: formatDate(eventDate, eventTime),
     materials: selected.materials,
     mastery: selected.mastery || [],
+    youtubePortrait: selected.youtubePortrait || '',
+    youtubeLandscape: selected.youtubeLandscape || '',
   } : null;
 
   const affirmations = {
@@ -2438,6 +2460,7 @@ function App() {
                       ratio="landscape"
                       ctx={ctx}
                       url={trailerUrls.landscape}
+                      youtubeUrl={ctx.youtubeLandscape}
                       onOpen={() => setVideoOpen('landscape')}
                       onCopy={(what) => showToast(what)}
                     />
@@ -2463,6 +2486,7 @@ function App() {
                       ratio="portrait"
                       ctx={ctx}
                       url={trailerUrls.portrait}
+                      youtubeUrl={ctx.youtubePortrait}
                       onOpen={() => setVideoOpen('portrait')}
                       onCopy={(what) => showToast(what)}
                     />
@@ -2807,8 +2831,11 @@ function TrailerScene({ ctx, ratio }) {
   );
 }
 
-function TrailerBlock({ ratio, ctx, url, onOpen, onCopy }) {
+function TrailerBlock({ ratio, ctx, url, youtubeUrl, onOpen, onCopy }) {
   const isLandscape = ratio === 'landscape';
+  // Show + copy the real YouTube URL when one is set; otherwise the
+  // placeholder URL the kit generates so nothing breaks before videos exist.
+  const displayedUrl = youtubeUrl || url;
   const specs = isLandscape
     ? { dim: '1920 × 1080', ar: '16:9' }
     : { dim: '1080 × 1920', ar: '9:16' };
@@ -2839,14 +2866,14 @@ function TrailerBlock({ ratio, ctx, url, onOpen, onCopy }) {
           </div>
           <div className="trailer-url">
             <span className="trailer-url-label">Link</span>
-            <span className="trailer-url-val">{url}</span>
-            <button className="trailer-url-copy" onClick={() => { navigator.clipboard.writeText(url); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }} title="Copy">
+            <span className="trailer-url-val">{displayedUrl}</span>
+            <button className="trailer-url-copy" onClick={() => { navigator.clipboard.writeText(displayedUrl); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }} title="Copy">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
             </button>
           </div>
           <div className="trailer-actions">
             <button className="build-btn small" onClick={onOpen}>Preview full size</button>
-            <button className="build-btn small outline" onClick={() => { navigator.clipboard.writeText(url); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }}>Copy link</button>
+            <button className="build-btn small outline" onClick={() => { navigator.clipboard.writeText(displayedUrl); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }}>Copy link</button>
             <button className="build-btn small outline" onClick={() => {
               const caption = isLandscape
                 ? `New workshop dropping for ${ctx.chapter || 'our chapter'} — ${ctx.title}. ${specs.dim} trailer above. RSVP on Circle.`
@@ -2893,6 +2920,10 @@ function VideoModal({ ratio, ctx, onClose }) {
   const specs = ratio === 'landscape'
     ? { dim: '1920 × 1080', ar: '16:9' }
     : { dim: '1080 × 1920', ar: '9:16' };
+  // When a real YouTube trailer is set for this orientation, embed it.
+  // Otherwise fall back to the live React/CSS preview so nothing breaks
+  // before the videos are recorded and pasted into the sheet.
+  const youtubeEmbed = getYouTubeEmbedUrl(ratio === 'landscape' ? ctx.youtubeLandscape : ctx.youtubePortrait);
   return (
     <div className="video-modal" onClick={onClose}>
       <div className={`video-modal-stage ${ratio}`} onClick={(e) => e.stopPropagation()}>
@@ -2900,10 +2931,12 @@ function VideoModal({ ratio, ctx, onClose }) {
           Close
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg>
         </button>
-        <TrailerWithIntro ctx={ctx} ratio={ratio} loop={true}/>
+        {youtubeEmbed
+          ? <iframe className="youtube-embed" src={youtubeEmbed} title={`${ctx.title} trailer`} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen frameBorder="0"/>
+          : <TrailerWithIntro ctx={ctx} ratio={ratio} loop={true}/>}
         <div className="video-modal-footer">
-          <div><strong>{ctx.title}</strong> · 1:06 · {specs.dim}</div>
-          <div>Looping preview · press ESC to close</div>
+          <div><strong>{ctx.title}</strong> · {youtubeEmbed ? 'YouTube' : '1:06'} · {specs.dim}</div>
+          <div>{youtubeEmbed ? 'Press ESC or click outside to close' : 'Looping preview · press ESC to close'}</div>
         </div>
       </div>
     </div>
@@ -2970,6 +3003,8 @@ function WorkshopPreviewModal({ workshop, onClose }) {
     mastery: workshop.mastery || [],
   };
 
+  // The per-tile preview only ever shows the portrait variant.
+  const youtubeEmbed = getYouTubeEmbedUrl(workshop.youtubePortrait);
   return (
     <div className="video-modal" onClick={onClose}>
       <div className="video-modal-stage portrait preview-modal" onClick={(e) => e.stopPropagation()}>
@@ -2977,8 +3012,9 @@ function WorkshopPreviewModal({ workshop, onClose }) {
           Close
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg>
         </button>
-        {/* loop=false so the trailer plays once and the modal can auto-close */}
-        <TrailerWithIntro ctx={ctx} ratio="portrait" loop={false} onComplete={onClose}/>
+        {youtubeEmbed
+          ? <iframe className="youtube-embed" src={youtubeEmbed} title={`${workshop.title} trailer`} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen frameBorder="0"/>
+          : <TrailerWithIntro ctx={ctx} ratio="portrait" loop={false} onComplete={onClose}/>}
         <div className="video-modal-footer">
           <div><strong>{workshop.title}</strong> · preview</div>
           <div>Click anywhere outside to close</div>
