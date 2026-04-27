@@ -2063,6 +2063,17 @@ function App() {
   const [previewWorkshop, setPreviewWorkshop] = useState(null); // workshop object | null
   const [tweaksOpen, setTweaksOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  // Workshops come from /api/workshops (a Vercel function that reads our
+  // private Google Sheet). The bundled window.WORKSHOPS array is the
+  // initial value AND the fallback if the fetch fails.
+  const [workshops, setWorkshops] = useState(window.WORKSHOPS);
+
+  useEffect(() => {
+    fetch('/api/workshops')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.workshops?.length) setWorkshops(d.workshops); })
+      .catch(() => { /* fall back to bundled window.WORKSHOPS */ });
+  }, []);
 
   useEffect(() => {
     const onMsg = (e) => {
@@ -2089,14 +2100,14 @@ function App() {
   const categories = ['All', ...CANONICAL_CATEGORIES];
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return window.WORKSHOPS.filter(w => {
+    return workshops.filter(w => {
       if (category !== 'All' && w.category !== category) return false;
       if (!q) return true;
       return (w.title + ' ' + w.oneLiner + ' ' + w.skills.join(' ')).toLowerCase().includes(q);
     });
-  }, [search, category]);
+  }, [search, category, workshops]);
 
-  const selected = selectedIdx != null ? window.WORKSHOPS[selectedIdx] : null;
+  const selected = selectedIdx != null ? workshops[selectedIdx] : null;
 
   const ctx = selected ? {
     title: selected.title,
@@ -2249,7 +2260,7 @@ function App() {
 
           <div className="picker-grid">
             {filtered.map((w) => {
-              const realIdx = window.WORKSHOPS.indexOf(w);
+              const realIdx = workshops.indexOf(w);
               return (
                 <div key={w.title} className={`workshop-card ${selectedIdx === realIdx ? 'selected' : ''}`} onClick={() => setSelectedIdx(realIdx)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedIdx(realIdx); } }}>
                   <div className="wc-head">

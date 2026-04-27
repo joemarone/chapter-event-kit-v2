@@ -1,0 +1,12 @@
+{
+  "name": "chapter-event-kit-v2",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Alpha Anywhere Chapter Event Kit — static UI plus a Vercel serverless function that proxies a Google Sheet for workshop content.",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "googleapis": "^144.0.0"
+  }
+}
