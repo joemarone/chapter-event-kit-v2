@@ -3050,13 +3050,6 @@ function TrailerBlock({ ratio, ctx, url, youtubeUrl, onOpen, onCopy }) {
           <div className="trailer-actions">
             <button className="build-btn small" onClick={onOpen}>Preview full size</button>
             <button className="build-btn small outline" onClick={() => { navigator.clipboard.writeText(displayedUrl); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }}>Copy link</button>
-            <button className="build-btn small outline" onClick={() => {
-              const caption = isLandscape
-                ? `New workshop dropping for ${ctx.chapter || 'our chapter'} — ${ctx.title}. ${specs.dim} trailer above. RSVP on Circle.`
-                : `${ctx.title} — ${ctx.chapter || 'our chapter'}. 1-minute look at what we're running. Tap to RSVP on Circle.`;
-              navigator.clipboard.writeText(caption);
-              onCopy('Caption copied');
-            }}>Copy caption</button>
           </div>
         </div>
       </div>
