@@ -23,7 +23,7 @@ Set all three on Production, Preview, and Development environments in Vercel.
 Row 1 is the header row. Each subsequent row is one workshop. Headers are case-sensitive.
 
 ```
-id | title | oneLiner | category | ages | duration | cost | setup | popular | skills | materials | mastery | youtubePortrait | youtubeLandscape
+id | title | oneLiner | category | ages | duration | cost | setup | popular | skills | materials | mastery | youtubePortrait | youtubeLandscape | facilitatorGuideUrl
 ```
 
 ### Column reference
@@ -44,6 +44,7 @@ id | title | oneLiner | category | ages | duration | cost | setup | popular | sk
 | `mastery` | multi-line cell | One mastery item per line, same convention. Use real em dashes (`—`, U+2014), not double hyphens. |
 | `youtubePortrait` | URL or empty | The unlisted YouTube URL of the portrait (9:16) trailer. Empty during development. |
 | `youtubeLandscape` | URL or empty | The unlisted YouTube URL of the landscape (16:9) trailer. Empty during development. |
+| `facilitatorGuideUrl` | URL or empty | A live document (Google Doc, Notion page, etc.) with detailed prep + run-of-show for the workshop. When set, a "Facilitator Guide" card appears in step 5 of the kit with an "Open Guide" button. When empty, the card doesn't render. |
 
 The YouTube embed parser accepts these URL formats:
 

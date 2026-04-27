@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
     const sheets = google.sheets({ version: 'v4', auth });
 
     // Wrap tab name in single quotes to handle hyphens like "Workshop-details".
-    const range = `'${tabName.replace(/'/g, "''")}'!A:O`;
+    const range = `'${tabName.replace(/'/g, "''")}'!A:P`;
 
     const resp = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
@@ -85,6 +85,7 @@ module.exports = async (req, res) => {
         mastery: splitMulti(cell(row, 'mastery')),
         youtubePortrait: cell(row, 'youtubePortrait'),
         youtubeLandscape: cell(row, 'youtubeLandscape'),
+        facilitatorGuideUrl: cell(row, 'facilitatorGuideUrl'),
       }));
 
     // CDN cache: 60s fresh, 5 min stale-while-revalidate. Sheet edits show
