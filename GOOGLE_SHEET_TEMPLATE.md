@@ -23,7 +23,7 @@ Set all three on Production, Preview, and Development environments in Vercel.
 Row 1 is the header row. Each subsequent row is one workshop. Headers are case-sensitive.
 
 ```
-id | title | oneLiner | category | ages | duration | cost | setup | popular | skills | materials | parentsBring | facilitatorProvides | mastery | youtubePortrait | youtubeLandscape | facilitatorGuideUrl
+id | title | oneLiner | category | ages | duration | cost | setup | popular | skills | materials | parentsBring | facilitatorProvides | mastery | youtubeLandscape | facilitatorGuideUrl
 ```
 
 ### Column reference
@@ -44,8 +44,7 @@ id | title | oneLiner | category | ages | duration | cost | setup | popular | sk
 | `parentsBring` | multi-line cell | What each parent should bring with their kid (e.g. a notebook, a snack). Appears in the **What to bring** section of the event description so it makes it into the Circle post. **If empty, the description shows "Nothing to bring — your chapter has every material covered."** One item per line, `Alt/Option+Enter` for new lines. |
 | `facilitatorProvides` | multi-line cell | What the facilitator/chapter supplies for the whole group (e.g. cardboard tubes, marbles, masking tape). Powers the **Facilitator Materials Checklist**. Falls back to `materials` if empty. One item per line. |
 | `mastery` | multi-line cell | One mastery item per line, same convention. Use real em dashes (`—`, U+2014), not double hyphens. |
-| `youtubePortrait` | URL or empty | The unlisted YouTube URL of the portrait (9:16) trailer. Empty during development. |
-| `youtubeLandscape` | URL or empty | The unlisted YouTube URL of the landscape (16:9) trailer. Empty during development. |
+| `youtubeLandscape` | URL or empty | The unlisted YouTube URL of the landscape (16:9) trailer. Empty during development. This is the only trailer the app uses — it powers the Step 1 preview button and the Stack 1 trailer card on Step 5. (Portrait was dropped to halve trailer-production overhead. The `youtubePortrait` column is no longer read; you can leave or delete it.) |
 | `facilitatorGuideUrl` | URL or empty | A live document (Google Doc, Notion page, etc.) with detailed prep + run-of-show for the workshop. When set, a "Facilitator Guide" card appears in step 5 of the kit with an "Open Guide" button. When empty, the card doesn't render. |
 
 The YouTube embed parser accepts these URL formats:
