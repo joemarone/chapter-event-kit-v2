@@ -23,7 +23,7 @@ Set all three on Production, Preview, and Development environments in Vercel.
 Row 1 is the header row. Each subsequent row is one workshop. Headers are case-sensitive.
 
 ```
-id | title | oneLiner | category | ages | duration | cost | setup | popular | skills | materials | mastery | youtubePortrait | youtubeLandscape | facilitatorGuideUrl
+id | title | oneLiner | category | ages | duration | cost | setup | popular | skills | materials | parentsBring | facilitatorProvides | mastery | youtubePortrait | youtubeLandscape | facilitatorGuideUrl
 ```
 
 ### Column reference
@@ -36,11 +36,13 @@ id | title | oneLiner | category | ages | duration | cost | setup | popular | sk
 | `category` | string | `Relationship Building + Socialization` |
 | `ages` | string | `7-9` (format the column as Plain Text — Sheets will convert `7-9` to a date otherwise) |
 | `duration` | number, minutes | `90` |
-| `cost` | string | `$` |
+| `cost` | string | `None` for free events, or an estimated amount like `$30 per attendee`. Empty / `$` / `None` / `Free` / `0` all render as **Free** in the description and sidebar. |
 | `setup` | string | `Easy` |
 | `popular` | boolean | `TRUE` or `FALSE` (uppercase) |
 | `skills` | multi-line cell | One skill per line. Press `Alt+Enter` (or `Option+Enter` on Mac) inside the cell to add a new line. |
-| `materials` | multi-line cell | One material per line, same convention. |
+| `materials` | multi-line cell | Legacy combined list — kept as a fallback. If `facilitatorProvides` is empty, this list powers the materials checklist. Once `facilitatorProvides` is filled in, this column is no longer used by the app. |
+| `parentsBring` | multi-line cell | What each parent should bring with their kid (e.g. a notebook, a snack). Appears in the **What to bring** section of the event description so it makes it into the Circle post. **If empty, the description shows "Nothing to bring — your chapter has every material covered."** One item per line, `Alt/Option+Enter` for new lines. |
+| `facilitatorProvides` | multi-line cell | What the facilitator/chapter supplies for the whole group (e.g. cardboard tubes, marbles, masking tape). Powers the **Facilitator Materials Checklist**. Falls back to `materials` if empty. One item per line. |
 | `mastery` | multi-line cell | One mastery item per line, same convention. Use real em dashes (`—`, U+2014), not double hyphens. |
 | `youtubePortrait` | URL or empty | The unlisted YouTube URL of the portrait (9:16) trailer. Empty during development. |
 | `youtubeLandscape` | URL or empty | The unlisted YouTube URL of the landscape (16:9) trailer. Empty during development. |

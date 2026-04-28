@@ -737,6 +737,89 @@ html, body {
 }
 
 .build-list { display: flex; flex-direction: column; gap: 14px; }
+.build-section-head {
+  margin: 4px 0 6px;
+}
+.build-section-head--later {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px dashed var(--border);
+}
+.build-section-eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--aa-blue);
+  margin-bottom: 6px;
+}
+.build-section-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--aa-navy);
+  line-height: 1.2;
+}
+.build-section-sub {
+  margin-top: 6px;
+  font-size: 13.5px;
+  color: var(--fg-muted);
+  line-height: 1.5;
+}
+.build-section-callout {
+  margin-top: 14px;
+  padding: 16px 18px;
+  background: linear-gradient(155deg, #FBFCFD 0%, #EEF3FB 100%);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--aa-blue);
+  border-radius: var(--r-sm);
+}
+.build-section-callout-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--aa-navy);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.build-section-callout ol {
+  margin: 0;
+  padding-left: 22px;
+  font-size: 13.5px;
+  color: var(--fg);
+  line-height: 1.55;
+}
+.build-section-callout ol li { margin-bottom: 4px; }
+.build-section-callout ol li:last-child { margin-bottom: 0; }
+.build-section-callout-foot {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0,111,249,0.15);
+  font-size: 12.5px;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+.build-item-pill {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: var(--aa-blue);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+  vertical-align: 2px;
+  white-space: nowrap;
+}
+.build-item-pill--bonus {
+  background: transparent;
+  color: var(--fg-muted);
+  border: 1px solid var(--border);
+}
 .build-item {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -2096,8 +2179,18 @@ function CoverSplit({ ctx }) {
 window.COVERS = { editorial: CoverEditorial, poster: CoverPoster, split: CoverSplit };
 
 // ============== TEXT GENERATORS ==============
+window.formatCost = function(cost) {
+  const v = String(cost || '').trim();
+  if (!v || v === '$' || /^none$/i.test(v) || /^free$/i.test(v) || v === '0' || v === '$0') return 'Free';
+  return v;
+};
+
 window.generateDescription = function(ctx) {
-  const { title, subtitle, skills, ages, duration, groupSize, chapter, organizerName, organizerEmail, date, materials, mastery } = ctx;
+  const { title, subtitle, skills, ages, duration, groupSize, chapter, organizerName, organizerEmail, date, parentsBring, cost, mastery } = ctx;
+  const costLabel = window.formatCost(cost);
+  const bringList = (parentsBring && parentsBring.length)
+    ? `<ul>${parentsBring.map(m => `<li>${m}</li>`).join('')}</ul>`
+    : `<p><em>Nothing to bring — your chapter has every material covered.</em></p>`;
   return `
 <h2>${title}</h2>
 <p>${subtitle}</p>
@@ -2107,6 +2200,10 @@ window.generateDescription = function(ctx) {
 <ol>${(mastery || []).map(m => `<li>${m}</li>`).join('')}</ol>
 <h3>Skills practiced</h3>
 <ul>${skills.map(s => `<li>${s}</li>`).join('')}</ul>
+<h3>What to bring</h3>
+${bringList}
+<h3>Cost</h3>
+<p><strong>${costLabel}</strong></p>
 <h3>The essentials</h3>
 <table>
   <tr><td>When</td><td><strong>${date || 'TBD'}</strong></td></tr>
@@ -2122,14 +2219,15 @@ window.generateDescription = function(ctx) {
 };
 
 window.generateChecklist = function(ctx) {
-  const { title, materials, groupSize, duration } = ctx;
+  const { title, facilitatorProvides, materials, groupSize, duration } = ctx;
   const minKids = parseInt(groupSize.split('-')[0]);
   const maxKids = parseInt(groupSize.split('-')[1]);
+  const list = (facilitatorProvides && facilitatorProvides.length) ? facilitatorProvides : (materials || []);
   return `
 <h2>Materials Checklist — ${title}</h2>
 <p>Sized for <strong>${minKids}-${maxKids} kids</strong> · ${duration}-minute session. Pack the day before.</p>
-<h3>Bring</h3>
-<ul>${(materials || []).map(m => `<li>${m}</li>`).join('')}</ul>
+<h3>Facilitator provides</h3>
+<ul>${list.map(m => `<li>${m}</li>`).join('')}</ul>
 <h3>Always pack</h3>
 <ul>
   <li>Name tags + Sharpie</li>
@@ -2164,11 +2262,11 @@ function App() {
   // once. Initially all false (numbered badges, no green check). Clicking
   // a tile flips its flag to true (green check), and the flag stays true
   // for the rest of the session.
-  const [tray, setTray] = useState({ cover: false, description: false, checklist: false, landscape: false, portrait: false });
+  const [tray, setTray] = useState({ cover: false, landscape: false, description: false, guide: false, checklist: false, portrait: false });
   // Which tile is currently expanded. Strict accordion: clicking an unopened
   // tile closes the others and opens that one. Clicking the open tile
   // collapses it back. All start collapsed; the chair picks where to begin.
-  const [expanded, setExpanded] = useState({ cover: false, description: false, checklist: false, landscape: false, portrait: false });
+  const [expanded, setExpanded] = useState({ cover: false, landscape: false, description: false, guide: false, checklist: false, portrait: false });
   const handleTileClick = (key) => {
     setTray((t) => (t[key] ? t : { ...t, [key]: true }));
     setExpanded((e) => {
@@ -2266,6 +2364,9 @@ function App() {
     organizerEmail,
     date: formatDate(eventDate, eventTime),
     materials: selected.materials,
+    parentsBring: selected.parentsBring || [],
+    facilitatorProvides: (selected.facilitatorProvides && selected.facilitatorProvides.length) ? selected.facilitatorProvides : (selected.materials || []),
+    cost: selected.cost || '',
     mastery: selected.mastery || [],
     youtubePortrait: selected.youtubePortrait || '',
     youtubeLandscape: selected.youtubeLandscape || '',
@@ -2542,19 +2643,33 @@ function App() {
         <section className="step" key="s5">
           <div className="step-head">
             <div className="step-eyebrow">Part Five — the payoff</div>
-            <h2 className="step-title">Your <em>Event Kit</em>, ready in six pieces.</h2>
-            <p className="step-lede">Generate each one. Download the cover, copy the text straight into Circle, share the trailers in the right places. That's it — you're done.</p>
+            <h2 className="step-title">Your <em>Event Kit</em>, ready in two stacks.</h2>
+            <p className="step-lede">The first stack is everything you need to build the Circle post. The second is everything you need to actually run the workshop.</p>
           </div>
 
           <div className="build-wrap">
             <div className="build-list">
+
+              <div className="build-section-head">
+                <div className="build-section-eyebrow">Stack 1 · For the Circle post</div>
+                <div className="build-section-title">Build the post in this order.</div>
+                <div className="build-section-callout">
+                  <div className="build-section-callout-title">Circle's "Details" box takes one video link, then rich text — in that order.</div>
+                  <ol>
+                    <li><strong>Paste the landscape trailer link first.</strong> Circle auto-embeds it as a video player.</li>
+                    <li><strong>Paste the event description rich text directly below it,</strong> in the same Details box.</li>
+                  </ol>
+                  <div className="build-section-callout-foot">The cover banner is uploaded separately as the event's header image.</div>
+                </div>
+              </div>
+
               {/* 1. Cover */}
               <div className={`build-item ${tray.cover ? 'ready' : ''} ${expanded.cover ? 'expanded' : ''}`}>
                 <div className="build-item-head" onClick={() => handleTileClick('cover')}>
                   <div className="build-item-num">{tray.cover ? '✓' : '1'}</div>
                   <div className="build-item-text">
                     <div className="build-item-title">Event Cover Banner</div>
-                    <div className="build-item-desc">1680×600 · for Circle events · choose a template</div>
+                    <div className="build-item-desc">1680×600 · upload as Circle's event header image · choose a template</div>
                   </div>
                   <svg className="build-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
                 </div>
@@ -2576,52 +2691,13 @@ function App() {
                 </div>
               </div>
 
-              {/* 2. Description */}
-              <div className={`build-item ${tray.description ? 'ready' : ''} ${expanded.description ? 'expanded' : ''}`}>
-                <div className="build-item-head" onClick={() => handleTileClick('description')}>
-                  <div className="build-item-num">{tray.description ? '✓' : '2'}</div>
-                  <div className="build-item-text">
-                    <div className="build-item-title">Event Description</div>
-                    <div className="build-item-desc">Formatted rich text · paste into Circle, keeps its styling</div>
-                  </div>
-                  <svg className="build-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
-                </div>
-                <div className="build-item-preview">
-                  <div className="build-item-preview-inner">
-                    <div className="text-preview" dangerouslySetInnerHTML={{__html: window.generateDescription(ctx)}}/>
-                    <button className="build-btn" onClick={() => copyRichText(window.generateDescription(ctx), 'Description')}>Copy Rich Text</button>
-                  </div>
-                </div>
-              </div>
-
-              {/* 3. Checklist */}
-              <div className={`build-item ${tray.checklist ? 'ready' : ''} ${expanded.checklist ? 'expanded' : ''}`}>
-                <div className="build-item-head" onClick={() => handleTileClick('checklist')}>
-                  <div className="build-item-num">{tray.checklist ? '✓' : '3'}</div>
-                  <div className="build-item-text">
-                    <div className="build-item-title">Materials Checklist</div>
-                    <div className="build-item-desc">Everything you need to pack — sized for your group</div>
-                  </div>
-                  <svg className="build-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
-                </div>
-                <div className="build-item-preview">
-                  <div className="build-item-preview-inner">
-                    <div className="text-preview" dangerouslySetInnerHTML={{__html: window.generateChecklist(ctx)}}/>
-                    <div className="cover-actions">
-                      <button className="build-btn" onClick={() => copyRichText(window.generateChecklist(ctx), 'Checklist')}>Copy Rich Text</button>
-                      <button className="build-btn outline" onClick={() => window.print()}>Print</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 4. Landscape Trailer */}
+              {/* 2. Landscape Trailer (paste FIRST into Details box) */}
               <div className={`build-item ${tray.landscape ? 'ready' : ''} ${expanded.landscape ? 'expanded' : ''}`}>
                 <div className="build-item-head" onClick={() => handleTileClick('landscape')}>
-                  <div className="build-item-num">{tray.landscape ? '✓' : '4'}</div>
+                  <div className="build-item-num">{tray.landscape ? '✓' : '2'}</div>
                   <div className="build-item-text">
-                    <div className="build-item-title">Landscape Trailer</div>
-                    <div className="build-item-desc">1:00 · 1920×1080 · for the Circle event page and desktop viewers</div>
+                    <div className="build-item-title">Landscape Trailer Link <span className="build-item-pill">Paste 1st in Details</span></div>
+                    <div className="build-item-desc">1:00 · 1920×1080 · paste the link first — Circle auto-embeds it as a video player</div>
                   </div>
                   <svg className="build-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
                 </div>
@@ -2639,13 +2715,80 @@ function App() {
                 </div>
               </div>
 
-              {/* 5. Portrait Trailer */}
+              {/* 3. Description (paste SECOND, directly under the trailer link) */}
+              <div className={`build-item ${tray.description ? 'ready' : ''} ${expanded.description ? 'expanded' : ''}`}>
+                <div className="build-item-head" onClick={() => handleTileClick('description')}>
+                  <div className="build-item-num">{tray.description ? '✓' : '3'}</div>
+                  <div className="build-item-text">
+                    <div className="build-item-title">Event Description <span className="build-item-pill">Paste 2nd in Details</span></div>
+                    <div className="build-item-desc">Rich text · paste directly below the trailer link in the same Details box</div>
+                  </div>
+                  <svg className="build-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+                </div>
+                <div className="build-item-preview">
+                  <div className="build-item-preview-inner">
+                    <div className="text-preview" dangerouslySetInnerHTML={{__html: window.generateDescription(ctx)}}/>
+                    <button className="build-btn" onClick={() => copyRichText(window.generateDescription(ctx), 'Description')}>Copy Rich Text</button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="build-section-head build-section-head--later">
+                <div className="build-section-eyebrow">Stack 2 · For running the workshop</div>
+                <div className="build-section-title">Prep, materials, and a bonus trailer for group chats.</div>
+                <div className="build-section-sub">These never go in the Circle post — they're for you and your co-facilitators.</div>
+              </div>
+
+              {/* 4. Facilitator Guide */}
+              {ctx.facilitatorGuideUrl ? (
+                <div className={`build-item ${tray.guide ? 'ready' : ''} ${expanded.guide ? 'expanded' : ''}`}>
+                  <div className="build-item-head" onClick={() => handleTileClick('guide')}>
+                    <div className="build-item-num">{tray.guide ? '✓' : '4'}</div>
+                    <div className="build-item-text">
+                      <div className="build-item-title">Facilitator Guide</div>
+                      <div className="build-item-desc">Prep + run-of-show — read this before the workshop</div>
+                    </div>
+                    <svg className="build-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+                  </div>
+                  <div className="build-item-preview">
+                    <div className="build-item-preview-inner">
+                      <p style={{margin: '0 0 16px', color: 'var(--fg-muted)', fontSize: 14, lineHeight: 1.55}}>
+                        The facilitator guide walks you through prep, the run-of-show, and what to do when things go sideways. Open it in a new tab and skim it the day before — then keep it open on your phone during the workshop.
+                      </p>
+                      <a className="build-btn" href={ctx.facilitatorGuideUrl} target="_blank" rel="noopener noreferrer" style={{textDecoration: 'none', display: 'inline-block'}}>Open Facilitator Guide ↗</a>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* 5. Checklist */}
+              <div className={`build-item ${tray.checklist ? 'ready' : ''} ${expanded.checklist ? 'expanded' : ''}`}>
+                <div className="build-item-head" onClick={() => handleTileClick('checklist')}>
+                  <div className="build-item-num">{tray.checklist ? '✓' : (ctx.facilitatorGuideUrl ? '5' : '4')}</div>
+                  <div className="build-item-text">
+                    <div className="build-item-title">Facilitator Materials Checklist</div>
+                    <div className="build-item-desc">What the facilitator brings — sized for your group</div>
+                  </div>
+                  <svg className="build-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+                </div>
+                <div className="build-item-preview">
+                  <div className="build-item-preview-inner">
+                    <div className="text-preview" dangerouslySetInnerHTML={{__html: window.generateChecklist(ctx)}}/>
+                    <div className="cover-actions">
+                      <button className="build-btn" onClick={() => copyRichText(window.generateChecklist(ctx), 'Checklist')}>Copy Rich Text</button>
+                      <button className="build-btn outline" onClick={() => window.print()}>Print</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 6. Portrait Trailer (bonus, for group chats / DMs / social) */}
               <div className={`build-item ${tray.portrait ? 'ready' : ''} ${expanded.portrait ? 'expanded' : ''}`}>
                 <div className="build-item-head" onClick={() => handleTileClick('portrait')}>
-                  <div className="build-item-num">{tray.portrait ? '✓' : '5'}</div>
+                  <div className="build-item-num">{tray.portrait ? '✓' : (ctx.facilitatorGuideUrl ? '6' : '5')}</div>
                   <div className="build-item-text">
-                    <div className="build-item-title">Portrait Trailer</div>
-                    <div className="build-item-desc">1:00 · 1080×1920 · for mobile, group chats, and social</div>
+                    <div className="build-item-title">Portrait Trailer <span className="build-item-pill build-item-pill--bonus">Bonus</span></div>
+                    <div className="build-item-desc">1:00 · 1080×1920 · for chapter group chats, DMs, and social — not the Circle post</div>
                   </div>
                   <svg className="build-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
                 </div>
@@ -2677,27 +2820,23 @@ function App() {
                   <div className="summary-row"><dt>When</dt><dd>{ctx.date || 'Not set'}</dd></div>
                   <div className="summary-row"><dt>Duration</dt><dd>{duration} min</dd></div>
                   <div className="summary-row"><dt>Group</dt><dd>{groupSize} kids</dd></div>
+                  <div className="summary-row"><dt>Cost</dt><dd>{window.formatCost(ctx.cost)}</dd></div>
                   <div className="summary-row"><dt>Skills</dt><dd>{ctx.skills.join(', ')}</dd></div>
                 </dl>
-                {ctx.facilitatorGuideUrl && (
-                  <a className="summary-guide" href={ctx.facilitatorGuideUrl} target="_blank" rel="noopener noreferrer">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-                    <div className="summary-guide-text">
-                      <div className="summary-guide-label">Facilitator Guide</div>
-                      <div className="summary-guide-sub">Prep + run-of-show — open in new tab ↗</div>
-                    </div>
-                  </a>
-                )}
               </div>
             </aside>
           </div>
 
-          {Object.values(tray).filter(Boolean).length === 5 && (
-            <div className="finale">
-              <div className="finale-title">That's your whole kit, <em>ready to ship.</em></div>
-              <div className="finale-sub">Upload the cover to Circle. Paste the description. Print the checklist. Drop the landscape trailer into the event page and the portrait trailer into your chapter group chat. Then go host something kids will remember.</div>
-            </div>
-          )}
+          {(() => {
+            const required = ['cover','landscape','description','checklist','portrait'].concat(ctx.facilitatorGuideUrl ? ['guide'] : []);
+            const allDone = required.every((k) => tray[k]);
+            return allDone ? (
+              <div className="finale">
+                <div className="finale-title">That's your whole kit, <em>ready to ship.</em></div>
+                <div className="finale-sub">Upload the cover as Circle's event header. In the Details box, paste the landscape trailer link first, then the event description rich text right under it. Print the materials checklist. Drop the portrait trailer into your chapter group chat. Then go host something kids will remember.</div>
+              </div>
+            ) : null;
+          })()}
         </section>
       )}
 

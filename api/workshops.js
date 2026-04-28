@@ -122,6 +122,8 @@ module.exports = async (req, res) => {
         popular: parseBool(cell(row, 'popular')),
         skills: splitMulti(cell(row, 'skills')),
         materials: splitMulti(cell(row, 'materials')),
+        parentsBring: splitMulti(cell(row, 'parentsBring')),
+        facilitatorProvides: splitMulti(cell(row, 'facilitatorProvides')),
         mastery: splitMulti(cell(row, 'mastery')),
         youtubePortrait: cell(row, 'youtubePortrait'),
         youtubeLandscape: cell(row, 'youtubeLandscape'),
@@ -137,7 +139,7 @@ module.exports = async (req, res) => {
     // Lets us diagnose mismatches like "Popular?" vs "popular" without
     // asking the user to dig in the sheet.
     if (req.query?.debug === '1' || (req.url || '').includes('debug=1')) {
-      const knownFields = ['id','title','oneLiner','category','ages','duration','cost','setup','popular','skills','materials','mastery','youtubePortrait','youtubeLandscape','facilitatorGuideUrl'];
+      const knownFields = ['id','title','oneLiner','category','ages','duration','cost','setup','popular','skills','materials','parentsBring','facilitatorProvides','mastery','youtubePortrait','youtubeLandscape','facilitatorGuideUrl'];
       const matched = {};
       knownFields.forEach((f) => {
         const i = idx(f);
