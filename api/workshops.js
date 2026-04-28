@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
     const sheets = google.sheets({ version: 'v4', auth });
 
     // Wrap tab name in single quotes to handle hyphens like "Workshop-details".
-    const range = `'${tabName.replace(/'/g, "''")}'!A:P`;
+    const range = `'${tabName.replace(/'/g, "''")}'!A:Z`;
     const chaptersRange = "'Chapter List'!A:A";
     const organizersRange = "'Organizer List'!A:B";
 

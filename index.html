@@ -2009,21 +2009,25 @@ function CoverEditorial({ ctx }) {
         </text>
       </g>
 
-      {/* Bottom meta rail */}
+      {/* Bottom meta rail. AGES is intentionally oversized so parents
+          can scan the right age range at a glance — Circle tags are
+          limited, so the cover carries the load. */}
       <line x1="72" y1="470" x2="1608" y2="470" stroke="#EEF0F3" strokeWidth="1"/>
-      <g transform="translate(72, 510)">
+      <g transform="translate(72, 495)">
         <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">AGES</text>
-        <text x="0" y="30" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="24" fill="#072256">{ages}</text>
       </g>
-      <g transform="translate(280, 510)">
+      <g transform="translate(72, 555)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="52" letterSpacing="-2" fill="#072256">{ages}</text>
+      </g>
+      <g transform="translate(360, 510)">
         <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">DURATION</text>
         <text x="0" y="30" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="24" fill="#072256">{duration} min</text>
       </g>
-      <g transform="translate(520, 510)">
+      <g transform="translate(600, 510)">
         <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">GROUP</text>
         <text x="0" y="30" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="24" fill="#072256">{groupSize} kids</text>
       </g>
-      <g transform="translate(760, 510)">
+      <g transform="translate(840, 510)">
         <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">SKILLS</text>
         <text x="0" y="30" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="22" fill="#072256">{skills.slice(0, 2).join(' · ')}</text>
       </g>
@@ -2082,8 +2086,10 @@ function CoverPoster({ ctx }) {
 
       {/* Headline. Sized down from the original 110/130 to leave breathing
           room for the wider AF Sobremesa Bold glyphs — at 110, longer words
-          like "Entrepreneurs" overflowed the right edge of the SVG viewBox. */}
-      <g transform="translate(72, 240)">
+          like "Entrepreneurs" overflowed the right edge of the SVG viewBox.
+          Y bumped from 240 → 285 so cap tops clear the WORKSHOP eyebrow at
+          y=180 (caps of an 92pt headline reach ~65px above the baseline). */}
+      <g transform="translate(72, 285)">
         {line2 ? (
           <>
             <text fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="92" letterSpacing="-4" fill="#FFFFFF">{line1}</text>
@@ -2094,10 +2100,17 @@ function CoverPoster({ ctx }) {
         )}
       </g>
 
+      {/* Big AGES badge in the right-side arcs area. Parents scanning Circle
+          should be able to read the age range from a thumbnail. */}
+      <g transform="translate(1480, 280)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="14" fontWeight="600" letterSpacing="3" fill="#6FA8FF" textAnchor="middle">AGES</text>
+        <text x="0" y="96" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="116" letterSpacing="-4" fill="#FFFFFF" textAnchor="middle">{ages}</text>
+      </g>
+
       {/* Bottom info row */}
       <g transform="translate(72, 540)">
         <text fontFamily="Be Vietnam Pro, Arial, sans-serif" fontWeight="400" fontSize="20" fill="#FFFFFF" opacity="0.9">
-          {date ? date.split(' · ')[0] : 'Coming soon'} — {duration} min — Ages {ages}
+          {date ? date.split(' · ')[0] : 'Coming soon'} — {duration} min
         </text>
       </g>
       <g transform="translate(1608, 540)">
@@ -2143,17 +2156,20 @@ function CoverSplit({ ctx }) {
         </text>
       </g>
 
-      {/* Bottom meta (left side) */}
+      {/* Bottom meta (left side). AGES is intentionally oversized — Circle
+          tag space is limited, so the cover does the heavy lifting. */}
       <line x1="72" y1="490" x2="1060" y2="490" stroke="#EEF0F3" strokeWidth="1"/>
-      <g transform="translate(72, 528)">
+      <g transform="translate(72, 510)">
         <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">AGES</text>
-        <text x="0" y="28" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="22" fill="#072256">{ages}</text>
       </g>
-      <g transform="translate(240, 528)">
+      <g transform="translate(72, 568)">
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="800" fontSize="48" letterSpacing="-2" fill="#072256">{ages}</text>
+      </g>
+      <g transform="translate(340, 528)">
         <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">TIME</text>
         <text x="0" y="28" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="22" fill="#072256">{duration} min</text>
       </g>
-      <g transform="translate(420, 528)">
+      <g transform="translate(540, 528)">
         <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="11" fontWeight="600" letterSpacing="1.5" fill="#006FF9">GROUP</text>
         <text x="0" y="28" fontFamily="AF Sobremesa, Arial, sans-serif" fontWeight="700" fontSize="22" fill="#072256">{groupSize} kids</text>
       </g>
