@@ -23,7 +23,7 @@ Set all three on Production, Preview, and Development environments in Vercel.
 Row 1 is the header row. Each subsequent row is one workshop. Headers are case-sensitive.
 
 ```
-id | title | oneLiner | category | ages | duration | cost | setup | popular | skills | materials | parentsBring | facilitatorProvides | mastery | youtubeLandscape | facilitatorGuideUrl
+id | title | oneLiner | category | kind | ages | duration | cost | setup | popular | skills | materials | parentsBring | facilitatorProvides | mastery | youtubeLandscape | facilitatorGuideUrl | keepGoingUrl
 ```
 
 ### Column reference
@@ -34,6 +34,7 @@ id | title | oneLiner | category | ages | duration | cost | setup | popular | sk
 | `title` | string | `Crazy Contraptions Club` |
 | `oneLiner` | string | `Engineer a chain-reaction machine from everyday materials, combining physics, creativity, and teamwork.` |
 | `category` | string | `Relationship Building + Socialization` |
+| `kind` | string | `workshop` (default, 60-90 min sit-down session) or `spark` (compact, low-prep, "feels-impossible-but-isn't" demo). Anything other than the literal `spark` (case-insensitive) — including blank — is treated as a workshop. Sparks get a yellow chip on the picker, a SPARK eyebrow on the cover, and a softer Mastery framing in the description. |
 | `ages` | string | `7-9` (format the column as Plain Text — Sheets will convert `7-9` to a date otherwise) |
 | `duration` | number, minutes | `90` |
 | `cost` | string | `None` for free events, or an estimated amount like `$30 per attendee`. Empty / `$` / `None` / `Free` / `0` all render as **Free** in the description and sidebar. |
@@ -45,6 +46,7 @@ id | title | oneLiner | category | ages | duration | cost | setup | popular | sk
 | `facilitatorProvides` | multi-line cell | What the facilitator/chapter supplies for the whole group (e.g. cardboard tubes, marbles, masking tape). Powers the **Facilitator Materials Checklist**. Falls back to `materials` if empty. One item per line. |
 | `mastery` | multi-line cell | One mastery item per line, same convention. Use real em dashes (`—`, U+2014), not double hyphens. |
 | `youtubeLandscape` | URL or empty | The unlisted YouTube URL of the landscape (16:9) trailer. Empty during development. This is the only trailer the app uses — it powers the Step 1 preview button and the Stack 1 trailer card on Step 5. (Portrait was dropped to halve trailer-production overhead. The `youtubePortrait` column is no longer read; you can leave or delete it.) |
+| `keepGoingUrl` | URL or empty | Optional. For Sparks especially: a URL where the kid can keep practicing at home (YouTube channel, app, tutorial site). Renders as a "Keep going at home" callout in the event description. Workshops can populate this too. |
 | `facilitatorGuideUrl` | URL or empty | A live document (Google Doc, Notion page, etc.) with detailed prep + run-of-show for the workshop. When set, a "Facilitator Guide" card appears in step 5 of the kit with an "Open Guide" button. When empty, the card doesn't render. |
 
 The YouTube embed parser accepts these URL formats:

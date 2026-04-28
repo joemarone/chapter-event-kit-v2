@@ -284,6 +284,84 @@ html, body {
   color: #fff;
 }
 
+/* Format toggle — sits above the category pills on Step 1.
+   Workshops vs Sparks is a different axis than category, so it gets
+   its own segmented control instead of being mixed into the pills. */
+.format-toggle {
+  display: inline-flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 3px;
+  margin-bottom: 14px;
+  gap: 2px;
+}
+.format-toggle-btn {
+  background: transparent;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-subtle);
+  padding: 7px 18px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+  letter-spacing: 0.01em;
+}
+.format-toggle-btn:hover { color: var(--fg); }
+.format-toggle-btn.active {
+  background: var(--aa-navy);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.format-toggle-btn.is-spark.active {
+  background: var(--aa-yellow);
+  color: var(--aa-navy);
+}
+
+/* Right-side tag cluster on workshop card — groups Spark chip and
+   Popular chip together so they don't get stretched across the head
+   by the flex space-between. */
+.wc-head-tags {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* Reserve room for the absolutely-positioned selected check at
+     top:18px / right:18px so chips never get clipped. */
+  margin-right: 36px;
+}
+
+/* Spark chip on workshop cards — sits in the head row next to the
+   category. Yellow to match the format toggle and the eventual cover-
+   banner SPARK eyebrow. */
+.wc-spark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--aa-navy);
+  background: var(--aa-yellow);
+  padding: 3px 8px 3px 6px;
+  border-radius: var(--r-sm);
+}
+.wc-spark svg { color: var(--aa-navy); }
+
+/* Spark cards get a thin yellow left border so they're scannable in
+   a mixed list. Keeps the rest of the card styling identical. */
+.workshop-card.is-spark { border-left: 3px solid var(--aa-yellow); }
+.workshop-card.is-spark.selected { border-left-color: var(--aa-yellow); }
+
+/* Spark accent on the Step 1 headline */
+.title-em-spark {
+  font-style: italic;
+  color: var(--aa-yellow);
+}
+
 .picker-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -338,7 +416,6 @@ html, body {
   background: var(--aa-light-yellow);
   padding: 3px 8px;
   border-radius: var(--r-sm);
-  margin-right: 36px;
 }
 .wc-title {
   font-family: var(--font-display);
@@ -1878,11 +1955,11 @@ window.TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 
 <script>
 window.WORKSHOPS = [
-  { title: "Actions Speak Louder", oneLiner: "Build confidence through storytelling and public speaking challenges that get kids on their feet and thinking fast.", skills: ["Public Speaking","Storytelling"], ages: "9-11", category: "Storytelling + Public Speaking", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Index cards (1 pack)","Sharpies (assorted)","A soft ball or beanbag","Timer or phone","Masking tape"], mastery: ["Deliver a 60-second story with a clear beginning, middle, and end — no filler words","Hold eye contact with at least three audience members","Recover from one deliberate interruption without losing the thread","Take a question from the audience and answer it on the spot"], youtubeLandscape: "", facilitatorGuideUrl: "" },
-  { title: "Alpha Entrepreneurs", oneLiner: "Teams pitch a business idea from concept to presentation, learning budgeting, branding, and persuasion along the way.", skills: ["Personal Finance","Brand Building"], ages: "11-13", category: "Entrepreneurship + Financial Literacy", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Poster board (1 per team)","Sharpies","Play money set","Sticky notes","Clipboards"], mastery: ["Define a real customer and the specific problem you solve for them","Set a price and justify it against costs (not vibes)","Pitch the business in 90 seconds without notes","Take one hard question from a 'judge' and answer it directly"], youtubeLandscape: "", facilitatorGuideUrl: "" },
-  { title: "ASI: Alpha Science Investigators", oneLiner: "Play forensic detective, analyze evidence, build a case, and present your findings to solve the mystery.", skills: ["Critical Thinking"], ages: "13-15", category: "Teamwork + Leadership", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Magnifying glasses","Evidence bags (ziplocs)","Fingerprint ink pad","Printed case files","Gloves (latex-free)"], mastery: ["Form a hypothesis based on at least three pieces of evidence","Identify which evidence supports it and which contradicts it","Present the case to the group with a clear chain of reasoning","Concede a point when challenged with stronger evidence"], youtubeLandscape: "", facilitatorGuideUrl: "" },
-  { title: "Crazy Contraptions Club", oneLiner: "Engineer a chain-reaction machine from everyday materials, combining physics, creativity, and teamwork.", skills: ["Critical Thinking","Collaboration"], ages: "7-9", category: "Relationship Building + Socialization", duration: 90, cost: "$", setup: "Easy", popular: true, materials: ["Cardboard tubes (lots)","Marbles","Masking tape","Rubber bands","Dominos","String"], mastery: ["Build a machine with at least four definable moving parts","Touch only one part to start the entire chain reaction","Predict out loud what will happen — and have it actually happen","Diagnose one failure and fix it without help"], youtubeLandscape: "", facilitatorGuideUrl: "" },
-  { title: "Leaving in Stitches", oneLiner: "Learn the basics of hand sewing by creating a real project from scratch, building patience and fine motor skills.", skills: ["Be An Expert","Fine Motor"], ages: "5-7, 7-9", category: "Relationship Building + Socialization", duration: 90, cost: "$", setup: "Easy", popular: false, materials: ["Felt squares (assorted colors)","Embroidery thread","Blunt-tip needles","Scissors (kid-safe)","Stuffing/cotton","Buttons"], mastery: ["Thread a needle and tie a starting knot without help","Sew a straight seam of at least 10 stitches with consistent spacing","Finish a real, functional object you can take home and use","Teach the running stitch to one classmate who's stuck"], youtubeLandscape: "", facilitatorGuideUrl: "" }
+  { title: "Actions Speak Louder", oneLiner: "Build confidence through storytelling and public speaking challenges that get kids on their feet and thinking fast.", skills: ["Public Speaking","Storytelling"], ages: "9-11", category: "Storytelling + Public Speaking", duration: 90, kind: "workshop", cost: "$", setup: "Easy", popular: true, materials: ["Index cards (1 pack)","Sharpies (assorted)","A soft ball or beanbag","Timer or phone","Masking tape"], mastery: ["Deliver a 60-second story with a clear beginning, middle, and end — no filler words","Hold eye contact with at least three audience members","Recover from one deliberate interruption without losing the thread","Take a question from the audience and answer it on the spot"], youtubeLandscape: "", facilitatorGuideUrl: "" },
+  { title: "Alpha Entrepreneurs", oneLiner: "Teams pitch a business idea from concept to presentation, learning budgeting, branding, and persuasion along the way.", skills: ["Personal Finance","Brand Building"], ages: "11-13", category: "Entrepreneurship + Financial Literacy", duration: 90, kind: "workshop", cost: "$", setup: "Easy", popular: true, materials: ["Poster board (1 per team)","Sharpies","Play money set","Sticky notes","Clipboards"], mastery: ["Define a real customer and the specific problem you solve for them","Set a price and justify it against costs (not vibes)","Pitch the business in 90 seconds without notes","Take one hard question from a 'judge' and answer it directly"], youtubeLandscape: "", facilitatorGuideUrl: "" },
+  { title: "ASI: Alpha Science Investigators", oneLiner: "Play forensic detective, analyze evidence, build a case, and present your findings to solve the mystery.", skills: ["Critical Thinking"], ages: "13-15", category: "Teamwork + Leadership", duration: 90, kind: "workshop", cost: "$", setup: "Easy", popular: false, materials: ["Magnifying glasses","Evidence bags (ziplocs)","Fingerprint ink pad","Printed case files","Gloves (latex-free)"], mastery: ["Form a hypothesis based on at least three pieces of evidence","Identify which evidence supports it and which contradicts it","Present the case to the group with a clear chain of reasoning","Concede a point when challenged with stronger evidence"], youtubeLandscape: "", facilitatorGuideUrl: "" },
+  { title: "Crazy Contraptions Club", oneLiner: "Engineer a chain-reaction machine from everyday materials, combining physics, creativity, and teamwork.", skills: ["Critical Thinking","Collaboration"], ages: "7-9", category: "Relationship Building + Socialization", duration: 90, kind: "workshop", cost: "$", setup: "Easy", popular: true, materials: ["Cardboard tubes (lots)","Marbles","Masking tape","Rubber bands","Dominos","String"], mastery: ["Build a machine with at least four definable moving parts","Touch only one part to start the entire chain reaction","Predict out loud what will happen — and have it actually happen","Diagnose one failure and fix it without help"], youtubeLandscape: "", facilitatorGuideUrl: "" },
+  { title: "Leaving in Stitches", oneLiner: "Learn the basics of hand sewing by creating a real project from scratch, building patience and fine motor skills.", skills: ["Be An Expert","Fine Motor"], ages: "5-7, 7-9", category: "Relationship Building + Socialization", duration: 90, kind: "workshop", cost: "$", setup: "Easy", popular: false, materials: ["Felt squares (assorted colors)","Embroidery thread","Blunt-tip needles","Scissors (kid-safe)","Stuffing/cotton","Buttons"], mastery: ["Thread a needle and tie a starting knot without help","Sew a straight seam of at least 10 stitches with consistent spacing","Finish a real, functional object you can take home and use","Teach the running stitch to one classmate who's stuck"], youtubeLandscape: "", facilitatorGuideUrl: "" }
 ];
 </script>
 
@@ -2040,7 +2117,10 @@ function CoverEditorial({ ctx }) {
 }
 
 function CoverPoster({ ctx }) {
-  const { title, subtitle, skills, ages, duration, groupSize, chapter, date } = ctx;
+  const { title, subtitle, skills, ages, duration, groupSize, chapter, date, kind } = ctx;
+  const isSpark = kind === 'spark';
+  const eyebrowLabel = isSpark ? 'SPARK' : 'WORKSHOP';
+  const eyebrowFill = isSpark ? '#FFD400' : '#6FA8FF';
   const words = title.split(' ');
   let line1 = title, line2 = '';
   if (title.length > 18 && words.length >= 2) {
@@ -2081,7 +2161,7 @@ function CoverPoster({ ctx }) {
 
       {/* Eyebrow */}
       <g transform="translate(72, 180)">
-        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="14" fontWeight="600" letterSpacing="2" fill="#6FA8FF">WORKSHOP</text>
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="14" fontWeight="600" letterSpacing="2" fill={eyebrowFill}>{eyebrowLabel}</text>
       </g>
 
       {/* Headline. Sized down from the original 110/130 to leave breathing
@@ -2121,7 +2201,10 @@ function CoverPoster({ ctx }) {
 }
 
 function CoverSplit({ ctx }) {
-  const { title, subtitle, skills, ages, duration, groupSize, chapter, date } = ctx;
+  const { title, subtitle, skills, ages, duration, groupSize, chapter, date, kind } = ctx;
+  const isSpark = kind === 'spark';
+  const eyebrowLabel = isSpark ? 'SPARK' : 'WORKSHOP';
+  const eyebrowFill = isSpark ? '#E6A800' : '#006FF9';
   return (
     <svg viewBox="0 0 1680 600" xmlns="http://www.w3.org/2000/svg">
       {/* Split background */}
@@ -2137,7 +2220,7 @@ function CoverSplit({ ctx }) {
       </g>
 
       <g transform="translate(72, 200)">
-        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="13" fontWeight="600" letterSpacing="2" fill="#006FF9">WORKSHOP</text>
+        <text fontFamily="AF Sobremesa, Arial, sans-serif" fontSize="13" fontWeight="600" letterSpacing="2" fill={eyebrowFill}>{eyebrowLabel}</text>
       </g>
 
       <g transform="translate(72, 260)">
@@ -2202,20 +2285,43 @@ window.formatCost = function(cost) {
 };
 
 window.generateDescription = function(ctx) {
-  const { title, subtitle, skills, ages, duration, groupSize, chapter, organizerName, organizerEmail, date, parentsBring, cost, mastery } = ctx;
+  const { title, subtitle, skills, ages, duration, groupSize, chapter, organizerName, organizerEmail, date, parentsBring, cost, mastery, kind, keepGoingUrl } = ctx;
+  const isSpark = kind === 'spark';
   const costLabel = window.formatCost(cost);
   const bringList = (parentsBring && parentsBring.length)
     ? `<ul>${parentsBring.map(m => `<li>${m}</li>`).join('')}</ul>`
     : `<p><em>Nothing to bring — your chapter has every material covered.</em></p>`;
+  // Spark framing: a Spark is a "feels-impossible-but-isn't" demo that
+  // lights the fuse. The bar shifts from "walked out able to do X" to
+  // "walked out wanting to keep going" — so the Mastery section is
+  // softer, and we add a Keep Going at Home callout when a URL is set.
+  const sparkIntro = isSpark
+    ? `<p><strong>This is a Spark.</strong> A short, hands-on demo of something that feels impossible — until your child learns the trick. The session lights the fuse; the practice happens at home.</p>`
+    : '';
+  const masteryHeading = isSpark
+    ? 'What your child will leave with'
+    : 'Mastery — what your child will walk out able to do';
+  const masteryLede = isSpark
+    ? `<p><em>Sparks aren't about life-skill mastery. They're about a "no way" moment, a real method, and a reason to keep practicing. Below is what your child will take home from this one.</em></p>`
+    : `<p><em>Workshops are a blast — and every kid walks out having actually done something. Below is the bar.</em></p>`;
+  const masteryStem = isSpark
+    ? `<p><strong>From this Spark, your child will:</strong></p>`
+    : `<p><strong>To master ${title}, your child must:</strong></p>`;
+  const keepGoingBlock = keepGoingUrl
+    ? `<h3>Keep going at home</h3>
+<p>The Spark is just the start. Here's where your child can keep practicing: <a href="${keepGoingUrl}">${keepGoingUrl}</a></p>`
+    : '';
   return `
 <h2>${title}</h2>
 <p>${subtitle}</p>
-<h3>Mastery — what your child will walk out able to do</h3>
-<p><em>Workshops are a blast — and every kid walks out having actually done something. Below is the bar.</em></p>
-<p><strong>To master ${title}, your child must:</strong></p>
+${sparkIntro}
+<h3>${masteryHeading}</h3>
+${masteryLede}
+${masteryStem}
 <ol>${(mastery || []).map(m => `<li>${m}</li>`).join('')}</ol>
 <h3>Skills practiced</h3>
 <ul>${skills.map(s => `<li>${s}</li>`).join('')}</ul>
+${keepGoingBlock}
 <h3>What to bring</h3>
 ${bringList}
 <h3>Cost</h3>
@@ -2274,6 +2380,10 @@ function App() {
   const [groupSize, setGroupSize] = useState('4-12');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
+  // Format axis runs orthogonal to category. Sparks are compact, "feels-
+  // impossible-but-isn't" demos with low setup overhead; workshops are
+  // the existing 60-90 min sit-down format. 'all' shows everything.
+  const [format, setFormat] = useState('all');
   // Tray flags track which deliverables the chair has clicked open at least
   // once. Initially all false (numbered badges, no green check). Clicking
   // a tile flips its flag to true (green check), and the flag stays true
@@ -2359,18 +2469,30 @@ function App() {
   const filtered = useMemo(() => {
     if (!workshops) return [];
     const q = search.trim().toLowerCase();
-    return workshops.filter(w => {
+    const out = workshops.filter(w => {
+      const wKind = w.kind || 'workshop';
+      if (format === 'workshop' && wKind !== 'workshop') return false;
+      if (format === 'spark' && wKind !== 'spark') return false;
       if (category !== 'All' && w.category !== category) return false;
       if (!q) return true;
       return (w.title + ' ' + w.oneLiner + ' ' + w.skills.join(' ')).toLowerCase().includes(q);
     });
-  }, [search, category, workshops]);
+    // When filtering Sparks, sort by minimum age ascending — the "no way"
+    // reaction is the entire product, and it doesn't survive an age
+    // mismatch, so parents should see age-appropriate Sparks first.
+    if (format === 'spark') {
+      const ageMin = (a) => parseInt(String(a || '0').split(/[-,]/)[0], 10) || 0;
+      out.sort((a, b) => ageMin(a.ages) - ageMin(b.ages));
+    }
+    return out;
+  }, [search, category, format, workshops]);
 
   const selected = (workshops && selectedIdx != null) ? workshops[selectedIdx] : null;
 
   const ctx = selected ? {
     title: selected.title,
     subtitle: selected.oneLiner,
+    kind: selected.kind || 'workshop',
     skills: selected.skills,
     ages: selected.ages,
     duration,
@@ -2386,6 +2508,7 @@ function App() {
     mastery: selected.mastery || [],
     youtubeLandscape: selected.youtubeLandscape || '',
     facilitatorGuideUrl: selected.facilitatorGuideUrl || '',
+    keepGoingUrl: selected.keepGoingUrl || '',
   } : null;
 
   const affirmations = {
@@ -2502,14 +2625,24 @@ function App() {
         <section className="step" key="s1">
           <div className="step-head">
             <div className="step-eyebrow">Part One</div>
-            <h2 className="step-title">Pick a <em>workshop</em>.</h2>
-            <p className="step-lede">Each is designed to run 60-90 minutes, parent-led, with everyday materials. Pick the one that fits your kids and your calendar.</p>
+            <h2 className="step-title">Pick a <em>workshop</em> or <em className="title-em-spark">Spark</em>.</h2>
+            <p className="step-lede">Workshops run 60-90 minutes, parent-led, with everyday materials. Sparks are compact "feels-impossible-but-isn't" demos — one prop, 30 minutes, a "no way" moment, and a way to keep practicing at home.</p>
+          </div>
+
+          <div className="format-toggle">
+            {[
+              { k: 'all', label: 'All' },
+              { k: 'workshop', label: 'Workshops' },
+              { k: 'spark', label: 'Sparks' },
+            ].map(({ k, label }) => (
+              <button key={k} className={`format-toggle-btn ${format === k ? 'active' : ''} ${k === 'spark' ? 'is-spark' : ''}`} onClick={() => setFormat(k)}>{label}</button>
+            ))}
           </div>
 
           <div className="picker-tools">
             <div className="picker-search">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16" y2="16"/></svg>
-              <input placeholder="Search workshops, skills, ages…" value={search} onChange={e => setSearch(e.target.value)}/>
+              <input placeholder="Search workshops, Sparks, skills, ages…" value={search} onChange={e => setSearch(e.target.value)}/>
             </div>
             {categories.map(c => (
               <button key={c} className={`picker-filter ${category === c ? 'active' : ''}`} onClick={() => setCategory(c)}>{c}</button>
@@ -2523,10 +2656,13 @@ function App() {
             {filtered.map((w) => {
               const realIdx = workshops.indexOf(w);
               return (
-                <div key={w.title} className={`workshop-card ${selectedIdx === realIdx ? 'selected' : ''}`} onClick={() => setSelectedIdx(realIdx)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedIdx(realIdx); } }}>
+                <div key={w.title} className={`workshop-card ${selectedIdx === realIdx ? 'selected' : ''} ${w.kind === 'spark' ? 'is-spark' : ''}`} onClick={() => setSelectedIdx(realIdx)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedIdx(realIdx); } }}>
                   <div className="wc-head">
                     <div className="wc-cat">{w.category}</div>
-                    {w.popular && <div className="wc-popular">Popular</div>}
+                    <div className="wc-head-tags">
+                      {w.kind === 'spark' && <div className="wc-spark"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5h6L9 22l8.5-11.5h-6L13 2z"/></svg>Spark</div>}
+                      {w.popular && <div className="wc-popular">Popular</div>}
+                    </div>
                   </div>
                   <div className="wc-title">{w.title}</div>
                   <div className="wc-liner">{w.oneLiner}</div>
@@ -2553,7 +2689,7 @@ function App() {
                 </div>
               );
             })}
-            {filtered.length === 0 && <div className="picker-empty">Nothing matches. Try a different category or clear the search.</div>}
+            {filtered.length === 0 && <div className="picker-empty">Nothing matches. Try a different format, category, or clear the search.</div>}
           </div>
           )}
 
@@ -2658,8 +2794,8 @@ function App() {
         <section className="step" key="s5">
           <div className="step-head">
             <div className="step-eyebrow">Part Five — the payoff</div>
-            <h2 className="step-title">Your <em>Event Kit</em>, ready in two stacks.</h2>
-            <p className="step-lede">The first stack is everything you need to build the Circle post. The second is everything you need to actually run the workshop.</p>
+            <h2 className="step-title">Your <em>{ctx.kind === 'spark' ? 'Spark Kit' : 'Event Kit'}</em>, ready in two stacks.</h2>
+            <p className="step-lede">The first stack is everything you need to build the Circle post. The second is everything you need to actually run the {ctx.kind === 'spark' ? 'Spark' : 'workshop'}.</p>
           </div>
 
           <div className="build-wrap">

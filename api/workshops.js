@@ -115,6 +115,12 @@ module.exports = async (req, res) => {
         title: cell(row, 'title'),
         oneLiner: cell(row, 'oneLiner'),
         category: cell(row, 'category'),
+        // kind: 'workshop' (default, full 60-90 min sit-down) or 'spark'
+        // (compact, low-prep, "feels-impossible-but-isn't" demo). Anything
+        // other than the literal "spark" (case-insensitive) is treated as
+        // a workshop, including blank cells — keeps the existing catalog
+        // intact while sparks are introduced.
+        kind: /^spark$/i.test(cell(row, 'kind')) ? 'spark' : 'workshop',
         ages: cell(row, 'ages'),
         duration: parseInt(cell(row, 'duration'), 10) || 90,
         cost: cell(row, 'cost'),
@@ -127,6 +133,12 @@ module.exports = async (req, res) => {
         mastery: splitMulti(cell(row, 'mastery')),
         youtubeLandscape: cell(row, 'youtubeLandscape'),
         facilitatorGuideUrl: cell(row, 'facilitatorGuideUrl'),
+        // For Sparks: an optional URL where kids can keep practicing at
+        // home (YouTube channel, app, tutorial). Surfaces in the event
+        // description as a "Keep going at home" callout. Workshops can
+        // populate this too, but it's most valuable for Sparks where the
+        // session is just lighting the fuse.
+        keepGoingUrl: cell(row, 'keepGoingUrl'),
       }));
 
     // CDN cache: 60s fresh, 5 min stale-while-revalidate. Sheet edits show
@@ -138,7 +150,7 @@ module.exports = async (req, res) => {
     // Lets us diagnose mismatches like "Popular?" vs "popular" without
     // asking the user to dig in the sheet.
     if (req.query?.debug === '1' || (req.url || '').includes('debug=1')) {
-      const knownFields = ['id','title','oneLiner','category','ages','duration','cost','setup','popular','skills','materials','parentsBring','facilitatorProvides','mastery','youtubeLandscape','facilitatorGuideUrl'];
+      const knownFields = ['id','title','oneLiner','category','kind','ages','duration','cost','setup','popular','skills','materials','parentsBring','facilitatorProvides','mastery','youtubeLandscape','facilitatorGuideUrl','keepGoingUrl'];
       const matched = {};
       knownFields.forEach((f) => {
         const i = idx(f);
