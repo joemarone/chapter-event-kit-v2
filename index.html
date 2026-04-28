@@ -338,6 +338,7 @@ html, body {
   background: var(--aa-light-yellow);
   padding: 3px 8px;
   border-radius: var(--r-sm);
+  margin-right: 36px;
 }
 .wc-title {
   font-family: var(--font-display);
@@ -2278,11 +2279,11 @@ function App() {
   // once. Initially all false (numbered badges, no green check). Clicking
   // a tile flips its flag to true (green check), and the flag stays true
   // for the rest of the session.
-  const [tray, setTray] = useState({ cover: false, landscape: false, description: false, guide: false, checklist: false, portrait: false });
+  const [tray, setTray] = useState({ cover: false, landscape: false, description: false, guide: false, checklist: false });
   // Which tile is currently expanded. Strict accordion: clicking an unopened
   // tile closes the others and opens that one. Clicking the open tile
   // collapses it back. All start collapsed; the chair picks where to begin.
-  const [expanded, setExpanded] = useState({ cover: false, landscape: false, description: false, guide: false, checklist: false, portrait: false });
+  const [expanded, setExpanded] = useState({ cover: false, landscape: false, description: false, guide: false, checklist: false });
   const handleTileClick = (key) => {
     setTray((t) => (t[key] ? t : { ...t, [key]: true }));
     setExpanded((e) => {
@@ -2798,29 +2799,6 @@ function App() {
                 </div>
               </div>
 
-              {/* 6. Portrait Trailer (bonus, for group chats / DMs / social) */}
-              <div className={`build-item ${tray.portrait ? 'ready' : ''} ${expanded.portrait ? 'expanded' : ''}`}>
-                <div className="build-item-head" onClick={() => handleTileClick('portrait')}>
-                  <div className="build-item-num">{tray.portrait ? '✓' : (ctx.facilitatorGuideUrl ? '6' : '5')}</div>
-                  <div className="build-item-text">
-                    <div className="build-item-title">Portrait Trailer <span className="build-item-pill build-item-pill--bonus">Bonus</span></div>
-                    <div className="build-item-desc">1:00 · 1080×1920 · for chapter group chats, DMs, and social — not the Circle post</div>
-                  </div>
-                  <svg className="build-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
-                </div>
-                <div className="build-item-preview">
-                  <div className="build-item-preview-inner">
-                    <TrailerBlock
-                      ratio="portrait"
-                      ctx={ctx}
-                      url={trailerUrls.portrait}
-                      youtubeUrl={ctx.youtubePortrait}
-                      onOpen={() => setVideoOpen('portrait')}
-                      onCopy={(what) => showToast(what)}
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
 
             <aside className="summary">
@@ -2844,12 +2822,12 @@ function App() {
           </div>
 
           {(() => {
-            const required = ['cover','landscape','description','checklist','portrait'].concat(ctx.facilitatorGuideUrl ? ['guide'] : []);
+            const required = ['cover','landscape','description','checklist'].concat(ctx.facilitatorGuideUrl ? ['guide'] : []);
             const allDone = required.every((k) => tray[k]);
             return allDone ? (
               <div className="finale">
                 <div className="finale-title">That's your whole kit, <em>ready to ship.</em></div>
-                <div className="finale-sub">Upload the cover as Circle's event header. In the Details box, paste the landscape trailer link first, then the event description rich text right under it. Print the materials checklist. Drop the portrait trailer into your chapter group chat. Then go host something kids will remember.</div>
+                <div className="finale-sub">Upload the cover as Circle's event header. In the Details box, paste the landscape trailer link first, then the event description rich text right under it. Print the materials checklist. Then go host something kids will remember.</div>
               </div>
             ) : null;
           })()}
