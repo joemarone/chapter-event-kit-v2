@@ -266,23 +266,59 @@ html, body {
   color: var(--fg);
 }
 .picker-search input::placeholder { color: var(--fg-muted); }
-.picker-filter {
+/* Filter dropdowns — native <select> with custom chevron so the bar
+   stays compact and accessible (keyboard/screen-reader native). The
+   .has-value modifier flips the dropdown dark when a non-default value
+   is selected, so active filters are scannable at a glance. */
+.picker-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none' stroke='%238291AA' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><polyline points='1 1 5 5 9 1'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 8px 30px 8px 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+  max-width: 220px;
+}
+.picker-select:hover {
+  background-color: var(--surface-muted);
+  border-color: var(--fg-muted);
+}
+.picker-select:focus {
+  outline: none;
+  border-color: var(--aa-blue);
+  box-shadow: 0 0 0 3px rgba(0,111,249,0.15);
+}
+.picker-select.has-value {
+  background-color: var(--aa-navy);
+  border-color: var(--aa-navy);
+  color: #fff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><polyline points='1 1 5 5 9 1'/></svg>");
+}
+
+/* Clear-all button — only renders when at least one filter is active. */
+.picker-clear {
   background: transparent;
   border: none;
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 500;
-  color: var(--fg-subtle);
-  padding: 8px 14px;
-  border-radius: var(--r-pill);
+  color: var(--aa-blue);
+  padding: 8px 12px;
   cursor: pointer;
+  border-radius: var(--r-pill);
   transition: all var(--dur) var(--ease);
 }
-.picker-filter:hover { background: var(--surface-muted); color: var(--fg); }
-.picker-filter.active {
-  background: var(--aa-navy);
-  color: #fff;
-}
+.picker-clear:hover { background: var(--surface-muted); }
 
 /* Format toggle — sits above the category pills on Step 1.
    Workshops vs Sparks is a different axis than category, so it gets
@@ -2399,6 +2435,13 @@ function App() {
   // impossible-but-isn't" demos with low setup overhead; workshops are
   // the existing 60-90 min sit-down format. 'all' shows everything.
   const [format, setFormat] = useState('all');
+  // Additional filter axes. 'any' means no filter applied. Age is single-
+  // year (we filter to workshops whose ages range includes the target);
+  // duration is exact match in minutes; skill matches if the workshop's
+  // skills array contains it.
+  const [ageFilter, setAgeFilter] = useState('any');
+  const [durationFilter, setDurationFilter] = useState('any');
+  const [skillFilter, setSkillFilter] = useState('any');
   // Tray flags track which deliverables the chair has clicked open at least
   // once. Initially all false (numbered badges, no green check). Clicking
   // a tile flips its flag to true (green check), and the flag stays true
@@ -2481,6 +2524,30 @@ function App() {
     'Grit + Hard Work',
   ];
   const categories = ['All', ...CANONICAL_CATEGORIES];
+  // Age dropdown options — single-year picks. Filter passes a workshop if
+  // any of its ages ranges (e.g. "5-7, 7-9") contains the chosen year.
+  const AGE_OPTIONS = ['5','6','7','8','9','10','11','12','13','14','15'];
+  // Duration dropdown — exact-minute match. Sheet values are integers.
+  const DURATION_OPTIONS = ['30','45','60','90'];
+  // Skill dropdown — built dynamically from the catalog so we don't lag
+  // the sheet when new skills are added.
+  const allSkills = useMemo(() => {
+    if (!workshops) return [];
+    const set = new Set();
+    workshops.forEach((w) => (w.skills || []).forEach((s) => set.add(s)));
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [workshops]);
+  // Helper: does this workshop's ages string include the target year?
+  // Handles single ranges ("9-13") and comma-separated ones ("5-7, 7-9").
+  const matchesAge = (w, target) => {
+    if (target === 'any') return true;
+    const t = parseInt(target, 10);
+    if (isNaN(t)) return true;
+    return String(w.ages || '').split(',').some((r) => {
+      const [lo, hi] = r.trim().split('-').map((s) => parseInt(s.trim(), 10));
+      return !isNaN(lo) && !isNaN(hi) && t >= lo && t <= hi;
+    });
+  };
   const filtered = useMemo(() => {
     if (!workshops) return [];
     const q = search.trim().toLowerCase();
@@ -2489,6 +2556,9 @@ function App() {
       if (format === 'workshop' && wKind !== 'workshop') return false;
       if (format === 'spark' && wKind !== 'spark') return false;
       if (category !== 'All' && w.category !== category) return false;
+      if (!matchesAge(w, ageFilter)) return false;
+      if (durationFilter !== 'any' && String(w.duration) !== durationFilter) return false;
+      if (skillFilter !== 'any' && !(w.skills || []).includes(skillFilter)) return false;
       if (!q) return true;
       return (w.title + ' ' + w.oneLiner + ' ' + w.skills.join(' ')).toLowerCase().includes(q);
     });
@@ -2500,7 +2570,15 @@ function App() {
       out.sort((a, b) => ageMin(a.ages) - ageMin(b.ages));
     }
     return out;
-  }, [search, category, format, workshops]);
+  }, [search, category, format, ageFilter, durationFilter, skillFilter, workshops]);
+  // Active-filter count drives the "Clear filters" button's visibility
+  // and the bar's "compact mode" — when any filter is set, we render a
+  // small reset link inline.
+  const activeFilterCount = (category !== 'All' ? 1 : 0)
+    + (ageFilter !== 'any' ? 1 : 0)
+    + (durationFilter !== 'any' ? 1 : 0)
+    + (skillFilter !== 'any' ? 1 : 0);
+  const clearFilters = () => { setCategory('All'); setAgeFilter('any'); setDurationFilter('any'); setSkillFilter('any'); };
 
   const selected = (workshops && selectedIdx != null) ? workshops[selectedIdx] : null;
 
@@ -2657,11 +2735,29 @@ function App() {
           <div className="picker-tools">
             <div className="picker-search">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16" y2="16"/></svg>
-              <input placeholder="Search workshops, Sparks, skills, ages…" value={search} onChange={e => setSearch(e.target.value)}/>
+              <input placeholder="Search workshops, Sparks, skills…" value={search} onChange={e => setSearch(e.target.value)}/>
             </div>
-            {categories.map(c => (
-              <button key={c} className={`picker-filter ${category === c ? 'active' : ''}`} onClick={() => setCategory(c)}>{c}</button>
-            ))}
+            <select className={`picker-select ${category !== 'All' ? 'has-value' : ''}`} value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Category">
+              <option value="All">All categories</option>
+              {CANONICAL_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <select className={`picker-select ${ageFilter !== 'any' ? 'has-value' : ''}`} value={ageFilter} onChange={(e) => setAgeFilter(e.target.value)} aria-label="Age">
+              <option value="any">Any age</option>
+              {AGE_OPTIONS.map((a) => <option key={a} value={a}>Age {a}</option>)}
+            </select>
+            <select className={`picker-select ${durationFilter !== 'any' ? 'has-value' : ''}`} value={durationFilter} onChange={(e) => setDurationFilter(e.target.value)} aria-label="Duration">
+              <option value="any">Any duration</option>
+              {DURATION_OPTIONS.map((d) => <option key={d} value={d}>{d} min</option>)}
+            </select>
+            <select className={`picker-select ${skillFilter !== 'any' ? 'has-value' : ''}`} value={skillFilter} onChange={(e) => setSkillFilter(e.target.value)} aria-label="Skill">
+              <option value="any">Any skill</option>
+              {allSkills.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+            {activeFilterCount > 0 && (
+              <button className="picker-clear" onClick={clearFilters} title="Clear all filters">
+                Clear ({activeFilterCount})
+              </button>
+            )}
           </div>
 
           {!workshops ? (
