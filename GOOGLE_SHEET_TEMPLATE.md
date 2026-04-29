@@ -13,10 +13,11 @@ The app reads its workshop catalog from a private Google Sheet via a service-acc
 | Name | Value |
 |---|---|
 | `GOOGLE_SHEET_ID` | The long ID between `/d/` and `/edit` in the sheet's URL. |
-| `GOOGLE_SHEET_TAB` | The tab name to read, e.g. `Workshop-details`. |
-| `GOOGLE_SERVICE_ACCOUNT_JSON` | The full JSON contents of a Google Cloud service-account key. The sheet must be shared with this service account's email as Viewer. |
+| `GOOGLE_SHEET_TAB` | The catalog tab name to read, e.g. `Workshop-details`. |
+| `GOOGLE_SUBMISSIONS_TAB` | Optional. Tab name where Spark submissions append. Defaults to `Submissions`. |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | The full JSON contents of a Google Cloud service-account key. The sheet must be shared with this service account's email as **Editor** (write access is needed for the Submissions tab). |
 
-Set all three on Production, Preview, and Development environments in Vercel.
+Set all of these on Production, Preview, and Development environments in Vercel.
 
 ## Tab structure
 
@@ -75,6 +76,77 @@ If the function returns an error or the sheet is empty, the frontend silently fa
 If the sheet or service account is ever lost, the steps to rebuild are:
 
 1. Google Cloud Console → new project → enable Google Sheets API → Credentials → create Service Account → create JSON key.
-2. Create a Sheet with the columns above. Share with the service account email as Viewer.
-3. Set the three Vercel env vars (`GOOGLE_SHEET_ID`, `GOOGLE_SHEET_TAB`, `GOOGLE_SERVICE_ACCOUNT_JSON`).
+2. Create a Sheet with the columns above. Share with the service account email as **Editor** (write access is needed for the Submissions tab below).
+3. Set the Vercel env vars (`GOOGLE_SHEET_ID`, `GOOGLE_SHEET_TAB`, `GOOGLE_SERVICE_ACCOUNT_JSON`, optionally `GOOGLE_SUBMISSIONS_TAB`).
 4. Redeploy. Visit `/api/workshops` directly to verify the function returns valid JSON.
+
+---
+
+# Submissions tab — parent-built Sparks
+
+The Spark Builder at `/build.html` writes to a separate tab in the same sheet. Submitted Sparks land here as `pending`, and a reviewer flips `status` to `approved` once the Spark is ready to copy into the catalog.
+
+## Where things live
+
+- **Tab name:** `Submissions` by default. Override with `GOOGLE_SUBMISSIONS_TAB`.
+- **API route:** `/api/submit` (POST) — appends one row per submission.
+- **Builder UI:** `build.html` — eight-step React form linked from the kit's masthead.
+
+## Tab structure
+
+Paste this exact tab-separated string into row 1 of the `Submissions` tab:
+
+```
+submittedAt	status	submitterName	submitterEmail	chapter	name	oneLiner	category	ages	skills	participation	skill	hardCheckpoint	challengingCheckpoint	impossibleCheckpoint	parentsBring	facilitatorProvides	cost	costJustification	reviewerNotes
+```
+
+That's 20 columns, A through T.
+
+### Column reference
+
+| Column | Type | Filled by | Notes |
+|---|---|---|---|
+| `submittedAt` | ISO timestamp | `/api/submit` | Set when the row is appended. |
+| `status` | string | `/api/submit`, then reviewer | Starts as `pending`. Reviewer flips to `approved`, `changes-requested`, or `rejected`. |
+| `submitterName` | string | submitter | Step 7 of the builder. |
+| `submitterEmail` | string | submitter | Validated as email. |
+| `chapter` | string | submitter | Picked from the same `Chapter List` tab the kit reads. |
+| `name` | string | submitter | The Spark's name. 1–4 words. |
+| `oneLiner` | string | submitter | Verb-led, under 25 words. |
+| `category` | string | submitter | One of the five canonical Alpha life-skill pillars (validated server-side). |
+| `ages` | string | submitter | `min-max` format, e.g. `5-9`. |
+| `skills` | multi-line | submitter | One canonical skill per line. The builder limits picks to a fixed list of 15. |
+| `participation` | string | submitter | What happens in the room. Three to six sentences. |
+| `skill` | string | submitter | One sentence: the skill being taught. |
+| `hardCheckpoint` | string | submitter | First rung. Persistence required; not guaranteed. |
+| `challengingCheckpoint` | string | submitter | Second rung. ~50% reach. |
+| `impossibleCheckpoint` | string | submitter | Third rung. Fewer than half reach without serious effort. |
+| `parentsBring` | multi-line | submitter | One item per line. Empty allowed. |
+| `facilitatorProvides` | multi-line | submitter | One item per line. Aim for ≤5. |
+| `cost` | string | submitter | `Free`, `$5 per attendee`, `$5–$15 per attendee`, etc. |
+| `costJustification` | string | submitter | Required if numeric cost > $15. |
+| `reviewerNotes` | string | reviewer | Free-form notes back to the submitter. Filled by the reviewer in the sheet (or via the future `/review` screen). |
+
+## Status lifecycle
+
+```
+pending  →  changes-requested  →  pending  →  approved
+              ↑                                    ↓
+              └────────────────  rejected   ←──────┘
+```
+
+- `pending` — fresh submission, awaiting review.
+- `changes-requested` — reviewer left notes; submitter resubmits via the builder (planned).
+- `approved` — copy the row into the `Workshop-details` tab as a new Spark, then archive or delete from `Submissions`.
+- `rejected` — kept for record; not promoted.
+
+## Setup checklist
+
+To turn submissions on for the first time:
+
+1. Open the Sheet.
+2. Add a new tab named `Submissions`.
+3. Paste the tab-separated header row above into A1.
+4. Confirm the service account is shared as **Editor** (Viewer will fail with a 403).
+5. Optionally set `GOOGLE_SUBMISSIONS_TAB` if you used a different tab name.
+6. Visit `/build.html`, fill out a test submission, click Submit. A new row should appear in `Submissions` with `status = pending`.

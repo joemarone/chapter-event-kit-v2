@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Spark Builder · Alpha Anywhere</title>
+
+<link rel="preload" href="assets/fonts/AFSobremesa-Regular.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="assets/fonts/AFSobremesa-SemiBold.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="assets/fonts/AFSobremesa-Bold.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="assets/fonts/AFSobremesa-ExtraBold.woff2" as="font" type="font/woff2" crossorigin/>
+
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+<style>
+@font-face { font-family: "AF Sobremesa"; font-weight: 400; font-display: swap; src: url("assets/fonts/AFSobremesa-Regular.woff2") format("woff2"); }
+@font-face { font-family: "AF Sobremesa"; font-weight: 600; font-display: swap; src: url("assets/fonts/AFSobremesa-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: "AF Sobremesa"; font-weight: 700; font-display: swap; src: url("assets/fonts/AFSobremesa-Bold.woff2") format("woff2"); }
+@font-face { font-family: "AF Sobremesa"; font-weight: 800; font-display: swap; src: url("assets/fonts/AFSobremesa-ExtraBold.woff2") format("woff2"); }
+
+:root {
+  --aa-white: #FAFAFA;
+  --aa-media-white: #FFFFFF;
+  --aa-navy: #072256;
+  --aa-blue: #006FF9;
+  --aa-yellow: #E59500;
+  --aa-green: #2C8707;
+  --aa-red: #B82A2A;
+  --aa-grey: #8291AA;
+  --aa-line: #DADFE7;
+  --aa-soft: #F2F4F8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--aa-white); font-family: 'Be Vietnam Pro', system-ui, sans-serif; color: var(--aa-navy); -webkit-font-smoothing: antialiased; }
+
+.builder { max-width: 1200px; margin: 0 auto; padding: 32px 24px 80px; }
+
+.builder-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.builder-header .brand { display: flex; align-items: center; gap: 12px; }
+.builder-header .brand-mark { width: 40px; height: 40px; border-radius: 50%; background: var(--aa-navy); color: white; font-family: 'AF Sobremesa'; font-weight: 800; display: grid; place-items: center; font-size: 18px; }
+.builder-header .brand-text .l1 { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 14px; }
+.builder-header .brand-text .l2 { font-size: 12px; color: var(--aa-grey); }
+.builder-header .back-link { color: var(--aa-grey); text-decoration: none; font-size: 13px; }
+.builder-header .back-link:hover { color: var(--aa-navy); }
+
+.builder-hero { margin: 24px 0 32px; }
+.builder-hero .eyebrow { font-family: 'AF Sobremesa'; font-weight: 600; font-size: 11px; letter-spacing: 1.8px; color: var(--aa-blue); margin-bottom: 12px; }
+.builder-hero h1 { font-family: 'AF Sobremesa'; font-weight: 800; font-size: 52px; letter-spacing: -2px; line-height: 1.02; color: var(--aa-navy); }
+.builder-hero h1 .accent { color: var(--aa-blue); }
+.builder-hero p { margin-top: 16px; color: var(--aa-grey); font-size: 17px; max-width: 580px; line-height: 1.5; }
+
+.progress { display: flex; gap: 8px; margin-bottom: 32px; }
+.progress-step { flex: 1; height: 4px; background: var(--aa-line); border-radius: 2px; cursor: pointer; transition: background 0.15s; }
+.progress-step.done { background: var(--aa-blue); }
+.progress-step.active { background: var(--aa-navy); }
+
+.layout { display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+.card { background: var(--aa-media-white); border: 1px solid var(--aa-line); border-radius: 16px; padding: 32px; }
+.step-eyebrow { font-family: 'AF Sobremesa'; font-weight: 600; font-size: 11px; letter-spacing: 1.5px; color: var(--aa-blue); margin-bottom: 8px; }
+.step-title { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 28px; letter-spacing: -0.5px; margin-bottom: 8px; }
+.step-blurb { color: var(--aa-grey); font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+
+label { display: block; font-family: 'AF Sobremesa'; font-weight: 600; font-size: 13px; margin-bottom: 8px; color: var(--aa-navy); }
+.hint { font-size: 12px; color: var(--aa-grey); margin-top: 6px; font-weight: 400; font-family: 'Be Vietnam Pro'; line-height: 1.4; }
+
+input[type=text], input[type=email], input[type=number], textarea, select {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--aa-line); border-radius: 10px;
+  font-family: 'Be Vietnam Pro', sans-serif; font-size: 15px; color: var(--aa-navy); background: white;
+  transition: border-color 0.15s;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--aa-blue); }
+textarea { resize: vertical; min-height: 96px; line-height: 1.5; }
+.field { margin-bottom: 20px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 600px) { .field-row { grid-template-columns: 1fr; } }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+.list-edit { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.list-row { display: flex; gap: 8px; align-items: center; }
+.list-row input { flex: 1; }
+.btn-icon { background: transparent; border: 1px solid var(--aa-line); border-radius: 8px; width: 36px; height: 36px; cursor: pointer; color: var(--aa-grey); font-size: 20px; line-height: 1; }
+.btn-icon:hover { color: var(--aa-red); border-color: var(--aa-red); }
+.btn-add { background: transparent; border: 1px dashed var(--aa-line); border-radius: 10px; padding: 10px 14px; cursor: pointer; color: var(--aa-blue); font-family: 'AF Sobremesa'; font-weight: 600; font-size: 13px; text-align: left; }
+.btn-add:hover { border-color: var(--aa-blue); }
+
+/* Ladder step */
+.rung { border: 1px solid var(--aa-line); border-radius: 12px; padding: 20px; margin-bottom: 12px; background: white; }
+.rung .rung-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.rung .rung-tier { font-family: 'AF Sobremesa'; font-weight: 800; font-size: 18px; letter-spacing: -0.3px; }
+.rung .rung-tier.Hard { color: #92400E; }
+.rung .rung-tier.Challenging { color: #1E40AF; }
+.rung .rung-tier.Impossible { color: #9D174D; }
+.rung .rung-sub { font-size: 12px; color: var(--aa-grey); }
+.rung input { margin-top: 8px; }
+
+.skill-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.skill-chip { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--aa-line); background: white; cursor: pointer; font-family: 'AF Sobremesa'; font-weight: 600; font-size: 13px; color: var(--aa-navy); transition: all 0.12s; }
+.skill-chip:hover { border-color: var(--aa-blue); }
+.skill-chip.selected { background: var(--aa-navy); color: white; border-color: var(--aa-navy); }
+
+.age-range { display: flex; align-items: flex-end; gap: 16px; }
+.age-pick { display: flex; flex-direction: column; gap: 6px; }
+.age-pick-label { font-size: 11px; font-family: 'AF Sobremesa'; font-weight: 600; letter-spacing: 1px; color: var(--aa-grey); text-transform: uppercase; }
+.age-pick select { width: 96px; }
+.age-dash { color: var(--aa-grey); font-size: 13px; padding-bottom: 14px; }
+
+/* Materials — stacked, with explicit "List 1" / "List 2" framing */
+.material-block { background: var(--aa-soft); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.material-block .material-eyebrow { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 11px; letter-spacing: 1.5px; color: var(--aa-blue); margin-bottom: 4px; }
+.material-block h4 { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 18px; margin-bottom: 4px; }
+.material-block .material-sub { font-size: 13px; color: var(--aa-grey); margin-bottom: 14px; line-height: 1.4; }
+
+.cost-options { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.cost-pill { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--aa-line); background: white; cursor: pointer; font-family: 'AF Sobremesa'; font-weight: 600; font-size: 13px; color: var(--aa-navy); }
+.cost-pill.active { background: var(--aa-navy); color: white; border-color: var(--aa-navy); }
+
+.rubric { background: var(--aa-soft); border-radius: 16px; padding: 24px; position: sticky; top: 24px; }
+.rubric h3 { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 14px; letter-spacing: 0.3px; margin-bottom: 4px; }
+.rubric .rubric-sub { font-size: 12px; color: var(--aa-grey); margin-bottom: 16px; line-height: 1.4; }
+.rubric-test { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--aa-line); font-size: 13px; line-height: 1.45; }
+.rubric-test:first-of-type { border-top: 0; padding-top: 4px; }
+.rubric-test .check { width: 18px; height: 18px; border-radius: 50%; flex: 0 0 auto; margin-top: 2px; border: 1.5px solid var(--aa-line); display: grid; place-items: center; font-size: 11px; color: transparent; }
+.rubric-test.pass .check { background: var(--aa-green); border-color: var(--aa-green); color: white; }
+.rubric-test .test-title { font-family: 'AF Sobremesa'; font-weight: 600; }
+.rubric-test .test-body { color: var(--aa-grey); font-size: 12px; margin-top: 2px; }
+
+.builder-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+.btn-primary { background: var(--aa-navy); color: white; border: 0; padding: 14px 28px; border-radius: 999px; font-family: 'AF Sobremesa'; font-weight: 700; font-size: 14px; cursor: pointer; transition: background 0.15s; }
+.btn-primary:hover:not(:disabled) { background: var(--aa-blue); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-ghost { background: transparent; border: 0; color: var(--aa-grey); cursor: pointer; font-family: 'AF Sobremesa'; font-weight: 600; font-size: 14px; padding: 8px 12px; }
+.btn-ghost:hover { color: var(--aa-navy); }
+.btn-ghost:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.preview { background: white; border: 1px solid var(--aa-line); border-radius: 12px; padding: 28px; margin-bottom: 8px; }
+.preview h2 { font-family: 'AF Sobremesa'; font-weight: 800; font-size: 32px; letter-spacing: -1px; margin-bottom: 8px; }
+.preview .one-liner { color: var(--aa-grey); font-size: 16px; margin-bottom: 16px; line-height: 1.5; }
+.preview .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.preview .chip { background: var(--aa-soft); padding: 5px 12px; border-radius: 999px; font-size: 12px; font-family: 'AF Sobremesa'; font-weight: 600; }
+.preview h5 { font-family: 'AF Sobremesa'; font-weight: 600; font-size: 11px; letter-spacing: 1.5px; color: var(--aa-blue); margin: 20px 0 8px; }
+.preview ul { padding-left: 20px; font-size: 14px; line-height: 1.7; }
+.preview p { font-size: 14px; line-height: 1.6; }
+.preview .ladder-list { list-style: none; padding: 0; margin: 0; }
+.preview .ladder-list li { padding: 10px 0; border-top: 1px solid var(--aa-line); display: flex; gap: 14px; align-items: baseline; }
+.preview .ladder-list li:first-child { border-top: 0; }
+.preview .ladder-list .tier-label { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 13px; min-width: 110px; }
+.preview .ladder-list .tier-label.Hard { color: #92400E; }
+.preview .ladder-list .tier-label.Challenging { color: #1E40AF; }
+.preview .ladder-list .tier-label.Impossible { color: #9D174D; }
+
+.success { background: white; border: 1px solid var(--aa-line); border-radius: 16px; padding: 64px 48px; text-align: center; max-width: 560px; margin: 0 auto; }
+.success-mark { width: 64px; height: 64px; border-radius: 50%; background: var(--aa-green); color: white; display: grid; place-items: center; margin: 0 auto 20px; font-size: 32px; }
+.success h2 { font-family: 'AF Sobremesa'; font-weight: 800; font-size: 32px; letter-spacing: -1px; margin-bottom: 12px; }
+.success p { color: var(--aa-grey); font-size: 15px; line-height: 1.5; }
+
+.error-banner { background: #FEE2E2; color: var(--aa-red); padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useMemo } = React;
+
+const STEPS = [
+  { id: 1, eyebrow: 'STEP 1 OF 8', title: 'The pitch',         blurb: 'Name, hook, category, and the right ages.' },
+  { id: 2, eyebrow: 'STEP 2 OF 8', title: 'The experience',    blurb: 'Walk a parent through what happens in the room.' },
+  { id: 3, eyebrow: 'STEP 3 OF 8', title: 'The skill',         blurb: 'One sentence naming the thing the kid is practicing.' },
+  { id: 4, eyebrow: 'STEP 4 OF 8', title: 'The ladder',        blurb: 'Three measurable checkpoints climbing the same skill.' },
+  { id: 5, eyebrow: 'STEP 5 OF 8', title: 'Materials',         blurb: 'What parents bring. What the host supplies.' },
+  { id: 6, eyebrow: 'STEP 6 OF 8', title: 'Cost',              blurb: 'Per attendee.' },
+  { id: 7, eyebrow: 'STEP 7 OF 8', title: 'About you',         blurb: 'So we can credit you and route the review.' },
+  { id: 8, eyebrow: 'STEP 8 OF 8', title: 'Review and submit', blurb: "Here's how it'll appear in the catalog." },
+];
+
+const CATEGORIES = [
+  'Teamwork + Leadership',
+  'Storytelling + Public Speaking',
+  'Entrepreneurship + Financial Literacy',
+  'Relationship Building + Socialization',
+  'Grit + Hard Work',
+];
+
+const AGE_OPTIONS = ['5','6','7','8','9','10','11','12','13','14','15'];
+
+const CANONICAL_SKILLS = [
+  'Critical Thinking',
+  'Pattern Recognition',
+  'Trial and Error',
+  'Fine Motor',
+  'Core Endurance',
+  'Spatial Reasoning',
+  'Memorization',
+  'Public Speaking',
+  'Storytelling',
+  'Active Listening',
+  'Collaboration',
+  'Personal Finance',
+  'Brand Building',
+  'Structural Engineering',
+  'Geometry',
+];
+
+const KILL_WORDS = ['understand','appreciate','learn about','explore','become familiar','exposure to','develop a love'];
+
+function App() {
+  const [step, setStep] = useState(1);
+  const [data, setData] = useState({
+    name: '', oneLiner: '', category: '', ages: '', skills: [''],
+    participation: '',
+    skill: '',
+    hardCheckpoint: '', challengingCheckpoint: '', impossibleCheckpoint: '',
+    parentsBring: [''], facilitatorProvides: [''],
+    cost: '', costJustification: '',
+    submitterName: '', submitterEmail: '', chapter: '',
+  });
+  const [chapters, setChapters] = useState([]);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/workshops').then((r) => r.json()).then((j) => setChapters(j.chapters || [])).catch(() => {});
+  }, []);
+
+  const set = (patch) => setData((d) => ({ ...d, ...patch }));
+  const canContinue = useMemo(() => stepValid(step, data), [step, data]);
+
+  const submit = async () => {
+    setSubmitting(true); setError(null);
+    try {
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          skills: (data.skills || []).filter(Boolean),
+          parentsBring: (data.parentsBring || []).filter(Boolean),
+          facilitatorProvides: (data.facilitatorProvides || []).filter(Boolean),
+        }),
+      });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error || 'Submission failed');
+      setSubmitted(true);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="builder">
+        <Header />
+        <div className="success">
+          <div className="success-mark">✓</div>
+          <h2>{data.name} is in review</h2>
+          <p>We'll be in touch within a few days. Once it's approved, it'll appear in the catalog for every chapter to run.</p>
+          <div style={{marginTop: 28}}>
+            <a href="/" className="btn-primary" style={{textDecoration:'none'}}>Back to the catalog</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="builder">
+      <Header />
+      <div className="builder-hero">
+        <div className="eyebrow">CHAPTER LIBRARY</div>
+        <h1>Submit a <span className="accent">Spark</span>.</h1>
+        <p>You've taught your kid something the rest of us would love to learn. Eight steps to package it for every chapter.</p>
+      </div>
+
+      <div className="progress">
+        {STEPS.map((s) => (
+          <div key={s.id}
+            className={`progress-step ${step === s.id ? 'active' : ''} ${step > s.id ? 'done' : ''}`}
+            onClick={() => { if (s.id <= step) setStep(s.id); }}
+            title={s.title} />
+        ))}
+      </div>
+
+      <div className="layout">
+        <div className="card">
+          <div className="step-eyebrow">{STEPS[step-1].eyebrow}</div>
+          <div className="step-title">{STEPS[step-1].title}</div>
+          <div className="step-blurb">{STEPS[step-1].blurb}</div>
+          {error && <div className="error-banner">{error}</div>}
+          {step === 1 && <StepPitch data={data} set={set} />}
+          {step === 2 && <StepParticipation data={data} set={set} />}
+          {step === 3 && <StepSkill data={data} set={set} />}
+          {step === 4 && <StepLadder data={data} set={set} />}
+          {step === 5 && <StepMaterials data={data} set={set} />}
+          {step === 6 && <StepCost data={data} set={set} />}
+          {step === 7 && <StepSubmitter data={data} set={set} chapters={chapters} />}
+          {step === 8 && <StepReview data={data} />}
+        </div>
+        <Rubric step={step} data={data} />
+      </div>
+
+      <div className="builder-foot">
+        <button className="btn-ghost" onClick={() => setStep(Math.max(1, step - 1))} disabled={step === 1}>← Back</button>
+        {step < 8 ? (
+          <button className="btn-primary" onClick={() => setStep(step + 1)} disabled={!canContinue}>Continue →</button>
+        ) : (
+          <button className="btn-primary" onClick={submit} disabled={!canContinue || submitting}>
+            {submitting ? 'Submitting…' : 'Submit for review'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Header() {
+  return (
+    <div className="builder-header">
+      <div className="brand">
+        <div className="brand-mark">A</div>
+        <div className="brand-text">
+          <div className="l1">Alpha Anywhere</div>
+          <div className="l2">Spark Builder</div>
+        </div>
+      </div>
+      <a href="/" className="back-link">← Back to the catalog</a>
+    </div>
+  );
+}
+
+function StepPitch({ data, set }) {
+  const selected = (data.skills || []).filter(Boolean);
+  const toggleSkill = (s) => {
+    const has = selected.includes(s);
+    set({ skills: has ? selected.filter((x) => x !== s) : [...selected, s] });
+  };
+  return (
+    <>
+      <div className="field">
+        <label>Name</label>
+        <input type="text" value={data.name} onChange={(e) => set({ name: e.target.value })} placeholder="Cube Code" maxLength={60} />
+        <div className="hint">One to four words. Concrete.</div>
+      </div>
+      <div className="field">
+        <label>One-liner</label>
+        <textarea value={data.oneLiner} onChange={(e) => set({ oneLiner: e.target.value })}
+          placeholder="Solve a 3×3 Rubik's cube from any starting position using a memorable seven-step method."
+          maxLength={200} rows={3} />
+        <div className="hint">Lead with the verb. Name the outcome. Keep it under 25 words.</div>
+      </div>
+      <div className="field">
+        <label>Alpha life skills pillar</label>
+        <select value={data.category} onChange={(e) => set({ category: e.target.value })}>
+          <option value="">Choose a pillar</option>
+          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <div className="hint">One of the five Alpha pillars.</div>
+      </div>
+      <div className="field">
+        <label>Ages</label>
+        <div className="hint" style={{marginTop:0, marginBottom:10}}>The age range this Spark plays best for. Pick a youngest and oldest.</div>
+        <div className="age-range">
+          <div className="age-pick">
+            <span className="age-pick-label">Youngest</span>
+            <select value={parseAges(data.ages).min} onChange={(e) => set({ ages: composeAges(e.target.value, parseAges(data.ages).max) })}>
+              <option value="">—</option>
+              {AGE_OPTIONS.map((a) => <option key={a} value={a}>{a}</option>)}
+            </select>
+          </div>
+          <span className="age-dash">to</span>
+          <div className="age-pick">
+            <span className="age-pick-label">Oldest</span>
+            <select value={parseAges(data.ages).max} onChange={(e) => set({ ages: composeAges(parseAges(data.ages).min, e.target.value) })}>
+              <option value="">—</option>
+              {AGE_OPTIONS.map((a) => <option key={a} value={a}>{a}</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div className="field" style={{marginBottom: 0}}>
+        <label>Skills</label>
+        <div className="hint" style={{marginTop:0, marginBottom:12}}>The underlying capabilities this Spark builds. Pick any that apply.</div>
+        <div className="skill-chips">
+          {CANONICAL_SKILLS.map((s) => (
+            <button key={s} type="button" className={`skill-chip ${selected.includes(s) ? 'selected' : ''}`} onClick={() => toggleSkill(s)}>{s}</button>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function StepParticipation({ data, set }) {
+  return (
+    <div className="field">
+      <label>What happens in the room</label>
+      <textarea value={data.participation} onChange={(e) => set({ participation: e.target.value })}
+        placeholder="Walk a parent through what kids see when they arrive, what they try first, where they get stuck, the moment something clicks, and what the room looks like at the end."
+        rows={8} />
+      <div className="hint">Three to six sentences. The lived experience, not the lesson plan.</div>
+    </div>
+  );
+}
+
+function StepSkill({ data, set }) {
+  return (
+    <div className="field">
+      <label>The skill being taught</label>
+      <input type="text" value={data.skill} onChange={(e) => set({ skill: e.target.value })}
+        placeholder="Hold a forearm plank." maxLength={140} />
+      <div className="hint">One sentence. The activity itself, not the threshold — that comes next.</div>
+    </div>
+  );
+}
+
+function StepLadder({ data, set }) {
+  const tiers = [
+    { id: 'Hard',        key: 'hardCheckpoint',        sub: 'Will require persistence from most kids to reach. Not a guaranteed outcome.',                                  placeholder: 'Hold the plank for 3 minutes.' },
+    { id: 'Challenging', key: 'challengingCheckpoint', sub: 'Roughly half of kids will get to this outcome.',                                                                placeholder: 'Hold the plank for 4 minutes.' },
+    { id: 'Impossible',  key: 'impossibleCheckpoint',  sub: 'Less than half will reach this. Appears impossible or highly unlikely without serious commitment and effort.',  placeholder: 'Hold the plank for 5 minutes.' },
+  ];
+  return (
+    <>
+      <div className="hint" style={{marginBottom: 16}}>Three quantitative thresholds along the same skill. Plank: 3/4/5 min. Toothpick balance: two-forks-on-a-toothpick / toothpick-on-toothpick / tip-on-tip.</div>
+      {tiers.map((t) => (
+        <div className="rung" key={t.id}>
+          <div className="rung-header">
+            <div className={`rung-tier ${t.id}`}>{t.id}</div>
+            <div className="rung-sub">{t.sub}</div>
+          </div>
+          <input type="text" value={data[t.key]} onChange={(e) => set({ [t.key]: e.target.value })} placeholder={t.placeholder} maxLength={140} />
+        </div>
+      ))}
+    </>
+  );
+}
+
+function StepMaterials({ data, set }) {
+  const updateList = (key, idx, val) => { const next = [...(data[key] || [])]; next[idx] = val; set({ [key]: next }); };
+  const addItem = (key) => set({ [key]: [...(data[key] || []), ''] });
+  const removeItem = (key, idx) => { const next = [...(data[key] || [])]; next.splice(idx, 1); set({ [key]: next.length ? next : [''] }); };
+  const renderBlock = (key, eyebrow, title, sub, placeholder) => (
+    <div className="material-block">
+      <div className="material-eyebrow">{eyebrow}</div>
+      <h4>{title}</h4>
+      <div className="material-sub">{sub}</div>
+      <div className="list-edit">
+        {(data[key] || ['']).map((item, i) => (
+          <div className="list-row" key={i}>
+            <input type="text" value={item} onChange={(e) => updateList(key, i, e.target.value)} placeholder={placeholder} />
+            <button className="btn-icon" onClick={() => removeItem(key, i)} title="Remove">×</button>
+          </div>
+        ))}
+        <button className="btn-add" onClick={() => addItem(key)}>+ Add item</button>
+      </div>
+    </div>
+  );
+  return (
+    <>
+      {renderBlock(
+        'parentsBring',
+        'LIST 1 — WHAT EACH FAMILY BRINGS',
+        'Parents bring',
+        "Per attending kid or family. Leave empty if there's nothing to bring — the kit will say so.",
+        'A notebook'
+      )}
+      {renderBlock(
+        'facilitatorProvides',
+        'LIST 2 — WHAT THE HOST SUPPLIES FOR THE GROUP',
+        'Host provides',
+        "Bought once and shared by everyone. Five items or fewer keeps the format light.",
+        "Six Rubik's cubes"
+      )}
+    </>
+  );
+}
+
+function StepCost({ data, set }) {
+  const setOption = (opt) => {
+    if (opt === 'Free') set({ cost: 'Free', costJustification: '' });
+    else if (opt === 'Flat') set({ cost: data.cost && data.cost !== 'Free' && !/[-–]/.test(data.cost) ? data.cost : '$5 per attendee' });
+    else set({ cost: '$5–$15 per attendee' });
+  };
+  const isFree = data.cost === 'Free';
+  const isRange = !!data.cost && /[-–]/.test(data.cost);
+  const isFlat = !!data.cost && !isFree && !isRange;
+  const numericMatch = (data.cost || '').match(/\$?(\d+)/);
+  const high = numericMatch ? parseInt(numericMatch[1], 10) : 0;
+  const showJustify = high > 15;
+  return (
+    <>
+      <div className="cost-options">
+        <button className={`cost-pill ${isFree ? 'active' : ''}`} onClick={() => setOption('Free')}>Free</button>
+        <button className={`cost-pill ${isFlat ? 'active' : ''}`} onClick={() => setOption('Flat')}>Flat amount</button>
+        <button className={`cost-pill ${isRange ? 'active' : ''}`} onClick={() => setOption('Range')}>Range</button>
+      </div>
+      {!isFree && (
+        <div className="field">
+          <label>Cost description</label>
+          <input type="text" value={data.cost} onChange={(e) => set({ cost: e.target.value })} placeholder="$5 per attendee" />
+        </div>
+      )}
+      {showJustify && (
+        <div className="field">
+          <label>Why above $15 per kid?</label>
+          <textarea value={data.costJustification} onChange={(e) => set({ costJustification: e.target.value })} rows={3}
+            placeholder="A short note on what the cost covers." />
+        </div>
+      )}
+    </>
+  );
+}
+
+function StepSubmitter({ data, set, chapters }) {
+  return (
+    <>
+      <div className="field-row">
+        <div className="field">
+          <label>Your name</label>
+          <input type="text" value={data.submitterName} onChange={(e) => set({ submitterName: e.target.value })} />
+        </div>
+        <div className="field">
+          <label>Email</label>
+          <input type="email" value={data.submitterEmail} onChange={(e) => set({ submitterEmail: e.target.value })} placeholder="you@example.com" />
+        </div>
+      </div>
+      <div className="field">
+        <label>Chapter</label>
+        {chapters.length ? (
+          <select value={data.chapter} onChange={(e) => set({ chapter: e.target.value })}>
+            <option value="">Choose your chapter</option>
+            {chapters.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        ) : (
+          <input type="text" value={data.chapter} onChange={(e) => set({ chapter: e.target.value })} placeholder="Chapter name" />
+        )}
+      </div>
+    </>
+  );
+}
+
+function StepReview({ data }) {
+  const parents = (data.parentsBring || []).filter(Boolean);
+  const fac = (data.facilitatorProvides || []).filter(Boolean);
+  const tiers = [
+    { id: 'Hard', value: data.hardCheckpoint },
+    { id: 'Challenging', value: data.challengingCheckpoint },
+    { id: 'Impossible', value: data.impossibleCheckpoint },
+  ];
+  return (
+    <div className="preview">
+      <h2>{data.name || 'Untitled'}</h2>
+      <div className="one-liner">{data.oneLiner}</div>
+      <div className="meta">
+        {data.category && <span className="chip">{data.category}</span>}
+        {data.ages && <span className="chip">Ages {data.ages}</span>}
+        <span className="chip">{data.cost || 'Cost TBD'}</span>
+        <span className="chip">Spark</span>
+      </div>
+      {(data.skills || []).filter(Boolean).length ? (
+        <>
+          <h5>SKILLS</h5>
+          <div className="meta">
+            {(data.skills || []).filter(Boolean).map((s, i) => <span key={i} className="chip">{s}</span>)}
+          </div>
+        </>
+      ) : null}
+      <h5>WHAT HAPPENS IN THE ROOM</h5>
+      <p>{data.participation}</p>
+      <h5>THE SKILL</h5>
+      <p>{data.skill}</p>
+      <h5>THE LADDER</h5>
+      <ul className="ladder-list">
+        {tiers.map((t) => (
+          <li key={t.id}>
+            <span className={`tier-label ${t.id}`}>{t.id}</span>
+            <span>{t.value || '—'}</span>
+          </li>
+        ))}
+      </ul>
+      <h5>PARENTS BRING</h5>
+      {parents.length ? <ul>{parents.map((m, i) => <li key={i}>{m}</li>)}</ul> : <p>Nothing to bring.</p>}
+      <h5>HOST PROVIDES</h5>
+      <ul>{fac.map((m, i) => <li key={i}>{m}</li>)}</ul>
+      <h5>SUBMITTED BY</h5>
+      <p>{data.submitterName} · {data.submitterEmail} · {data.chapter}</p>
+    </div>
+  );
+}
+
+function Rubric({ step, data }) {
+  const tests = rubricFor(step, data);
+  if (!tests.length) {
+    return <div className="rubric"><h3>Almost there</h3><div className="rubric-sub">Review and submit when you're ready.</div></div>;
+  }
+  const passing = tests.filter((t) => t.pass).length;
+  return (
+    <div className="rubric">
+      <h3>Self-check · {passing} of {tests.length}</h3>
+      <div className="rubric-sub">These tick on as you write.</div>
+      {tests.map((t, i) => (
+        <div key={i} className={`rubric-test ${t.pass ? 'pass' : ''}`}>
+          <div className="check">✓</div>
+          <div>
+            <div className="test-title">{t.title}</div>
+            <div className="test-body">{t.body}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function rubricFor(step, d) {
+  const wc = (s) => (s || '').trim().split(/\s+/).filter(Boolean).length;
+  const hasMeasurable = (s) => /\d/.test(s || '') || /\bunder\b|\bfor\b|\bover\b|\bin\s+front\s+of\b|\bon demand\b|\bfrom memory\b|\bwithout\b/i.test(s || '');
+  if (step === 1) return [
+    { title: 'Name length', body: 'One to four words.', pass: wc(d.name) >= 1 && wc(d.name) <= 4 },
+    { title: 'Verb-led one-liner', body: 'Starts with what the kid does.', pass: /^[A-Z][a-z]+/.test((d.oneLiner||'').trim()) && !/^(a |the |this |kids |they |our )/i.test((d.oneLiner||'').trim()) },
+    { title: 'One-liner under 25 words', body: 'Reads in one breath.', pass: wc(d.oneLiner) > 0 && wc(d.oneLiner) <= 25 },
+    { title: 'Category and ages', body: 'Both required.', pass: !!d.category && !!d.ages },
+  ];
+  if (step === 2) return [
+    { title: 'Right length', body: 'Three to six sentences.', pass: sentences(d.participation) >= 3 && sentences(d.participation) <= 6 },
+    { title: 'A real scene', body: "Avoids 'engage', 'explore', 'interact'.", pass: !!d.participation && !/\b(engage|explore|interact|experience|enjoy)\b/i.test(d.participation) && wc(d.participation) > 20 },
+  ];
+  if (step === 3) return [
+    { title: 'Watchable', body: 'No vague verbs like understand or appreciate.', pass: !!d.skill && !KILL_WORDS.some((k) => new RegExp('\\b' + k + '\\b', 'i').test(d.skill)) },
+    { title: 'One sentence', body: 'Tight, names the activity.', pass: !!d.skill && d.skill.split(/[.!?]+/).filter((s) => s.trim()).length <= 1 },
+  ];
+  if (step === 4) {
+    const firstNum = (s) => { const m = (s || '').match(/(\d+(?:\.\d+)?)/); return m ? parseFloat(m[1]) : null; };
+    const h = firstNum(d.hardCheckpoint), c = firstNum(d.challengingCheckpoint), i = firstNum(d.impossibleCheckpoint);
+    const escalates = h !== null && c !== null && i !== null && c > h && i > c;
+    return [
+      { title: 'Hard checkpoint', body: 'Persistence required. Not a guaranteed outcome.', pass: !!d.hardCheckpoint && hasMeasurable(d.hardCheckpoint) },
+      { title: 'Challenging checkpoint', body: 'Roughly half of kids reach it.', pass: !!d.challengingCheckpoint && hasMeasurable(d.challengingCheckpoint) },
+      { title: 'Impossible checkpoint', body: 'Less than half reach it without serious effort.', pass: !!d.impossibleCheckpoint && hasMeasurable(d.impossibleCheckpoint) },
+      { title: 'Ladder escalates', body: "Each rung's number is higher than the one below.", pass: escalates },
+    ];
+  }
+  if (step === 5) {
+    const fac = (d.facilitatorProvides || []).filter(Boolean);
+    return [
+      { title: 'Host list has at least one item', body: 'Specific and shoppable.', pass: fac.length >= 1 },
+      { title: 'Five items or fewer', body: 'Keeps the format light.', pass: fac.length <= 5 && fac.length >= 1 },
+    ];
+  }
+  if (step === 6) {
+    const numericMatch = (d.cost || '').match(/\$?(\d+)/);
+    const high = numericMatch ? parseInt(numericMatch[1], 10) : 0;
+    return [
+      { title: 'Cost specified', body: 'Free, a flat amount, or a range.', pass: !!(d.cost || '').trim() },
+      { title: 'Justified above $15', body: 'A short note on what the cost covers.', pass: high <= 15 || (!!d.costJustification && d.costJustification.trim().length > 10) },
+    ];
+  }
+  if (step === 7) return [
+    { title: 'Name and email', body: 'Both required.', pass: !!d.submitterName && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.submitterEmail || '') },
+    { title: 'Chapter', body: 'Choose or enter your chapter.', pass: !!d.chapter },
+  ];
+  return [];
+}
+
+function sentences(s) { return (s || '').split(/[.!?]+/).map((x) => x.trim()).filter(Boolean).length; }
+
+function parseAges(s) {
+  const m = (s || '').match(/^(\d+)\s*[-–]\s*(\d+)$/);
+  return m ? { min: m[1], max: m[2] } : { min: '', max: '' };
+}
+function composeAges(min, max) {
+  if (!min && !max) return '';
+  if (min && max) return `${min}-${max}`;
+  return `${min || max}-${max || min}`;
+}
+
+function stepValid(step, d) {
+  if (step === 8) return true;
+  if (step === 1) return !!d.name && !!d.oneLiner && !!d.category && !!d.ages;
+  if (step === 4) return !!d.hardCheckpoint && !!d.challengingCheckpoint && !!d.impossibleCheckpoint;
+  const tests = rubricFor(step, d);
+  if (!tests.length) return true;
+  return tests[0].pass;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
