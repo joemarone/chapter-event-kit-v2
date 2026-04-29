@@ -50,10 +50,15 @@ html, body { background: var(--aa-white); font-family: 'Be Vietnam Pro', system-
 .builder-hero h1 .accent { color: var(--aa-blue); }
 .builder-hero p { margin-top: 16px; color: var(--aa-grey); font-size: 17px; max-width: 580px; line-height: 1.5; }
 
-.progress { display: flex; gap: 8px; margin-bottom: 32px; }
+.progress { display: flex; gap: 8px; margin-bottom: 12px; }
 .progress-step { flex: 1; height: 4px; background: var(--aa-line); border-radius: 2px; cursor: pointer; transition: background 0.15s; }
 .progress-step.done { background: var(--aa-blue); }
 .progress-step.active { background: var(--aa-navy); }
+
+.draft-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; font-size: 12px; }
+.draft-status { color: var(--aa-grey); font-family: 'AF Sobremesa'; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.draft-discard { background: transparent; border: 0; color: var(--aa-grey); cursor: pointer; font-family: 'AF Sobremesa'; font-weight: 600; font-size: 12px; padding: 4px 8px; }
+.draft-discard:hover { color: var(--aa-red); }
 
 .layout { display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: start; }
 @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
@@ -221,21 +226,47 @@ const CANONICAL_SKILLS = [
 
 const KILL_WORDS = ['understand','appreciate','learn about','explore','become familiar','exposure to','develop a love'];
 
+const DRAFT_KEY = 'aa.spark.draft';
+const EMPTY_DATA = {
+  name: '', oneLiner: '', category: '', ages: '', skills: [''],
+  participation: '',
+  skill: '',
+  hardCheckpoint: '', challengingCheckpoint: '', impossibleCheckpoint: '',
+  parentsBring: [''], facilitatorProvides: [''], noMaterials: false,
+  cost: '', costJustification: '',
+  submitterName: '', submitterEmail: '', chapter: '',
+};
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const j = JSON.parse(raw);
+    if (!j || typeof j !== 'object') return null;
+    return { step: j.step || 1, data: { ...EMPTY_DATA, ...(j.data || {}) } };
+  } catch (e) { return null; }
+}
+function saveDraft(step, data) {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ step, data, savedAt: Date.now() })); } catch (e) {}
+}
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+}
+
 function App() {
-  const [step, setStep] = useState(1);
-  const [data, setData] = useState({
-    name: '', oneLiner: '', category: '', ages: '', skills: [''],
-    participation: '',
-    skill: '',
-    hardCheckpoint: '', challengingCheckpoint: '', impossibleCheckpoint: '',
-    parentsBring: [''], facilitatorProvides: [''], noMaterials: false,
-    cost: '', costJustification: '',
-    submitterName: '', submitterEmail: '', chapter: '',
-  });
+  const draft = useMemo(() => loadDraft(), []);
+  const [step, setStep] = useState(draft ? draft.step : 1);
+  const [data, setData] = useState(draft ? draft.data : EMPTY_DATA);
+  const [draftLoaded, setDraftLoaded] = useState(!!draft);
+  // Persist on every change. Cheap — under a kilobyte of JSON.
+  useEffect(() => { saveDraft(step, data); }, [step, data]);
   const [chapters, setChapters] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  // Honeypot field. Real users never fill this; bots fill every visible
+  // input. Sent with the payload — server silently no-ops if non-empty.
+  const [website, setWebsite] = useState('');
 
   useEffect(() => {
     fetch('/api/workshops').then((r) => r.json()).then((j) => setChapters(j.chapters || [])).catch(() => {});
@@ -255,10 +286,12 @@ function App() {
           skills: (data.skills || []).filter(Boolean),
           parentsBring: data.noMaterials ? [] : (data.parentsBring || []).filter(Boolean),
           facilitatorProvides: data.noMaterials ? [] : (data.facilitatorProvides || []).filter(Boolean),
+          website,
         }),
       });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error || 'Submission failed');
+      clearDraft();
       setSubmitted(true);
     } catch (e) {
       setError(e.message);
@@ -300,6 +333,20 @@ function App() {
             title={s.title} />
         ))}
       </div>
+
+      <div className="draft-row">
+        <span className="draft-status">{draftLoaded ? 'Draft restored' : 'Saving as you type'}</span>
+        <button type="button" className="draft-discard" onClick={() => {
+          if (window.confirm('Discard your draft and start over?')) {
+            clearDraft(); setData(EMPTY_DATA); setStep(1); setDraftLoaded(false);
+          }
+        }}>Discard draft</button>
+      </div>
+
+      {/* Honeypot — hidden from real users, irresistible to bots. */}
+      <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true"
+        value={website} onChange={(e) => setWebsite(e.target.value)}
+        style={{position:'absolute', left:'-9999px', width:1, height:1, opacity:0, pointerEvents:'none'}} />
 
       <div className="layout">
         <div className="card">

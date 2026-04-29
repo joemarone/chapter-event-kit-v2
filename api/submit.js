@@ -33,6 +33,14 @@ module.exports = async (req, res) => {
     }
 
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+
+    // Honeypot — `website` is a hidden field humans never see. If a bot
+    // fills it, we silently 200 without writing or notifying. Real users
+    // submit with `website === ''`.
+    if (body.website && String(body.website).trim().length > 0) {
+      return res.status(200).json({ ok: true });
+    }
+
     const errors = validate(body);
     if (errors.length) {
       return res.status(400).json({ error: 'Validation failed', fields: errors });
@@ -72,11 +80,51 @@ module.exports = async (req, res) => {
       requestBody: { values: [row] },
     });
 
+    // Fire-and-forget reviewer notification — failures here must not
+    // break the user's submit. Skips silently if env vars are unset.
+    const proto = req.headers['x-forwarded-proto'] || 'https';
+    const host = `${proto}://${req.headers.host}`;
+    notifyReviewer({ ...body, host }).catch(() => {});
+
     return res.status(200).json({ ok: true });
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Unknown error' });
   }
 };
+
+async function notifyReviewer(b) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = process.env.NOTIFY_EMAIL;
+  if (!apiKey || !to) return;
+  const from = process.env.NOTIFY_FROM || 'Alpha Anywhere <onboarding@resend.dev>';
+  const subject = `New Spark submitted: ${b.name || 'Untitled'}`;
+  const reviewUrl = `${b.host}/review.html`;
+  const html = [
+    `<div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.5;color:#072256;max-width:560px">`,
+    `<h2 style="margin:0 0 8px">${escapeHtml(b.name || 'Untitled')}</h2>`,
+    `<p style="margin:0 0 16px;color:#8291AA">${escapeHtml(b.oneLiner || '')}</p>`,
+    `<table style="width:100%;border-collapse:collapse;font-size:14px">`,
+    row('Submitter', `${escapeHtml(b.submitterName || '')} &lt;${escapeHtml(b.submitterEmail || '')}&gt;`),
+    row('Chapter',   escapeHtml(b.chapter || '')),
+    row('Pillar',    escapeHtml(b.category || '')),
+    row('Ages',      escapeHtml(b.ages || '')),
+    `</table>`,
+    `<p style="margin:24px 0 0"><a href="${reviewUrl}" style="background:#072256;color:white;padding:12px 22px;border-radius:999px;font-weight:700;text-decoration:none;display:inline-block">Review submission →</a></p>`,
+    `</div>`,
+  ].join('');
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from, to, subject, html }),
+  });
+}
+
+function row(k, v) {
+  return `<tr><td style="padding:4px 12px 4px 0;color:#8291AA;font-weight:600">${k}</td><td style="padding:4px 0">${v}</td></tr>`;
+}
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 
 const CANONICAL_CATEGORIES = [
   'Teamwork + Leadership',

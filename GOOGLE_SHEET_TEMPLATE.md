@@ -16,6 +16,9 @@ The app reads its workshop catalog from a private Google Sheet via a service-acc
 | `GOOGLE_SHEET_TAB` | The catalog tab name to read, e.g. `Workshop-details`. |
 | `GOOGLE_SUBMISSIONS_TAB` | Optional. Tab name where Spark submissions append. Defaults to `Submissions`. |
 | `GOOGLE_REVIEWERS_TAB` | Optional. Tab name with the reviewer allowlist. Defaults to `Reviewers`. |
+| `RESEND_API_KEY` | Optional. If set, `/api/submit` fires a notification email to `NOTIFY_EMAIL` whenever a Spark is submitted. Without this, no email is sent (everything else still works). Get a key from resend.com. |
+| `NOTIFY_EMAIL` | Optional. The reviewer email address that gets pinged on every new submission. |
+| `NOTIFY_FROM` | Optional. The "from" address for notification emails. Defaults to `Alpha Anywhere <onboarding@resend.dev>` — Resend's test sender, which works without a verified domain. Switch to a verified custom domain (`Alpha Anywhere <hello@your-domain.com>`) for production. |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | The full JSON contents of a Google Cloud service-account key. The sheet must be shared with this service account's email as **Editor** (write access is needed for the Submissions tab). |
 
 Set all of these on Production, Preview, and Development environments in Vercel.
