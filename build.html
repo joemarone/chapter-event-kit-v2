@@ -108,6 +108,15 @@ textarea { resize: vertical; min-height: 96px; line-height: 1.5; }
 .age-pick select { width: 96px; }
 .age-dash { color: var(--aa-grey); font-size: 13px; padding-bottom: 14px; }
 
+/* "Nothing needed" toggle for the materials step */
+.nothing-toggle { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border: 1px solid var(--aa-line); border-radius: 12px; cursor: pointer; background: white; margin-bottom: 16px; transition: all 0.15s; user-select: none; }
+.nothing-toggle:hover { border-color: var(--aa-blue); }
+.nothing-toggle.checked { background: var(--aa-soft); border-color: var(--aa-navy); }
+.nothing-toggle .check-box { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--aa-line); display: grid; place-items: center; flex: 0 0 auto; color: transparent; font-size: 14px; font-weight: 800; }
+.nothing-toggle.checked .check-box { background: var(--aa-navy); border-color: var(--aa-navy); color: white; }
+.nothing-toggle .nt-label { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 14px; color: var(--aa-navy); }
+.nothing-toggle .nt-sub { font-size: 12px; color: var(--aa-grey); }
+
 /* Materials — stacked, with explicit "List 1" / "List 2" framing */
 .material-block { background: var(--aa-soft); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
 .material-block .material-eyebrow { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 11px; letter-spacing: 1.5px; color: var(--aa-blue); margin-bottom: 4px; }
@@ -219,7 +228,7 @@ function App() {
     participation: '',
     skill: '',
     hardCheckpoint: '', challengingCheckpoint: '', impossibleCheckpoint: '',
-    parentsBring: [''], facilitatorProvides: [''],
+    parentsBring: [''], facilitatorProvides: [''], noMaterials: false,
     cost: '', costJustification: '',
     submitterName: '', submitterEmail: '', chapter: '',
   });
@@ -244,8 +253,8 @@ function App() {
         body: JSON.stringify({
           ...data,
           skills: (data.skills || []).filter(Boolean),
-          parentsBring: (data.parentsBring || []).filter(Boolean),
-          facilitatorProvides: (data.facilitatorProvides || []).filter(Boolean),
+          parentsBring: data.noMaterials ? [] : (data.parentsBring || []).filter(Boolean),
+          facilitatorProvides: data.noMaterials ? [] : (data.facilitatorProvides || []).filter(Boolean),
         }),
       });
       const j = await res.json();
@@ -468,14 +477,21 @@ function StepMaterials({ data, set }) {
   );
   return (
     <>
-      {renderBlock(
+      <div className={`nothing-toggle ${data.noMaterials ? 'checked' : ''}`} onClick={() => set({ noMaterials: !data.noMaterials })}>
+        <div className="check-box">✓</div>
+        <div>
+          <div className="nt-label">Nothing needed for this Spark</div>
+          <div className="nt-sub">Check this if both lists are empty — no materials at all.</div>
+        </div>
+      </div>
+      {!data.noMaterials && renderBlock(
         'parentsBring',
         'LIST 1 — WHAT EACH FAMILY BRINGS',
         'Parents bring',
         "Per attending kid or family. Leave empty if there's nothing to bring — the kit will say so.",
         'A notebook'
       )}
-      {renderBlock(
+      {!data.noMaterials && renderBlock(
         'facilitatorProvides',
         'LIST 2 — WHAT THE HOST SUPPLIES FOR THE GROUP',
         'Host provides',
@@ -589,10 +605,17 @@ function StepReview({ data }) {
           </li>
         ))}
       </ul>
-      <h5>PARENTS BRING</h5>
-      {parents.length ? <ul>{parents.map((m, i) => <li key={i}>{m}</li>)}</ul> : <p>Nothing to bring.</p>}
-      <h5>HOST PROVIDES</h5>
-      <ul>{fac.map((m, i) => <li key={i}>{m}</li>)}</ul>
+      <h5>MATERIALS</h5>
+      {data.noMaterials ? (
+        <p>Nothing needed.</p>
+      ) : (
+        <>
+          <p style={{fontFamily: 'AF Sobremesa', fontWeight: 600, fontSize: 13, marginTop: 8, marginBottom: 4}}>Parents bring</p>
+          {parents.length ? <ul>{parents.map((m, i) => <li key={i}>{m}</li>)}</ul> : <p style={{color: 'var(--aa-grey)'}}>Nothing to bring.</p>}
+          <p style={{fontFamily: 'AF Sobremesa', fontWeight: 600, fontSize: 13, marginTop: 12, marginBottom: 4}}>Host provides</p>
+          <ul>{fac.map((m, i) => <li key={i}>{m}</li>)}</ul>
+        </>
+      )}
       <h5>SUBMITTED BY</h5>
       <p>{data.submitterName} · {data.submitterEmail} · {data.chapter}</p>
     </div>
@@ -651,6 +674,9 @@ function rubricFor(step, d) {
     ];
   }
   if (step === 5) {
+    if (d.noMaterials) {
+      return [{ title: 'Nothing needed', body: 'No materials required to run this Spark.', pass: true }];
+    }
     const fac = (d.facilitatorProvides || []).filter(Boolean);
     return [
       { title: 'Host list has at least one item', body: 'Specific and shoppable.', pass: fac.length >= 1 },
