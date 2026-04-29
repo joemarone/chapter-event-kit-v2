@@ -28,7 +28,7 @@ const SUBMISSIONS_COLUMNS = [
 const CATALOG_COLUMNS = [
   'id', 'title', 'oneLiner', 'category', 'kind', 'ages', 'duration', 'cost', 'setup', 'popular',
   'skills', 'materials', 'parentsBring', 'facilitatorProvides', 'mastery',
-  'youtubeLandscape', 'facilitatorGuideUrl', 'keepGoingUrl',
+  'youtubeLandscape', 'facilitatorGuideUrl', 'keepGoingUrl', 'designedBy',
 ];
 
 module.exports = async (req, res) => {
@@ -189,6 +189,7 @@ async function appendToCatalog(sheets, sheetId, catalogTab, sub) {
       case 'youtubeLandscape':    return '';
       case 'facilitatorGuideUrl': return ''; // reviewer pastes after generating
       case 'keepGoingUrl':        return '';
+      case 'designedBy':          return sub.chapter || '';
       default:              return '';
     }
   });

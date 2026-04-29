@@ -372,8 +372,25 @@ html, body {
   box-shadow: var(--shadow-sm);
 }
 .format-toggle-btn.is-spark.active {
-  background: var(--aa-yellow);
-  color: var(--aa-navy);
+  background: var(--aa-green);
+  color: #fff;
+}
+
+/* Spark cards take green as their accent color (vs the default blue
+   used for workshops). No labels — color alone differentiates them in
+   the catalog. */
+.workshop-card.is-spark .wc-cat { color: var(--aa-green); }
+.workshop-card.is-spark .wc-pick { background: var(--aa-green); }
+.workshop-card.is-spark .wc-pick:hover { background: #246d05; }
+.workshop-card.is-spark .wc-guide,
+.workshop-card.is-spark .wc-preview {
+  border-color: var(--aa-green);
+  color: var(--aa-green);
+}
+.workshop-card.is-spark .wc-guide:hover,
+.workshop-card.is-spark .wc-preview:hover {
+  background: var(--aa-green);
+  color: #fff;
 }
 
 /* Right-side tag cluster on workshop card — groups Spark chip and
@@ -2480,6 +2497,10 @@ function App() {
   // filter (per the schema audit).
   const [ageFilter, setAgeFilter] = useState('any');
   const [durationFilter, setDurationFilter] = useState('any');
+  // "Designed by" surfaces the chapter that built the entry — useful for
+  // browsing, e.g., everything Puerto Rico has contributed. It's a
+  // discovery axis, not a permission gate; any chapter can run anything.
+  const [designedByFilter, setDesignedByFilter] = useState('any');
   // Tray flags track which deliverables the chair has clicked open at least
   // once. Initially all false (numbered badges, no green check). Clicking
   // a tile flips its flag to true (green check), and the flag stays true
@@ -2588,6 +2609,7 @@ function App() {
       if (category !== 'All' && w.category !== category) return false;
       if (!matchesAge(w, ageFilter)) return false;
       if (durationFilter !== 'any' && String(w.duration) !== durationFilter) return false;
+      if (designedByFilter !== 'any' && String(w.designedBy || '') !== designedByFilter) return false;
       if (!q) return true;
       return (w.title + ' ' + w.oneLiner + ' ' + (w.skills || []).join(' ')).toLowerCase().includes(q);
     });
@@ -2599,14 +2621,23 @@ function App() {
       out.sort((a, b) => ageMin(a.ages) - ageMin(b.ages));
     }
     return out;
-  }, [search, category, format, ageFilter, durationFilter, workshops]);
+  }, [search, category, format, ageFilter, durationFilter, designedByFilter, workshops]);
+  // Unique list of chapters that have shipped at least one entry. Drives
+  // the "Designed by" dropdown — empty list hides the filter entirely.
+  const designers = useMemo(() => {
+    if (!workshops) return [];
+    const set = new Set();
+    workshops.forEach((w) => { if (w.designedBy) set.add(String(w.designedBy).trim()); });
+    return Array.from(set).sort();
+  }, [workshops]);
   // Active-filter count drives the "Clear filters" button's visibility
   // and the bar's "compact mode" — when any filter is set, we render a
   // small reset link inline.
   const activeFilterCount = (category !== 'All' ? 1 : 0)
     + (ageFilter !== 'any' ? 1 : 0)
-    + (durationFilter !== 'any' ? 1 : 0);
-  const clearFilters = () => { setCategory('All'); setAgeFilter('any'); setDurationFilter('any'); };
+    + (durationFilter !== 'any' ? 1 : 0)
+    + (designedByFilter !== 'any' ? 1 : 0);
+  const clearFilters = () => { setCategory('All'); setAgeFilter('any'); setDurationFilter('any'); setDesignedByFilter('any'); };
 
   const selected = (workshops && selectedIdx != null) ? workshops[selectedIdx] : null;
 
@@ -2779,6 +2810,12 @@ function App() {
               <option value="any">Any duration</option>
               {DURATION_OPTIONS.map((d) => <option key={d} value={d}>{d} min</option>)}
             </select>
+            {designers.length > 0 && (
+              <select className={`picker-select ${designedByFilter !== 'any' ? 'has-value' : ''}`} value={designedByFilter} onChange={(e) => setDesignedByFilter(e.target.value)} aria-label="Designed by">
+                <option value="any">Designed by anyone</option>
+                {designers.map((d) => <option key={d} value={d}>Designed by {d}</option>)}
+              </select>
+            )}
             {activeFilterCount > 0 && (
               <button className="picker-clear" onClick={clearFilters} title="Clear all filters">
                 Clear ({activeFilterCount})

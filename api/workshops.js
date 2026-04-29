@@ -139,6 +139,10 @@ module.exports = async (req, res) => {
         // populate this too, but it's most valuable for Sparks where the
         // session is just lighting the fuse.
         keepGoingUrl: cell(row, 'keepGoingUrl'),
+        // Chapter that authored this entry. Populated on Spark approval
+        // from the submission's chapter; left blank for catalog rows that
+        // pre-date the builder. Drives the picker's "Designed by" filter.
+        designedBy: cell(row, 'designedBy'),
       }));
 
     // CDN cache: 60s fresh, 5 min stale-while-revalidate. Sheet edits show
@@ -150,7 +154,7 @@ module.exports = async (req, res) => {
     // Lets us diagnose mismatches like "Popular?" vs "popular" without
     // asking the user to dig in the sheet.
     if (req.query?.debug === '1' || (req.url || '').includes('debug=1')) {
-      const knownFields = ['id','title','oneLiner','category','kind','ages','duration','cost','setup','popular','skills','materials','parentsBring','facilitatorProvides','mastery','youtubeLandscape','facilitatorGuideUrl','keepGoingUrl'];
+      const knownFields = ['id','title','oneLiner','category','kind','ages','duration','cost','setup','popular','skills','materials','parentsBring','facilitatorProvides','mastery','youtubeLandscape','facilitatorGuideUrl','keepGoingUrl','designedBy'];
       const matched = {};
       knownFields.forEach((f) => {
         const i = idx(f);

@@ -25,7 +25,7 @@ Set all of these on Production, Preview, and Development environments in Vercel.
 Row 1 is the header row. Each subsequent row is one workshop. Headers are case-sensitive.
 
 ```
-id | title | oneLiner | category | kind | ages | duration | cost | setup | popular | skills | materials | parentsBring | facilitatorProvides | mastery | youtubeLandscape | facilitatorGuideUrl | keepGoingUrl
+id | title | oneLiner | category | kind | ages | duration | cost | setup | popular | skills | materials | parentsBring | facilitatorProvides | mastery | youtubeLandscape | facilitatorGuideUrl | keepGoingUrl | designedBy
 ```
 
 ### Column reference
@@ -50,6 +50,7 @@ id | title | oneLiner | category | kind | ages | duration | cost | setup | popul
 | `youtubeLandscape` | URL or empty | The unlisted YouTube URL of the landscape (16:9) trailer. Empty during development. This is the only trailer the app uses — it powers the Step 1 preview button and the Stack 1 trailer card on Step 5. (Portrait was dropped to halve trailer-production overhead. The `youtubePortrait` column is no longer read; you can leave or delete it.) |
 | `keepGoingUrl` | URL or empty | Optional. For Sparks especially: a URL where the kid can keep practicing at home (YouTube channel, app, tutorial site). Renders as a "Keep going at home" callout in the event description. Workshops can populate this too. |
 | `facilitatorGuideUrl` | URL or empty | A live document (Google Doc, Notion page, etc.) with detailed prep + run-of-show for the workshop. When set, a "Facilitator Guide" card appears in step 5 of the kit with an "Open Guide" button. When empty, the card doesn't render. |
+| `designedBy` | string or empty | The chapter that authored this entry (e.g. `Puerto Rico`). Populated automatically when a Spark is approved from a parent submission. Surfaces as the "Designed by" filter in the picker — discovery only, *not* a permission gate. Leave blank for entries built by Alpha; the filter hides chapters that have shipped nothing. |
 
 The YouTube embed parser accepts these URL formats:
 
