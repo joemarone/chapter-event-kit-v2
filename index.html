@@ -2295,8 +2295,23 @@ window.generateDescription = function(ctx) {
   // lights the fuse. The bar shifts from "walked out able to do X" to
   // "walked out wanting to keep going" — so the Mastery section is
   // softer, and we add a Keep Going at Home callout when a URL is set.
+  // Parent-facing SPARK anatomy. Mirrors the facilitator-guide anatomy in
+  // structure (4 stages + a "from the audience" line) but tuned to excite
+  // parents and set expectations — no DO/DON'T section, no operational rules,
+  // just the framing of what they're attending and the soft "don't rescue"
+  // guidance. Lives at the top of the description so it's the first thing
+  // parents read after the workshop one-liner when scrolling Circle.
   const sparkIntro = isSpark
-    ? `<p><strong>This is a Spark.</strong> A short, hands-on demo of something that feels impossible — until your child learns the trick. The session lights the fuse; the practice happens at home.</p>`
+    ? `<h3>What's a SPARK?</h3>
+<p>A SPARK is a compact 30-minute challenge designed to feel impossible — until your kid cracks the method. Sparks are short, low-prep, and built around a moment most adults can't pull off. With patience, grit, and the right approach, kids do.</p>
+<p><strong>The anatomy of a SPARK:</strong></p>
+<ol>
+  <li><strong>The Tee-Up.</strong> Your kid sees a challenge that looks impossible. They try. They fail. They keep trying — that's where the learning lives.</li>
+  <li><strong>The Commitment.</strong> Your kid picks a tier — Hard, Challenging, or Impossible — and commits out loud.</li>
+  <li><strong>The Focus.</strong> The 30 minutes belongs to the kids. Their hands, their brain, their breakthroughs.</li>
+  <li><strong>The Follow-Through.</strong> Two weeks of at-home practice, then a chapter Showcase where kids share what they pulled off.</li>
+</ol>
+<p><strong>If you're sitting in:</strong> cheer them on, but don't rescue. Frustration is the teacher — and the breakthrough on the other side is the whole point.</p>`
     : '';
   const masteryHeading = isSpark
     ? 'What your child will leave with'
