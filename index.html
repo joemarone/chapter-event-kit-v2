@@ -1927,74 +1927,6 @@ html, body {
 }
 
 /* ---------- Toast ---------- */
-/* Recording overlay — sits above the video preview modal during the
-   browser-side trailer recording. Card is centered; the user sees
-   progress without being able to interact (the recording must run
-   uninterrupted with the tab focused for html2canvas to capture). */
-.recording-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(7, 34, 86, 0.78);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 9999;
-  display: grid;
-  place-items: center;
-  animation: fadeIn 0.2s var(--ease);
-}
-.recording-card {
-  background: #fff;
-  border-radius: var(--r-lg);
-  padding: 32px 36px;
-  width: min(420px, 90vw);
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  text-align: center;
-}
-.recording-spinner {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 3px solid var(--surface-muted);
-  border-top-color: var(--aa-blue);
-  animation: spin 1s linear infinite;
-}
-.recording-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--aa-navy);
-  letter-spacing: -0.01em;
-}
-.recording-progress {
-  width: 100%;
-  height: 6px;
-  background: var(--surface-muted);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.recording-progress-bar {
-  height: 100%;
-  background: var(--aa-blue);
-  transition: width 0.15s ease;
-}
-.recording-sub {
-  font-size: 13px;
-  color: var(--fg-muted);
-  line-height: 1.4;
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 .toast {
   position: fixed;
   bottom: 24px;
@@ -2532,9 +2464,6 @@ function App() {
   const [previewWorkshop, setPreviewWorkshop] = useState(null); // workshop object | null
   const [tweaksOpen, setTweaksOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  // Recording state for browser-side MP4/WebM rendering of Spark trailers.
-  // Shape: null when idle, or { progress: 0..1, status, message? } during.
-  const [recording, setRecording] = useState(null);
   // Workshops are fetched from /api/workshops (a Vercel function reading our
   // private Google Sheet). We start as `null` (loading) rather than seeding
   // with the bundled fallback — otherwise the picker renders the bundled
@@ -2733,135 +2662,6 @@ function App() {
     showToast('SVG downloaded');
   }
 
-  // Lazy-load html2canvas only when the user actually triggers a recording —
-  // avoids paying the ~150KB cost on initial app load.
-  async function ensureHtml2Canvas() {
-    if (window.html2canvas) return window.html2canvas;
-    await new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      s.onload = resolve;
-      s.onerror = () => reject(new Error('Failed to load html2canvas'));
-      document.head.appendChild(s);
-    });
-    return window.html2canvas;
-  }
-
-  // Record the live Spark trailer animation as a video file. Opens the
-  // full-size preview, captures DOM frames via html2canvas, encodes via
-  // MediaRecorder + canvas.captureStream(), and triggers a download.
-  // Output is .mp4 if the browser supports H.264, otherwise .webm.
-  async function recordSparkTrailer() {
-    if (!ctx) return;
-    if (typeof MediaRecorder === 'undefined') {
-      showToast('Browser doesn\'t support recording');
-      return;
-    }
-    // Pick the best available codec — Safari + recent Chrome support mp4.
-    const candidates = [
-      'video/mp4;codecs=h264',
-      'video/mp4',
-      'video/webm;codecs=vp9',
-      'video/webm;codecs=vp8',
-      'video/webm',
-    ];
-    const mimeType = candidates.find((t) => MediaRecorder.isTypeSupported(t));
-    if (!mimeType) {
-      showToast('No supported video format');
-      return;
-    }
-    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-
-    setRecording({ progress: 0, status: 'preparing' });
-    try {
-      const html2canvas = await ensureHtml2Canvas();
-      // Open the full-size preview so the trailer is rendered at its
-      // native large size — better source quality than the small thumb.
-      setVideoOpen('landscape');
-      // Wait for modal to mount + start animation.
-      await new Promise((r) => setTimeout(r, 400));
-
-      const stage = document.querySelector('.video-modal-stage.landscape .trailer-scene');
-      if (!stage) {
-        setRecording({ progress: 0, status: 'error' });
-        showToast('Could not find the trailer to record');
-        setTimeout(() => setRecording(null), 1500);
-        return;
-      }
-
-      const W = 1920, H = 1080;
-      const canvas = document.createElement('canvas');
-      canvas.width = W; canvas.height = H;
-      const cctx = canvas.getContext('2d');
-      cctx.fillStyle = '#FAFAFA'; cctx.fillRect(0, 0, W, H);
-
-      const stream = canvas.captureStream(15);
-      const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5_000_000 });
-      const chunks = [];
-      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
-
-      const TOTAL_SEC = 30;
-      const startedAt = performance.now();
-      let stopped = false;
-
-      const blob = await new Promise((resolve, reject) => {
-        recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
-        recorder.onerror = (e) => reject(e);
-        recorder.start();
-        setRecording({ progress: 0, status: 'recording' });
-
-        async function captureFrame() {
-          if (stopped) return;
-          const elapsedSec = (performance.now() - startedAt) / 1000;
-          if (elapsedSec >= TOTAL_SEC) {
-            stopped = true;
-            recorder.stop();
-            return;
-          }
-          setRecording({ progress: elapsedSec / TOTAL_SEC, status: 'recording' });
-          try {
-            const captured = await html2canvas(stage, {
-              scale: 1,
-              backgroundColor: '#FAFAFA',
-              logging: false,
-              useCORS: true,
-              allowTaint: false,
-            });
-            cctx.fillStyle = '#FAFAFA'; cctx.fillRect(0, 0, W, H);
-            // Letterbox-fit the captured frame into 1920x1080.
-            const srcW = captured.width, srcH = captured.height;
-            const ratio = Math.min(W / srcW, H / srcH);
-            const dw = srcW * ratio, dh = srcH * ratio;
-            const dx = (W - dw) / 2, dy = (H - dh) / 2;
-            cctx.drawImage(captured, dx, dy, dw, dh);
-          } catch (err) {
-            console.warn('frame capture error', err);
-          }
-          requestAnimationFrame(captureFrame);
-        }
-        captureFrame();
-      });
-
-      setRecording({ progress: 1, status: 'saving' });
-      const slug = slugify(ctx.title);
-      const dl = document.createElement('a');
-      dl.href = URL.createObjectURL(blob);
-      dl.download = `${slug}-spark-trailer.${ext}`;
-      dl.click();
-      setTimeout(() => URL.revokeObjectURL(dl.href), 5000);
-
-      showToast(`Trailer saved (.${ext})`);
-      setTimeout(() => {
-        setRecording(null);
-        setVideoOpen(null);
-      }, 800);
-    } catch (err) {
-      console.error('recording failed', err);
-      setRecording({ progress: 0, status: 'error' });
-      showToast('Recording failed — see console');
-      setTimeout(() => setRecording(null), 2000);
-    }
-  }
 
   const CoverComponent = window.COVERS[coverTemplate] || window.COVERS.editorial;
   const trailerUrls = ctx ? makeTrailerUrls(ctx) : null;
@@ -3154,7 +2954,6 @@ function App() {
                       youtubeUrl={ctx.youtubeLandscape}
                       onOpen={() => setVideoOpen('landscape')}
                       onCopy={(what) => showToast(what)}
-                      onDownload={recordSparkTrailer}
                     />
                   </div>
                 </div>
@@ -3284,28 +3083,6 @@ function App() {
       {videoOpen && <VideoModal ratio={videoOpen} ctx={ctx} onClose={() => setVideoOpen(null)}/>}
       {previewWorkshop && <WorkshopPreviewModal workshop={previewWorkshop} onClose={() => setPreviewWorkshop(null)}/>}
       {tweaksOpen && <TweaksPanel onClose={() => setTweaksOpen(false)}/>}
-      {recording && (
-        <div className="recording-overlay">
-          <div className="recording-card">
-            <div className="recording-spinner"/>
-            <div className="recording-title">
-              {recording.status === 'preparing' && 'Setting up the recording…'}
-              {recording.status === 'recording' && 'Recording your trailer'}
-              {recording.status === 'saving' && 'Saving file…'}
-              {recording.status === 'error' && 'Recording failed'}
-            </div>
-            <div className="recording-progress">
-              <div className="recording-progress-bar" style={{width: `${(recording.progress * 100).toFixed(0)}%`}}/>
-            </div>
-            <div className="recording-sub">
-              {recording.status === 'preparing' && 'Loading the video encoder…'}
-              {recording.status === 'recording' && `${(recording.progress * 30).toFixed(1)}s / 30s · keep this tab focused`}
-              {recording.status === 'saving' && 'Almost done — your download will start automatically.'}
-              {recording.status === 'error' && 'Check the browser console for details.'}
-            </div>
-          </div>
-        </div>
-      )}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
@@ -3607,7 +3384,7 @@ function TrailerScene({ ctx, ratio }) {
   );
 }
 
-function TrailerBlock({ ratio, ctx, url, youtubeUrl, onOpen, onCopy, onDownload }) {
+function TrailerBlock({ ratio, ctx, url, youtubeUrl, onOpen, onCopy }) {
   const isLandscape = ratio === 'landscape';
   const isSpark = ctx?.kind === 'spark';
   // Sparks don't ship with rendered video files — the trailer is the live
@@ -3661,11 +3438,6 @@ function TrailerBlock({ ratio, ctx, url, youtubeUrl, onOpen, onCopy, onDownload 
             <button className="build-btn small" onClick={onOpen}>Preview full size</button>
             {hasShareableLink && (
               <button className="build-btn small outline" onClick={() => { navigator.clipboard.writeText(displayedUrl); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }}>Copy link</button>
-            )}
-            {isSpark && !youtubeUrl && onDownload && (
-              <button className="build-btn small outline" onClick={onDownload} title="Renders the live trailer as a video file in your browser. Takes about 30 seconds.">
-                Download video
-              </button>
             )}
           </div>
         </div>
