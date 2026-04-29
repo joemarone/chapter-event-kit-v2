@@ -2786,7 +2786,7 @@ function App() {
           <div className="format-toggle">
             {[
               { k: 'all', label: 'All' },
-              { k: 'workshop', label: 'Workshops' },
+              { k: 'workshop', label: 'Full workshops' },
               { k: 'spark', label: 'Sparks' },
             ].map(({ k, label }) => (
               <button key={k} className={`format-toggle-btn ${format === k ? 'active' : ''} ${k === 'spark' ? 'is-spark' : ''}`} onClick={() => setFormat(k)}>{label}</button>
