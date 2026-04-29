@@ -503,7 +503,7 @@ html, body {
   gap: 8px;
   z-index: 2;
 }
-.wc-preview, .wc-guide {
+.wc-preview, .wc-guide, .wc-pick {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -526,23 +526,38 @@ html, body {
 }
 .workshop-card:hover .wc-preview,
 .workshop-card:hover .wc-guide,
+.workshop-card:hover .wc-pick,
 .workshop-card.selected .wc-preview,
 .workshop-card.selected .wc-guide,
+.workshop-card.selected .wc-pick,
 .workshop-card:focus-within .wc-preview,
-.workshop-card:focus-within .wc-guide {
+.workshop-card:focus-within .wc-guide,
+.workshop-card:focus-within .wc-pick {
   opacity: 1;
   transform: translateY(0);
 }
-.wc-preview:hover, .wc-guide:hover {
-  background: var(--aa-blue);
+.wc-preview:hover, .wc-guide:hover, .wc-pick:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
-.wc-preview svg, .wc-guide svg { flex-shrink: 0; }
-/* Distinguish the two so they don't blend at a glance — Guide leads with
-   the brand blue, Preview leads with navy. */
+.wc-preview svg, .wc-guide svg, .wc-pick svg { flex-shrink: 0; }
+/* Distinguish the three so they don't blend at a glance — Guide leads with
+   the brand blue, Preview leads with navy, Pick leads with yellow as the
+   primary "this is the one" call-to-action that advances to the next step. */
 .wc-guide { background: var(--aa-blue); }
 .wc-guide:hover { background: var(--aa-navy); }
+.wc-pick {
+  background: var(--aa-yellow);
+  color: var(--aa-navy);
+  font-weight: 700;
+  padding: 7px 14px 7px 14px;
+}
+.wc-pick:hover {
+  background: var(--aa-navy);
+  color: var(--aa-yellow);
+}
+.wc-pick svg { transition: transform var(--dur) var(--ease); }
+.wc-pick:hover svg { transform: translateX(3px); }
 
 .picker-empty {
   grid-column: 1 / -1;
@@ -2775,6 +2790,10 @@ function App() {
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                       Preview
                     </button>
+                    <button className="wc-pick" onClick={(e) => { e.stopPropagation(); setSelectedIdx(realIdx); setStep(2); }} title="Pick this and continue">
+                      Pick this
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </button>
                   </div>
                   <div className="wc-check">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
@@ -3068,7 +3087,7 @@ function App() {
             Back
           </button>
         ) : <span/>}
-        {step < 5 && (
+        {step > 1 && step < 5 && (
           <button className="btn-primary" onClick={() => setStep(step + 1)} disabled={!canProceed()}>
             {step === 4 ? 'Build the kit' : 'Continue'}
             <svg className="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
