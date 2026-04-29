@@ -15,6 +15,7 @@ The app reads its workshop catalog from a private Google Sheet via a service-acc
 | `GOOGLE_SHEET_ID` | The long ID between `/d/` and `/edit` in the sheet's URL. |
 | `GOOGLE_SHEET_TAB` | The catalog tab name to read, e.g. `Workshop-details`. |
 | `GOOGLE_SUBMISSIONS_TAB` | Optional. Tab name where Spark submissions append. Defaults to `Submissions`. |
+| `GOOGLE_REVIEWERS_TAB` | Optional. Tab name with the reviewer allowlist. Defaults to `Reviewers`. |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | The full JSON contents of a Google Cloud service-account key. The sheet must be shared with this service account's email as **Editor** (write access is needed for the Submissions tab). |
 
 Set all of these on Production, Preview, and Development environments in Vercel.
@@ -150,3 +151,45 @@ To turn submissions on for the first time:
 4. Confirm the service account is shared as **Editor** (Viewer will fail with a 403).
 5. Optionally set `GOOGLE_SUBMISSIONS_TAB` if you used a different tab name.
 6. Visit `/build.html`, fill out a test submission, click Submit. A new row should appear in `Submissions` with `status = pending`.
+
+---
+
+# Reviewers tab — approval gate
+
+The Reviewer Console at `/review.html` lets approved reviewers grade pending submissions, leave notes, and approve them into the catalog. Authentication is a tiny lookup against this tab — every action POSTs the email and passphrase, the API checks them on every request. No session, no token, no signup flow. Revoke a reviewer by deleting their row.
+
+## Where things live
+
+- **Tab name:** `Reviewers` by default. Override with `GOOGLE_REVIEWERS_TAB`.
+- **API route:** `/api/review` (POST, action-based) — auth, list, approve, request-changes, reject.
+- **Console UI:** `review.html` — linked from the kit masthead as a small "Reviewer" link.
+
+## Tab structure
+
+Two columns. No header row needed (the API just scans rows).
+
+| Column | Type | Notes |
+|---|---|---|
+| `A` | email | The reviewer's email. Case-insensitive match. |
+| `B` | passphrase | Plain-text shared secret. Pick anything memorable. |
+
+Add rows to grant access; delete rows to revoke. The pilot starts with a single row for `joe.marone@2hourlearning.com`.
+
+## What "Approve" actually does
+
+When a reviewer clicks Approve in the console:
+
+1. The submission's row in `Submissions` flips `status` to `approved` and saves any `reviewerNotes` typed in the side panel.
+2. The submission is mapped into a new row appended to `Workshop-details` (the catalog tab) — meaning the Spark is immediately bookable from the kit. Mapping uses the canonical catalog columns: `id` is a slug of the name; `kind` is `spark`; `duration` is `30`; `setup` is `Easy`; `popular` is `FALSE`; `mastery` becomes a multi-line cell with the three checkpoints (`Hard — …\nChallenging — …\nImpossible — …`); `facilitatorGuideUrl` starts empty.
+3. The console then surfaces a copy-pasteable prompt for the `alpha-chapter-facilitator-guide` skill, so the reviewer can drop into Claude, generate the .docx, upload it to Drive, and paste the resulting URL back into the catalog row's `facilitatorGuideUrl` column.
+
+Other actions:
+- **Request changes** flips `status` to `changes-requested` and saves notes. (No automated email yet — the reviewer pings the submitter manually.)
+- **Reject** flips `status` to `rejected`. Row stays for record.
+
+## Setup checklist
+
+1. Add a new tab named `Reviewers` to the sheet.
+2. Add one row: `joe.marone@2hourlearning.com` in A, any passphrase in B.
+3. Optionally set `GOOGLE_REVIEWERS_TAB` if you used a different tab name.
+4. Click "Reviewer" in the kit masthead, sign in with that email and passphrase.

@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Reviewer Console · Alpha Anywhere</title>
+
+<link rel="preload" href="assets/fonts/AFSobremesa-Regular.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="assets/fonts/AFSobremesa-SemiBold.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="assets/fonts/AFSobremesa-Bold.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="assets/fonts/AFSobremesa-ExtraBold.woff2" as="font" type="font/woff2" crossorigin/>
+
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+<style>
+@font-face { font-family: "AF Sobremesa"; font-weight: 400; font-display: swap; src: url("assets/fonts/AFSobremesa-Regular.woff2") format("woff2"); }
+@font-face { font-family: "AF Sobremesa"; font-weight: 600; font-display: swap; src: url("assets/fonts/AFSobremesa-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: "AF Sobremesa"; font-weight: 700; font-display: swap; src: url("assets/fonts/AFSobremesa-Bold.woff2") format("woff2"); }
+@font-face { font-family: "AF Sobremesa"; font-weight: 800; font-display: swap; src: url("assets/fonts/AFSobremesa-ExtraBold.woff2") format("woff2"); }
+
+:root {
+  --aa-white: #FAFAFA; --aa-media-white: #FFFFFF; --aa-navy: #072256; --aa-blue: #006FF9;
+  --aa-yellow: #E59500; --aa-green: #2C8707; --aa-red: #B82A2A;
+  --aa-grey: #8291AA; --aa-line: #DADFE7; --aa-soft: #F2F4F8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--aa-white); font-family: 'Be Vietnam Pro', system-ui, sans-serif; color: var(--aa-navy); -webkit-font-smoothing: antialiased; }
+
+.shell { max-width: 1200px; margin: 0 auto; padding: 32px 24px 80px; }
+.head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark { width: 40px; height: 40px; border-radius: 50%; background: var(--aa-navy); color: white; font-family: 'AF Sobremesa'; font-weight: 800; display: grid; place-items: center; font-size: 18px; }
+.brand-text .l1 { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 14px; }
+.brand-text .l2 { font-size: 12px; color: var(--aa-grey); }
+.head-right { display: flex; align-items: center; gap: 16px; }
+.head-right a { color: var(--aa-grey); text-decoration: none; font-size: 13px; }
+.head-right a:hover { color: var(--aa-navy); }
+.signed-as { font-size: 12px; color: var(--aa-grey); }
+.signed-as strong { font-family: 'AF Sobremesa'; font-weight: 700; color: var(--aa-navy); }
+
+.hero { margin: 24px 0 40px; }
+.hero .eyebrow { font-family: 'AF Sobremesa'; font-weight: 600; font-size: 11px; letter-spacing: 1.8px; color: var(--aa-blue); margin-bottom: 12px; }
+.hero h1 { font-family: 'AF Sobremesa'; font-weight: 800; font-size: 52px; letter-spacing: -2px; line-height: 1.02; }
+.hero h1 .accent { color: var(--aa-blue); }
+.hero p { margin-top: 14px; color: var(--aa-grey); font-size: 16px; max-width: 580px; line-height: 1.5; }
+
+.card { background: var(--aa-media-white); border: 1px solid var(--aa-line); border-radius: 16px; padding: 32px; }
+label { display: block; font-family: 'AF Sobremesa'; font-weight: 600; font-size: 13px; margin-bottom: 8px; color: var(--aa-navy); }
+.hint { font-size: 12px; color: var(--aa-grey); margin-top: 6px; line-height: 1.4; }
+input[type=text], input[type=email], input[type=password], textarea, select {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--aa-line); border-radius: 10px;
+  font-family: 'Be Vietnam Pro', sans-serif; font-size: 15px; color: var(--aa-navy); background: white;
+  transition: border-color 0.15s;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--aa-blue); }
+textarea { resize: vertical; min-height: 96px; line-height: 1.5; font-family: 'Be Vietnam Pro', sans-serif; }
+.field { margin-bottom: 20px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 600px) { .field-row { grid-template-columns: 1fr; } }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; border: 0; padding: 12px 22px; border-radius: 999px; font-family: 'AF Sobremesa'; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.15s; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: var(--aa-navy); color: white; }
+.btn-primary:hover:not(:disabled) { background: var(--aa-blue); }
+.btn-approve { background: var(--aa-green); color: white; }
+.btn-approve:hover:not(:disabled) { background: #246d05; }
+.btn-changes { background: white; color: var(--aa-navy); border: 1px solid var(--aa-line); }
+.btn-changes:hover:not(:disabled) { border-color: var(--aa-blue); color: var(--aa-blue); }
+.btn-reject { background: white; color: var(--aa-red); border: 1px solid var(--aa-line); }
+.btn-reject:hover:not(:disabled) { border-color: var(--aa-red); }
+.btn-ghost { background: transparent; color: var(--aa-grey); padding: 10px 16px; }
+.btn-ghost:hover { color: var(--aa-navy); }
+
+.error-banner { background: #FEE2E2; color: var(--aa-red); padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
+.success-banner { background: #DCFCE7; color: #166534; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
+
+/* List view */
+.queue-summary { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+.queue-summary .count { font-family: 'AF Sobremesa'; font-weight: 800; font-size: 32px; letter-spacing: -1px; }
+.queue-summary .count-label { font-size: 14px; color: var(--aa-grey); }
+.queue-list { display: flex; flex-direction: column; gap: 12px; }
+.queue-empty { text-align: center; padding: 64px 24px; color: var(--aa-grey); background: white; border-radius: 16px; border: 1px solid var(--aa-line); }
+.queue-row { background: white; border: 1px solid var(--aa-line); border-radius: 12px; padding: 18px 22px; cursor: pointer; transition: all 0.12s; }
+.queue-row:hover { border-color: var(--aa-blue); }
+.queue-row .row-top { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 6px; }
+.queue-row .row-name { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 18px; letter-spacing: -0.3px; }
+.queue-row .row-status { font-family: 'AF Sobremesa'; font-weight: 600; font-size: 11px; letter-spacing: 1px; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; }
+.queue-row .row-status.pending { background: #FEF3C7; color: #92400E; }
+.queue-row .row-status.approved { background: #DCFCE7; color: #166534; }
+.queue-row .row-status.rejected { background: #FEE2E2; color: #991B1B; }
+.queue-row .row-status.changes-requested { background: #DBEAFE; color: #1E40AF; }
+.queue-row .row-meta { font-size: 13px; color: var(--aa-grey); }
+.queue-row .row-meta strong { color: var(--aa-navy); font-weight: 600; }
+
+.filter-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.filter-pill { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--aa-line); background: white; font-family: 'AF Sobremesa'; font-weight: 600; font-size: 12px; color: var(--aa-navy); cursor: pointer; }
+.filter-pill.active { background: var(--aa-navy); color: white; border-color: var(--aa-navy); }
+
+/* Detail view */
+.detail-grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start; }
+@media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
+
+.preview { background: white; border: 1px solid var(--aa-line); border-radius: 16px; padding: 32px; }
+.preview h2 { font-family: 'AF Sobremesa'; font-weight: 800; font-size: 32px; letter-spacing: -1px; margin-bottom: 8px; }
+.preview .one-liner { color: var(--aa-grey); font-size: 16px; margin-bottom: 16px; line-height: 1.5; }
+.preview .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.preview .chip { background: var(--aa-soft); padding: 5px 12px; border-radius: 999px; font-size: 12px; font-family: 'AF Sobremesa'; font-weight: 600; }
+.preview h5 { font-family: 'AF Sobremesa'; font-weight: 600; font-size: 11px; letter-spacing: 1.5px; color: var(--aa-blue); margin: 22px 0 8px; }
+.preview ul { padding-left: 20px; font-size: 14px; line-height: 1.7; }
+.preview p { font-size: 14px; line-height: 1.6; }
+.ladder-list { list-style: none; padding: 0; margin: 0; }
+.ladder-list li { padding: 10px 0; border-top: 1px solid var(--aa-line); display: flex; gap: 14px; align-items: baseline; }
+.ladder-list li:first-child { border-top: 0; }
+.ladder-list .tier-label { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 13px; min-width: 110px; }
+.ladder-list .tier-label.Hard { color: #92400E; }
+.ladder-list .tier-label.Challenging { color: #1E40AF; }
+.ladder-list .tier-label.Impossible { color: #9D174D; }
+
+.actions-card { background: white; border: 1px solid var(--aa-line); border-radius: 16px; padding: 24px; position: sticky; top: 24px; }
+.actions-card h3 { font-family: 'AF Sobremesa'; font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+.actions-card .actions-sub { font-size: 12px; color: var(--aa-grey); margin-bottom: 18px; }
+.action-stack { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.action-stack .btn { width: 100%; justify-content: center; }
+
+/* Facilitator-guide handoff panel */
+.handoff { background: var(--aa-soft); border-radius: 16px; padding: 28px; margin-top: 16px; }
+.handoff h3 { font-family: 'AF Sobremesa'; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; margin-bottom: 6px; }
+.handoff .handoff-sub { color: var(--aa-grey); font-size: 14px; margin-bottom: 16px; line-height: 1.5; }
+.handoff ol { padding-left: 22px; font-size: 14px; line-height: 1.7; margin-bottom: 18px; }
+.handoff ol li { margin-bottom: 4px; }
+.handoff textarea { background: white; font-family: 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 13px; min-height: 200px; }
+.handoff .copy-row { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+.handoff .copied { color: var(--aa-green); font-size: 12px; font-family: 'AF Sobremesa'; font-weight: 600; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useMemo, useCallback } = React;
+
+const STORAGE_KEY = 'aa.reviewer.creds';
+
+function loadCreds() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) { return null; }
+}
+function saveCreds(creds) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(creds)); } catch (e) {}
+}
+function clearCreds() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+}
+
+function App() {
+  const [creds, setCreds] = useState(loadCreds());
+  if (!creds) return <SignIn onSignIn={(c) => { saveCreds(c); setCreds(c); }} />;
+  return <Console creds={creds} onSignOut={() => { clearCreds(); setCreds(null); }} />;
+}
+
+function Header({ creds, onSignOut }) {
+  return (
+    <div className="head">
+      <div className="brand">
+        <div className="brand-mark">A</div>
+        <div className="brand-text">
+          <div className="l1">Alpha Anywhere</div>
+          <div className="l2">Reviewer Console</div>
+        </div>
+      </div>
+      <div className="head-right">
+        <a href="/">← Back to the catalog</a>
+        {creds && <span className="signed-as">Signed in as <strong>{creds.email}</strong> · <a href="#" onClick={(e) => { e.preventDefault(); onSignOut(); }}>Sign out</a></span>}
+      </div>
+    </div>
+  );
+}
+
+function SignIn({ onSignIn }) {
+  const [email, setEmail] = useState('');
+  const [passphrase, setPassphrase] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true); setError(null);
+    try {
+      const res = await fetch('/api/review', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'auth', email, passphrase }),
+      });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error || 'Sign-in failed');
+      onSignIn({ email, passphrase });
+    } catch (e) { setError(e.message); } finally { setBusy(false); }
+  };
+  return (
+    <div className="shell">
+      <Header />
+      <div className="hero">
+        <div className="eyebrow">REVIEWER ACCESS</div>
+        <h1>Sign in to <span className="accent">review</span>.</h1>
+        <p>Enter the email and passphrase from the Reviewers tab in the sheet.</p>
+      </div>
+      <form className="card" style={{maxWidth: 480}} onSubmit={submit}>
+        {error && <div className="error-banner">{error}</div>}
+        <div className="field">
+          <label>Email</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus required />
+        </div>
+        <div className="field">
+          <label>Passphrase</label>
+          <input type="password" value={passphrase} onChange={(e) => setPassphrase(e.target.value)} required />
+        </div>
+        <button className="btn btn-primary" type="submit" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
+      </form>
+    </div>
+  );
+}
+
+function Console({ creds, onSignOut }) {
+  const [submissions, setSubmissions] = useState(null);
+  const [error, setError] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState('pending');
+
+  const refresh = useCallback(async () => {
+    setError(null);
+    try {
+      const res = await fetch('/api/review', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'list', email: creds.email, passphrase: creds.passphrase }),
+      });
+      const j = await res.json();
+      if (!res.ok) {
+        if (res.status === 401) { onSignOut(); return; }
+        throw new Error(j.error || 'Failed to load submissions');
+      }
+      setSubmissions(j.submissions || []);
+    } catch (e) { setError(e.message); }
+  }, [creds, onSignOut]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  if (selected) {
+    return (
+      <Detail
+        submission={selected}
+        creds={creds}
+        onBack={() => { setSelected(null); refresh(); }}
+        onSignOut={onSignOut}
+      />
+    );
+  }
+
+  const filtered = (submissions || []).filter((s) => filter === 'all' || s.status === filter);
+  const pendingCount = (submissions || []).filter((s) => s.status === 'pending').length;
+
+  return (
+    <div className="shell">
+      <Header creds={creds} onSignOut={onSignOut} />
+      <div className="hero">
+        <div className="eyebrow">REVIEWER CONSOLE</div>
+        <h1>{pendingCount} <span className="accent">pending</span>.</h1>
+        <p>Each one's a parent submission. Approve to publish into the catalog and generate a facilitator guide.</p>
+      </div>
+
+      {error && <div className="error-banner">{error}</div>}
+
+      <div className="filter-row">
+        {['pending', 'changes-requested', 'approved', 'rejected', 'all'].map((f) => (
+          <button key={f} className={`filter-pill ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>
+            {f.replace('-', ' ')}
+          </button>
+        ))}
+      </div>
+
+      {submissions == null ? (
+        <div className="queue-empty">Loading…</div>
+      ) : filtered.length === 0 ? (
+        <div className="queue-empty">Nothing here.</div>
+      ) : (
+        <div className="queue-list">
+          {filtered.map((s) => (
+            <div key={s.submittedAt} className="queue-row" onClick={() => setSelected(s)}>
+              <div className="row-top">
+                <div className="row-name">{s.name || 'Untitled'}</div>
+                <span className={`row-status ${s.status}`}>{s.status.replace('-', ' ')}</span>
+              </div>
+              <div className="row-meta">
+                <strong>{s.submitterName}</strong> · {s.chapter} · {s.category} · ages {s.ages} · submitted {formatDate(s.submittedAt)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Detail({ submission: s, creds, onBack, onSignOut }) {
+  const [reviewerNotes, setReviewerNotes] = useState(s.reviewerNotes || '');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  const [done, setDone] = useState(null); // { action, status, promoted }
+
+  const act = async (action) => {
+    setBusy(true); setError(null);
+    try {
+      const res = await fetch('/api/review', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action, email: creds.email, passphrase: creds.passphrase,
+          submittedAt: s.submittedAt, reviewerNotes,
+        }),
+      });
+      const j = await res.json();
+      if (!res.ok) {
+        if (res.status === 401) { onSignOut(); return; }
+        throw new Error(j.error || 'Action failed');
+      }
+      setDone({ action, status: j.status, promoted: j.promoted });
+    } catch (e) { setError(e.message); } finally { setBusy(false); }
+  };
+
+  const skills = (s.skills || []).filter(Boolean);
+  const parents = (s.parentsBring || []).filter(Boolean);
+  const fac = (s.facilitatorProvides || []).filter(Boolean);
+  const noMaterials = parents.length === 0 && fac.length === 0;
+
+  return (
+    <div className="shell">
+      <Header creds={creds} onSignOut={onSignOut} />
+      <div style={{marginBottom: 20}}>
+        <button className="btn btn-ghost" onClick={onBack}>← Back to queue</button>
+      </div>
+
+      {error && <div className="error-banner">{error}</div>}
+      {done && (
+        <div className="success-banner">
+          {done.action === 'approve' && done.promoted && 'Approved and published to the catalog. Generate the facilitator guide below.'}
+          {done.action === 'request-changes' && 'Changes requested. Submitter has been notified — well, will be, once email is wired up.'}
+          {done.action === 'reject' && 'Rejected.'}
+        </div>
+      )}
+
+      <div className="detail-grid">
+        <div>
+          <div className="preview">
+            <h2>{s.name || 'Untitled'}</h2>
+            <div className="one-liner">{s.oneLiner}</div>
+            <div className="meta">
+              {s.category && <span className="chip">{s.category}</span>}
+              {s.ages && <span className="chip">Ages {s.ages}</span>}
+              <span className="chip">{s.cost || 'Cost TBD'}</span>
+              <span className="chip">Spark</span>
+            </div>
+            {skills.length > 0 && <>
+              <h5>SKILLS</h5>
+              <div className="meta">{skills.map((sk, i) => <span key={i} className="chip">{sk}</span>)}</div>
+            </>}
+            <h5>WHAT HAPPENS IN THE ROOM</h5>
+            <p>{s.participation}</p>
+            <h5>THE SKILL</h5>
+            <p>{s.skill}</p>
+            <h5>THE LADDER</h5>
+            <ul className="ladder-list">
+              <li><span className="tier-label Hard">Hard</span><span>{s.hardCheckpoint || '—'}</span></li>
+              <li><span className="tier-label Challenging">Challenging</span><span>{s.challengingCheckpoint || '—'}</span></li>
+              <li><span className="tier-label Impossible">Impossible</span><span>{s.impossibleCheckpoint || '—'}</span></li>
+            </ul>
+            <h5>MATERIALS</h5>
+            {noMaterials ? <p>Nothing needed.</p> : (
+              <>
+                <p style={{fontFamily: 'AF Sobremesa', fontWeight: 600, fontSize: 13, marginTop: 8, marginBottom: 4}}>Parents bring</p>
+                {parents.length ? <ul>{parents.map((m, i) => <li key={i}>{m}</li>)}</ul> : <p style={{color:'var(--aa-grey)'}}>Nothing to bring.</p>}
+                <p style={{fontFamily: 'AF Sobremesa', fontWeight: 600, fontSize: 13, marginTop: 12, marginBottom: 4}}>Host provides</p>
+                {fac.length ? <ul>{fac.map((m, i) => <li key={i}>{m}</li>)}</ul> : <p style={{color:'var(--aa-grey)'}}>—</p>}
+              </>
+            )}
+            {s.cost && s.costJustification && (<>
+              <h5>COST JUSTIFICATION</h5>
+              <p>{s.costJustification}</p>
+            </>)}
+            <h5>SUBMITTED BY</h5>
+            <p>{s.submitterName} · {s.submitterEmail} · {s.chapter} · {formatDate(s.submittedAt)}</p>
+          </div>
+
+          {done && done.action === 'approve' && done.promoted && (
+            <FacilitatorGuideHandoff submission={s} />
+          )}
+        </div>
+
+        <div className="actions-card">
+          <h3>Decision</h3>
+          <div className="actions-sub">Status is currently <strong>{(done && done.status) || s.status}</strong>.</div>
+          <div className="field">
+            <label>Reviewer notes</label>
+            <textarea value={reviewerNotes} onChange={(e) => setReviewerNotes(e.target.value)} rows={5} placeholder="Specifics for the submitter — what to fix, what was great." disabled={!!done}/>
+            <div className="hint">Saved to the sheet on any action below.</div>
+          </div>
+          <div className="action-stack">
+            <button className="btn btn-approve" disabled={busy || !!done} onClick={() => act('approve')}>{busy ? 'Working…' : 'Approve & publish'}</button>
+            <button className="btn btn-changes" disabled={busy || !!done} onClick={() => act('request-changes')}>Request changes</button>
+            <button className="btn btn-reject" disabled={busy || !!done} onClick={() => act('reject')}>Reject</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FacilitatorGuideHandoff({ submission: s }) {
+  const [copied, setCopied] = useState(false);
+  const skills = (s.skills || []).filter(Boolean);
+  const parents = (s.parentsBring || []).filter(Boolean);
+  const fac = (s.facilitatorProvides || []).filter(Boolean);
+
+  const prompt = [
+    `Generate the facilitator guide for this newly approved Spark using the alpha-chapter-facilitator-guide skill. Output the .docx so I can upload to Google Drive.`,
+    ``,
+    `--- Spark data ---`,
+    `Name: ${s.name}`,
+    `One-liner: ${s.oneLiner}`,
+    `Category (Alpha pillar): ${s.category}`,
+    `Ages: ${s.ages}`,
+    `Skills: ${skills.join(', ') || '—'}`,
+    ``,
+    `What happens in the room:`,
+    s.participation || '—',
+    ``,
+    `The skill being taught: ${s.skill}`,
+    ``,
+    `The ladder:`,
+    `  Hard — ${s.hardCheckpoint}`,
+    `  Challenging — ${s.challengingCheckpoint}`,
+    `  Impossible — ${s.impossibleCheckpoint}`,
+    ``,
+    `Materials:`,
+    parents.length ? `  Parents bring:\n${parents.map((m) => '    - ' + m).join('\n')}` : `  Parents bring: nothing`,
+    fac.length ? `  Host provides:\n${fac.map((m) => '    - ' + m).join('\n')}` : `  Host provides: nothing`,
+    ``,
+    `Cost: ${s.cost || 'Free'}${s.costJustification ? ` (${s.costJustification})` : ''}`,
+    ``,
+    `Submitted by: ${s.submitterName} (${s.submitterEmail}) for ${s.chapter}.`,
+  ].join('\n');
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch (e) { /* fall back to manual select */ }
+  };
+
+  return (
+    <div className="handoff">
+      <h3>Now make the facilitator guide.</h3>
+      <div className="handoff-sub">This Spark is in the catalog already. To finish the kit:</div>
+      <ol>
+        <li>Copy the prompt below.</li>
+        <li>Open Claude with the <code>alpha-chapter-facilitator-guide</code> skill installed and paste it.</li>
+        <li>Upload the resulting .docx to Google Drive (open as Google Doc, set sharing).</li>
+        <li>Paste that Google Doc URL into the catalog row's <code>facilitatorGuideUrl</code> column.</li>
+      </ol>
+      <textarea readOnly value={prompt} rows={14} />
+      <div className="copy-row">
+        <button className="btn btn-primary" onClick={copy}>Copy prompt</button>
+        {copied && <span className="copied">✓ Copied to clipboard</span>}
+      </div>
+    </div>
+  );
+}
+
+function formatDate(s) {
+  if (!s) return '';
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return s;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

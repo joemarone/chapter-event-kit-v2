@@ -160,6 +160,14 @@ html, body {
 .masthead-build-link:hover { border-color: var(--aa-blue, #006FF9); color: var(--aa-blue, #006FF9); }
 .masthead-build-link .plus { font-size: 16px; line-height: 1; }
 
+/* Lower-emphasis "Reviewer" link sits to the left of the Submit pill. */
+.masthead-review-link {
+  font-family: var(--font-display); font-weight: 600; font-size: 12px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--fg-muted); text-decoration: none;
+}
+.masthead-review-link:hover { color: var(--aa-navy, #072256); }
+
 /* ---------- Progress ribbon ---------- */
 .progress {
   display: grid;
@@ -2711,9 +2719,12 @@ function App() {
           <img className="masthead-wordmark" src="assets/logos/Primary_Navy_large.png" alt="Alpha Anywhere"/>
           <div className="masthead-sub">Chapter Workshop Builder</div>
         </div>
-        <a className="masthead-build-link" href="build.html">
-          <span className="plus">＋</span> Submit a Spark
-        </a>
+        <div style={{display:'flex', alignItems:'center', gap:16}}>
+          <a className="masthead-review-link" href="review.html">Reviewer</a>
+          <a className="masthead-build-link" href="build.html">
+            <span className="plus">＋</span> Submit a Spark
+          </a>
+        </div>
       </div>
 
       <div className="progress">
