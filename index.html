@@ -467,14 +467,26 @@ html, body {
   color: var(--fg-subtle);
   text-wrap: pretty;
 }
-.wc-meta {
+/* Card foot — meta info on the left, action buttons on the right.
+   Lives in a single flex row with space-between. Wraps on narrow
+   cards so nothing collides with the meta. */
+.wc-foot {
   display: flex;
-  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
   margin-top: auto;
   padding-top: 14px;
   border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.wc-meta {
+  display: flex;
+  gap: 18px;
   font-size: 12px;
   color: var(--fg-muted);
+  flex-shrink: 1;
+  min-width: 0;
 }
 .wc-meta span { display: inline-flex; align-items: center; gap: 4px; }
 .wc-meta strong { color: var(--fg); font-weight: 600; }
@@ -495,22 +507,20 @@ html, body {
 /* Preview + Guide buttons — appear on workshop cards on step 1.
    Preview opens an inline modal of the trailer; Guide opens the
    facilitator's prep document in a new tab (only when a guide URL is set). */
+/* Card actions — three buttons in the foot row. Always visible (no
+   hover-reveal) so the primary action (Pick this) is always
+   discoverable. Two icon-only secondary buttons (Guide, Preview)
+   with brand-blue outlines, one solid-navy primary button. */
 .wc-actions {
-  position: absolute;
-  bottom: 18px;
-  right: 18px;
   display: flex;
   gap: 8px;
-  z-index: 2;
+  align-items: center;
+  flex-shrink: 0;
 }
 .wc-preview, .wc-guide, .wc-pick {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 13px 7px 11px;
-  background: var(--aa-navy);
-  color: var(--aa-white);
-  border: none;
+  justify-content: center;
   border-radius: var(--r-pill);
   font-family: var(--font-display);
   font-size: 11px;
@@ -519,42 +529,41 @@ html, body {
   text-transform: uppercase;
   cursor: pointer;
   text-decoration: none;
-  opacity: 0;
-  transform: translateY(4px);
   transition: all var(--dur) var(--ease);
-  box-shadow: var(--shadow-sm);
-}
-.workshop-card:hover .wc-preview,
-.workshop-card:hover .wc-guide,
-.workshop-card:hover .wc-pick,
-.workshop-card.selected .wc-preview,
-.workshop-card.selected .wc-guide,
-.workshop-card.selected .wc-pick,
-.workshop-card:focus-within .wc-preview,
-.workshop-card:focus-within .wc-guide,
-.workshop-card:focus-within .wc-pick {
-  opacity: 1;
-  transform: translateY(0);
-}
-.wc-preview:hover, .wc-guide:hover, .wc-pick:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
 }
 .wc-preview svg, .wc-guide svg, .wc-pick svg { flex-shrink: 0; }
-/* Distinguish the three so they don't blend at a glance — Guide leads with
-   the brand blue, Preview leads with navy, Pick leads with yellow as the
-   primary "this is the one" call-to-action that advances to the next step. */
-.wc-guide { background: var(--aa-blue); }
-.wc-guide:hover { background: var(--aa-navy); }
+
+/* Guide + Preview — icon-only with brand-blue outline. */
+.wc-guide, .wc-preview {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1.5px solid var(--aa-blue);
+  color: var(--aa-blue);
+  padding: 0;
+}
+.wc-guide:hover, .wc-preview:hover {
+  background: var(--aa-blue);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Pick this — primary action, solid navy. Arrow nudges right on hover. */
 .wc-pick {
-  background: var(--aa-yellow);
-  color: var(--aa-navy);
+  gap: 7px;
+  padding: 0 16px;
+  height: 36px;
+  background: var(--aa-navy);
+  color: #fff;
+  border: 1.5px solid var(--aa-navy);
   font-weight: 700;
-  padding: 7px 14px 7px 14px;
 }
 .wc-pick:hover {
-  background: var(--aa-navy);
-  color: var(--aa-yellow);
+  background: var(--aa-blue);
+  border-color: var(--aa-blue);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 .wc-pick svg { transition: transform var(--dur) var(--ease); }
 .wc-pick:hover svg { transform: translateX(3px); }
@@ -2774,26 +2783,26 @@ function App() {
                   </div>
                   <div className="wc-title">{w.title}</div>
                   <div className="wc-liner">{w.oneLiner}</div>
-                  <div className="wc-meta">
-                    <span>Ages <strong>{w.ages}</strong></span>
-                    <span><strong>{w.duration}</strong> min</span>
-                    <span><strong>{w.skills.length}</strong> tag{w.skills.length > 1 ? 's' : ''}</span>
-                  </div>
-                  <div className="wc-actions">
-                    {w.facilitatorGuideUrl && (
-                      <a className="wc-guide" href={w.facilitatorGuideUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} title="Read the facilitator guide before deciding">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-                        Guide
-                      </a>
-                    )}
-                    <button className="wc-preview" onClick={(e) => { e.stopPropagation(); setPreviewWorkshop(w); }} title="Preview the trailer">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                      Preview
-                    </button>
-                    <button className="wc-pick" onClick={(e) => { e.stopPropagation(); setSelectedIdx(realIdx); setStep(2); }} title="Pick this and continue">
-                      Pick this
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </button>
+                  <div className="wc-foot">
+                    <div className="wc-meta">
+                      <span>Ages <strong>{w.ages}</strong></span>
+                      <span><strong>{w.duration}</strong> min</span>
+                      <span><strong>{w.skills.length}</strong> tag{w.skills.length > 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="wc-actions">
+                      {w.facilitatorGuideUrl && (
+                        <a className="wc-guide" href={w.facilitatorGuideUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} aria-label="Read the facilitator guide" title="Read the facilitator guide">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                        </a>
+                      )}
+                      <button className="wc-preview" onClick={(e) => { e.stopPropagation(); setPreviewWorkshop(w); }} aria-label="Preview the trailer" title="Preview the trailer">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                      </button>
+                      <button className="wc-pick" onClick={(e) => { e.stopPropagation(); setSelectedIdx(realIdx); setStep(2); }} title="Pick this and continue">
+                        Pick this
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                      </button>
+                    </div>
                   </div>
                   <div className="wc-check">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
