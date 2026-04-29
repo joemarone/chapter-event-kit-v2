@@ -399,16 +399,8 @@ html, body {
 }
 .wc-spark svg { color: var(--aa-navy); }
 
-/* Spark cards get a thin yellow left border so they're scannable in
-   a mixed list. Keeps the rest of the card styling identical. */
-.workshop-card.is-spark { border-left: 3px solid var(--aa-yellow); }
-.workshop-card.is-spark.selected { border-left-color: var(--aa-yellow); }
-
-/* Spark accent on the Step 1 headline */
-.title-em-spark {
-  font-style: italic;
-  color: var(--aa-yellow);
-}
+/* (The yellow left border that previously distinguished Spark cards has
+   been removed — the catalog reads as one library now.) */
 
 .picker-grid {
   display: grid;
@@ -2719,7 +2711,7 @@ function App() {
           <img className="masthead-wordmark" src="assets/logos/Primary_Navy_large.png" alt="Alpha Anywhere"/>
           <div className="masthead-sub">Chapter Workshop Builder</div>
         </div>
-        <a className="masthead-build-link" href="build.html" target="_blank" rel="noopener">
+        <a className="masthead-build-link" href="build.html">
           <span className="plus">＋</span> Submit a Spark
         </a>
       </div>
@@ -2745,8 +2737,8 @@ function App() {
         <section className="step" key="s1">
           <div className="step-head">
             <div className="step-eyebrow">Part One</div>
-            <h2 className="step-title">Pick a <em>workshop</em> or <em className="title-em-spark">Spark</em>.</h2>
-            <p className="step-lede">Workshops run 60-90 minutes, parent-led, with everyday materials. Sparks are compact "feels-impossible-but-isn't" demos — one prop, 30 minutes, a "no way" moment, and a way to keep practicing at home.</p>
+            <h2 className="step-title">Let's <em>build</em> a chapter event.</h2>
+            <p className="step-lede">Pick what fits your group. We'll package the cover, description, materials, and run-of-show into a single host kit.</p>
           </div>
 
           <div className="format-toggle">
@@ -2794,7 +2786,6 @@ function App() {
                   <div className="wc-head">
                     <div className="wc-cat">{w.category}</div>
                     <div className="wc-head-tags">
-                      {w.kind === 'spark' && <div className="wc-spark"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5h6L9 22l8.5-11.5h-6L13 2z"/></svg>Spark</div>}
                       {w.popular && <div className="wc-popular">Popular</div>}
                     </div>
                   </div>
