@@ -162,46 +162,64 @@ async function updateSubmissionRow(sheets, sheetId, tabName, rowIndex, patch) {
 }
 
 async function appendToCatalog(sheets, sheetId, catalogTab, sub) {
-  // Map a Submissions row into a Workshop-details (catalog) row.
+  // Build the value-by-name map first, then read the actual header row
+  // from the catalog tab and emit values in *that* order. This way the
+  // append is resilient to column reordering or extra columns being
+  // added by hand — the previous version assumed a fixed positional
+  // order and shifted columns when the sheet's header order differed.
   const ladder = [
     sub.hardCheckpoint && `Hard — ${sub.hardCheckpoint}`,
     sub.challengingCheckpoint && `Challenging — ${sub.challengingCheckpoint}`,
     sub.impossibleCheckpoint && `Impossible — ${sub.impossibleCheckpoint}`,
   ].filter(Boolean).join('\n');
 
-  const catalogRow = CATALOG_COLUMNS.map((col) => {
-    switch (col) {
-      case 'id':            return slugify(sub.name);
-      case 'title':         return sub.name || '';
-      case 'oneLiner':      return sub.oneLiner || '';
-      case 'category':      return sub.category || '';
-      case 'kind':          return 'spark';
-      case 'ages':          return sub.ages || '';
-      case 'duration':      return '30';
-      case 'cost':          return sub.cost || '';
-      case 'setup':         return 'Easy';
-      case 'popular':       return 'FALSE';
-      case 'skills':        return sub.skills || '';
-      case 'materials':     return ''; // legacy combined column, unused
-      case 'parentsBring':  return sub.parentsBring || '';
-      case 'facilitatorProvides': return sub.facilitatorProvides || '';
-      case 'mastery':       return ladder;
-      case 'youtubeLandscape':    return '';
-      case 'facilitatorGuideUrl': return ''; // reviewer pastes after generating
-      case 'keepGoingUrl':        return '';
-      case 'designedBy':          return sub.chapter || '';
-      default:              return '';
-    }
-  });
+  const valueByCol = {
+    id: slugify(sub.name),
+    title: sub.name || '',
+    oneLiner: sub.oneLiner || '',
+    category: sub.category || '',
+    kind: 'spark',
+    ages: sub.ages || '',
+    duration: '30',
+    cost: sub.cost || '',
+    setup: 'Easy',
+    popular: 'FALSE',
+    skills: sub.skills || '',
+    materials: '', // legacy combined column, unused
+    parentsBring: sub.parentsBring || '',
+    facilitatorProvides: sub.facilitatorProvides || '',
+    mastery: ladder,
+    youtubeLandscape: '',
+    facilitatorGuideUrl: '', // reviewer pastes after generating the guide
+    keepGoingUrl: '',
+    designedBy: sub.chapter || '',
+  };
 
-  const lastCol = colLetter(CATALOG_COLUMNS.length);
-  const range = `'${catalogTab.replace(/'/g, "''")}'!A:${lastCol}`;
+  // Read just the header row from the catalog tab.
+  const headerResp = await sheets.spreadsheets.values.get({
+    spreadsheetId: sheetId,
+    range: `'${catalogTab.replace(/'/g, "''")}'!1:1`,
+  });
+  const headers = (headerResp.data.values && headerResp.data.values[0]) || [];
+  if (!headers.length) {
+    throw new Error('Catalog tab is missing a header row');
+  }
+
+  // Match headers leniently — case-insensitive, whitespace-trimmed,
+  // mirroring the read side in api/workshops.js. Unknown headers get an
+  // empty string.
+  const norm = (s) => String(s || '').trim().toLowerCase();
+  const lookup = {};
+  Object.keys(valueByCol).forEach((k) => { lookup[norm(k)] = valueByCol[k]; });
+  const row = headers.map((h) => lookup[norm(h)] != null ? lookup[norm(h)] : '');
+
+  const lastCol = colLetter(headers.length);
   await sheets.spreadsheets.values.append({
     spreadsheetId: sheetId,
-    range,
+    range: `'${catalogTab.replace(/'/g, "''")}'!A:${lastCol}`,
     valueInputOption: 'RAW',
     insertDataOption: 'INSERT_ROWS',
-    requestBody: { values: [catalogRow] },
+    requestBody: { values: [row] },
   });
 }
 
