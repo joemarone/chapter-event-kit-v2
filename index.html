@@ -3405,8 +3405,14 @@ function TrailerScene({ ctx, ratio }) {
 
 function TrailerBlock({ ratio, ctx, url, youtubeUrl, onOpen, onCopy }) {
   const isLandscape = ratio === 'landscape';
+  const isSpark = ctx?.kind === 'spark';
+  // Sparks don't ship with rendered video files — the trailer is the live
+  // in-browser animation. Hiding the dead URL / Copy link button for Sparks
+  // until we either add a YouTube URL or a real downloadable render.
+  const hasShareableLink = !!youtubeUrl || !isSpark;
   // Show + copy the real YouTube URL when one is set; otherwise the
-  // placeholder URL the kit generates so nothing breaks before videos exist.
+  // placeholder URL the kit generates (works for workshops while videos
+  // are being recorded, harmless to expose).
   const displayedUrl = youtubeUrl || url;
   const specs = isLandscape
     ? { dim: '1920 × 1080', ar: '16:9' }
@@ -3428,35 +3434,47 @@ function TrailerBlock({ ratio, ctx, url, youtubeUrl, onOpen, onCopy }) {
           <div className="trailer-kicker">{isLandscape ? 'For desktop + event page' : 'For mobile + social'}</div>
           <div className="trailer-title">
             {isLandscape
-              ? '1 minute. Widescreen. Event-page hero.'
+              ? (isSpark ? 'A 60-second look — preview only.' : '1 minute. Widescreen. Event-page hero.')
               : '1 minute. Vertical. Made for phones.'}
           </div>
           <div className="trailer-purpose">
             {isLandscape
-              ? 'Sits at the top of your Circle event page. Parents scrolling on laptop see it auto-play, get excited, RSVP.'
+              ? (isSpark
+                  ? "Sparks don't ship with rendered video trailers — this preview is for you and your chapter team to feel the SPARK before running it. The Circle post leans on the cover banner and description; no video link to paste."
+                  : 'Sits at the top of your Circle event page. Parents scrolling on laptop see it auto-play, get excited, RSVP.')
               : 'Drop it into the chapter group chat, paste it in a member welcome DM, or share as a story. Optimized for thumbs, not cursors.'}
           </div>
-          <div className="trailer-url">
-            <span className="trailer-url-label">Link</span>
-            <span className="trailer-url-val">{displayedUrl}</span>
-            <button className="trailer-url-copy" onClick={() => { navigator.clipboard.writeText(displayedUrl); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }} title="Copy">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-            </button>
-          </div>
+          {hasShareableLink && (
+            <div className="trailer-url">
+              <span className="trailer-url-label">Link</span>
+              <span className="trailer-url-val">{displayedUrl}</span>
+              <button className="trailer-url-copy" onClick={() => { navigator.clipboard.writeText(displayedUrl); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }} title="Copy">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              </button>
+            </div>
+          )}
           <div className="trailer-actions">
             <button className="build-btn small" onClick={onOpen}>Preview full size</button>
-            <button className="build-btn small outline" onClick={() => { navigator.clipboard.writeText(displayedUrl); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }}>Copy link</button>
+            {hasShareableLink && (
+              <button className="build-btn small outline" onClick={() => { navigator.clipboard.writeText(displayedUrl); onCopy(`${isLandscape ? 'Landscape' : 'Portrait'} link copied`); }}>Copy link</button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* How to use with Circle */}
+      {/* How to use with Circle — Spark version explains why there's no link to paste */}
       <div className="circle-howto">
         <div className="circle-howto-head">
           <span className="circle-dot">C</span>
-          {isLandscape ? 'How to use this on Circle' : 'How to share this on Circle'}
+          {isSpark && !youtubeUrl ? 'How this fits in the Circle post' : (isLandscape ? 'How to use this on Circle' : 'How to share this on Circle')}
         </div>
-        {isLandscape ? (
+        {isSpark && !youtubeUrl ? (
+          <ol>
+            <li>Skip pasting a trailer link — Sparks don't ship with one. Use the <strong>cover banner</strong> from Stack 1 as the event header image instead.</li>
+            <li>Paste the <strong>event description</strong> rich text into Circle's Details box. The SPARK anatomy at the top of the description gives parents the framing they'd otherwise get from a trailer.</li>
+            <li>If you want a graphic to share in chat or social, the cover banner is your best asset — it's high-res, branded, and ready to go.</li>
+          </ol>
+        ) : isLandscape ? (
           <ol>
             <li>Open your chapter's <strong>Circle event</strong> → click <strong>Edit event</strong>.</li>
             <li>In the description, add an <strong>Embed</strong> block and paste the link above. Circle will auto-embed the video.</li>
