@@ -52,6 +52,7 @@
   --aa-light-blue:   #E5F6FD;
   --aa-light-pink:   #FBEBFF;
   --aa-light-yellow: #FFF7E5;
+  --aa-light-pink:   #FCE6F2;
   --aa-light-green:  #EEFDE8;
 
   /* Semantic */
@@ -448,8 +449,8 @@ html, body {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--aa-yellow);
-  background: var(--aa-light-yellow);
+  color: var(--aa-pink);
+  background: var(--aa-light-pink);
   padding: 3px 8px;
   border-radius: var(--r-sm);
 }
@@ -3185,7 +3186,8 @@ function TweaksPanel({ onClose }) {
 
 // ============== TRAILER SCENE ==============
 function TrailerScene({ ctx, ratio }) {
-  const { title, subtitle, skills, ages, duration, groupSize, chapter } = ctx;
+  const { title, subtitle, skills, ages, duration, groupSize, chapter, kind } = ctx;
+  const isSpark = kind === 'spark';
   const titleWords = title.split(' ');
   const splitIdx = Math.ceil(titleWords.length / 2);
   const titleLine1 = titleWords.slice(0, splitIdx).join(' ');
@@ -3194,10 +3196,16 @@ function TrailerScene({ ctx, ratio }) {
   // Illustrated treatment: Crazy Contraptions Club
   const isContraptions = title === 'Crazy Contraptions Club';
 
-  // Build slide list with per-slide weights (longer for Mastery slide)
+  // Build slide list with per-slide weights (longer for Mastery slide).
+  // Sparks get reworded slides — no "by parents" attribution (Sparks are
+  // designed centrally, not chapter-curated), softer mastery framing
+  // (the bar is at-home, not in-room), and a "feels-impossible" CTA.
   const slides = [];
 
   // s1 — Brand intro
+  const brandHeadline = isSpark
+    ? <>A SPARK,<br/><em>for kids.</em></>
+    : <>A workshop, <em>by parents,</em><br/>for kids.</>;
   if (isContraptions) {
     slides.push({ key: 's1', weight: 4, content: (
       <div className="tr-slide-inner illus hero">
@@ -3205,7 +3213,7 @@ function TrailerScene({ ctx, ratio }) {
         <div className="tr-illus-overlay"/>
         <div className="tr-illus-content">
           <div className="tr-illus-step"><span style={{color:'#6FA8FF'}}>Alpha Anywhere · Community Chapters</span></div>
-          <div className="tr-illus-headline">A workshop, <em>by parents,</em><br/>for kids.</div>
+          <div className="tr-illus-headline">{brandHeadline}</div>
           {chapter && <div className="tr-illus-sub" style={{marginTop:'0.4em'}}>{chapter}</div>}
         </div>
       </div>
@@ -3215,7 +3223,7 @@ function TrailerScene({ ctx, ratio }) {
       <div className="tr-slide-inner center">
         <div className="tr-kicker">Alpha Anywhere · Community Chapters</div>
         <div className="tr-rule"/>
-        <div className="tr-sub" style={{fontSize:'1.6em', color:'#072256'}}>A workshop, by parents,<br/>for kids.</div>
+        <div className="tr-sub" style={{fontSize:'1.6em', color:'#072256'}}>{brandHeadline}</div>
         {chapter && <div className="tr-meta">{chapter}</div>}
       </div>
     )});
@@ -3292,15 +3300,23 @@ function TrailerScene({ ctx, ratio }) {
     )});
   }
 
-  // s4d — MASTERY (the cornerstone — gets extra weight)
-  // Pulls from ctx.mastery: the specific things every kid must demonstrate to complete this workshop.
+  // s4d — MASTERY (the cornerstone — gets extra weight). Pulls from
+  // ctx.mastery. For Sparks, the framing shifts: the bar is tiered
+  // (Hard / Challenging / Impossible) and most of the mastery happens
+  // at home over two weeks, so we lead with "the challenge" instead of
+  // "what every kid leaves able to do."
   const masteryList = (ctx.mastery && ctx.mastery.length) ? ctx.mastery : [];
+  const masteryBadge = isSpark ? 'The challenge' : 'Fun + mastery';
+  const masteryHeadline = isSpark
+    ? <>Three tiers. <em>One method.</em></>
+    : <>Every kid leaves <em>able to:</em></>;
+  const masteryFoot = isSpark
+    ? 'Hard. Challenging. Impossible. Your kid picks a tier, commits out loud, and the chapter holds them to it. The 30 minutes is the kindling.'
+    : 'A real win — not just a fun afternoon. Alpha Blueprints work because kids leave proud of something they actually did.';
   slides.push({ key: 's4d', weight: 7, content: (
     <div className="tr-slide-inner mastery">
-      <div className="tr-mastery-badge">Fun + mastery</div>
-      <div className="tr-mastery-headline">
-        Every kid leaves <em>able to:</em>
-      </div>
+      <div className="tr-mastery-badge">{masteryBadge}</div>
+      <div className="tr-mastery-headline">{masteryHeadline}</div>
       <ul className="tr-mastery-list">
         {masteryList.slice(0, 4).map((m, i) => (
           <li key={i} className="tr-mastery-item">
@@ -3309,7 +3325,7 @@ function TrailerScene({ ctx, ratio }) {
           </li>
         ))}
       </ul>
-      <div className="tr-mastery-foot">A real win — not just a fun afternoon. Alpha Blueprints work because kids leave proud of something they actually did.</div>
+      <div className="tr-mastery-foot">{masteryFoot}</div>
     </div>
   )});
 
@@ -3336,12 +3352,14 @@ function TrailerScene({ ctx, ratio }) {
     </div>
   )});
 
-  // s6 — CTA
+  // s6 — CTA. Sparks get a different hook because the value isn't
+  // "make something" — it's the impossibility that gives way to method.
+  const ctaTitle = isSpark
+    ? <>Come crack<br/><em>the impossible.</em></>
+    : <>Come make<br/><em>something real.</em></>;
   slides.push({ key: 's6', weight: 4, content: (
     <div className="tr-slide-inner center">
-      <div className="tr-title" style={{fontSize:'2.6em', textAlign:'center'}}>
-        Come make<br/><em>something real.</em>
-      </div>
+      <div className="tr-title" style={{fontSize:'2.6em', textAlign:'center'}}>{ctaTitle}</div>
       <div className="tr-cta-pill">RSVP on Circle</div>
       {chapter && <div className="tr-meta" style={{marginTop:'1em'}}>{chapter} · {ctx.date ? ctx.date.split(',').slice(0,2).join(',') : 'Coming soon'}</div>}
     </div>
