@@ -2436,7 +2436,7 @@ ${sparkIntro}
 ${masteryLede}
 ${masteryStem}
 <ol>${(mastery || []).map(m => `<li>${m}</li>`).join('')}</ol>
-<h3>Skills practiced</h3>
+<h3>What we'll cover</h3>
 <ul>${skills.map(s => `<li>${s}</li>`).join('')}</ul>
 ${keepGoingBlock}
 <h3>What to bring</h3>
@@ -2503,11 +2503,13 @@ function App() {
   const [format, setFormat] = useState('all');
   // Additional filter axes. 'any' means no filter applied. Age is single-
   // year (we filter to workshops whose ages range includes the target);
-  // duration is exact match in minutes; skill matches if the workshop's
-  // skills array contains it.
+  // duration is exact match in minutes. The "Skill" filter dropdown maps
+  // to the data's `category` field — those are the life-skill pillars
+  // parents recognize as "skills." The granular `w.skills` array is
+  // informational tagging shown on cards/descriptions, not a top-level
+  // filter (per the schema audit).
   const [ageFilter, setAgeFilter] = useState('any');
   const [durationFilter, setDurationFilter] = useState('any');
-  const [skillFilter, setSkillFilter] = useState('any');
   // Tray flags track which deliverables the chair has clicked open at least
   // once. Initially all false (numbered badges, no green check). Clicking
   // a tile flips its flag to true (green check), and the flag stays true
@@ -2598,14 +2600,6 @@ function App() {
   const AGE_OPTIONS = ['5','6','7','8','9','10','11','12','13','14','15'];
   // Duration dropdown — exact-minute match. Sheet values are integers.
   const DURATION_OPTIONS = ['30','45','60','90'];
-  // Skill dropdown — built dynamically from the catalog so we don't lag
-  // the sheet when new skills are added.
-  const allSkills = useMemo(() => {
-    if (!workshops) return [];
-    const set = new Set();
-    workshops.forEach((w) => (w.skills || []).forEach((s) => set.add(s)));
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [workshops]);
   // Helper: does this workshop's ages string include the target year?
   // Handles single ranges ("9-13") and comma-separated ones ("5-7, 7-9").
   const matchesAge = (w, target) => {
@@ -2627,9 +2621,8 @@ function App() {
       if (category !== 'All' && w.category !== category) return false;
       if (!matchesAge(w, ageFilter)) return false;
       if (durationFilter !== 'any' && String(w.duration) !== durationFilter) return false;
-      if (skillFilter !== 'any' && !(w.skills || []).includes(skillFilter)) return false;
       if (!q) return true;
-      return (w.title + ' ' + w.oneLiner + ' ' + w.skills.join(' ')).toLowerCase().includes(q);
+      return (w.title + ' ' + w.oneLiner + ' ' + (w.skills || []).join(' ')).toLowerCase().includes(q);
     });
     // When filtering Sparks, sort by minimum age ascending — the "no way"
     // reaction is the entire product, and it doesn't survive an age
@@ -2639,15 +2632,14 @@ function App() {
       out.sort((a, b) => ageMin(a.ages) - ageMin(b.ages));
     }
     return out;
-  }, [search, category, format, ageFilter, durationFilter, skillFilter, workshops]);
+  }, [search, category, format, ageFilter, durationFilter, workshops]);
   // Active-filter count drives the "Clear filters" button's visibility
   // and the bar's "compact mode" — when any filter is set, we render a
   // small reset link inline.
   const activeFilterCount = (category !== 'All' ? 1 : 0)
     + (ageFilter !== 'any' ? 1 : 0)
-    + (durationFilter !== 'any' ? 1 : 0)
-    + (skillFilter !== 'any' ? 1 : 0);
-  const clearFilters = () => { setCategory('All'); setAgeFilter('any'); setDurationFilter('any'); setSkillFilter('any'); };
+    + (durationFilter !== 'any' ? 1 : 0);
+  const clearFilters = () => { setCategory('All'); setAgeFilter('any'); setDurationFilter('any'); };
 
   const selected = (workshops && selectedIdx != null) ? workshops[selectedIdx] : null;
 
@@ -2929,10 +2921,10 @@ function App() {
           <div className="picker-tools">
             <div className="picker-search">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16" y2="16"/></svg>
-              <input placeholder="Search workshops, Sparks, skills…" value={search} onChange={e => setSearch(e.target.value)}/>
+              <input placeholder="Search workshops, Sparks, tags…" value={search} onChange={e => setSearch(e.target.value)}/>
             </div>
-            <select className={`picker-select ${category !== 'All' ? 'has-value' : ''}`} value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Category">
-              <option value="All">All categories</option>
+            <select className={`picker-select ${category !== 'All' ? 'has-value' : ''}`} value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Skill">
+              <option value="All">All skills</option>
               {CANONICAL_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
             <select className={`picker-select ${ageFilter !== 'any' ? 'has-value' : ''}`} value={ageFilter} onChange={(e) => setAgeFilter(e.target.value)} aria-label="Age">
@@ -2942,10 +2934,6 @@ function App() {
             <select className={`picker-select ${durationFilter !== 'any' ? 'has-value' : ''}`} value={durationFilter} onChange={(e) => setDurationFilter(e.target.value)} aria-label="Duration">
               <option value="any">Any duration</option>
               {DURATION_OPTIONS.map((d) => <option key={d} value={d}>{d} min</option>)}
-            </select>
-            <select className={`picker-select ${skillFilter !== 'any' ? 'has-value' : ''}`} value={skillFilter} onChange={(e) => setSkillFilter(e.target.value)} aria-label="Skill">
-              <option value="any">Any skill</option>
-              {allSkills.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
             {activeFilterCount > 0 && (
               <button className="picker-clear" onClick={clearFilters} title="Clear all filters">
@@ -2974,7 +2962,7 @@ function App() {
                   <div className="wc-meta">
                     <span>Ages <strong>{w.ages}</strong></span>
                     <span><strong>{w.duration}</strong> min</span>
-                    <span><strong>{w.skills.length}</strong> skill{w.skills.length > 1 ? 's' : ''}</span>
+                    <span><strong>{w.skills.length}</strong> tag{w.skills.length > 1 ? 's' : ''}</span>
                   </div>
                   <div className="wc-actions">
                     {w.facilitatorGuideUrl && (
@@ -2994,7 +2982,7 @@ function App() {
                 </div>
               );
             })}
-            {filtered.length === 0 && <div className="picker-empty">Nothing matches. Try a different format, category, or clear the search.</div>}
+            {filtered.length === 0 && <div className="picker-empty">Nothing matches. Try a different format, skill, or clear the search.</div>}
           </div>
           )}
 
